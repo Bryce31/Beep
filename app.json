@@ -23,7 +23,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.ridebeep.App",
-      "buildNumber": "2",
+      "buildNumber": "3",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "The Beep App uses your location to pick origins, destinations, and predict ride times",
         "NSLocationAlwaysUsageDescription": "The Beep App will use your location to provide ETA's to yourself and others"
@@ -31,7 +31,7 @@
     },
     "android": {
       "package": "app.ridebeep.App",
-      "versionCode": 14,
+      "versionCode": 15,
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi": true
     },
