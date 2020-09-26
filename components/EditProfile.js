@@ -77,8 +77,16 @@ export class EditProfileScreen extends Component {
                     this.props.navigation.goBack();
                 }
                 else {
-                    this.setState({ isLoading: false });
                     alert(parseError(data.message));
+                    this.setState({
+                        isLoading: false,
+                        username: this.context.user.username,
+                        first: this.context.user.first,
+                        last: this.context.user.last,
+                        email: this.context.user.email,
+                        phone: this.context.user.phone,
+                        venmo: this.context.user.venmo
+                    });
                 }
             });
         })
