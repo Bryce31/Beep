@@ -39,11 +39,10 @@ export default class App extends Component {
     }
 
     setUser = (user) => {
-        this.setState({user: user});
+        this.setState({ user: user });
     }
 
     enableGetUser = (token) => {
-        console.log("Subscribing to Socket.io for User Updates");
         //Tell our socket to push updates to user
         socket.emit('getUser', token);
     }
@@ -117,17 +116,13 @@ export default class App extends Component {
 
     render () {
         if (!initialScreen) {
-            console.log("[App.js] Rendering Splash Screen");
             return null;
         }
 
-        console.log("[App.js] Rendering App with Intial Screen: ", initialScreen);
-
-        let user = this.state.user;
-        let setUser = this.setUser;
-
-        let theme = this.state.theme;
-        let toggleTheme = this.toggleTheme;
+        const user = this.state.user;
+        const setUser = this.setUser;
+        const theme = this.state.theme;
+        const toggleTheme = this.toggleTheme;
 
         return (
             <UserContext.Provider value={{user, setUser}}>

@@ -16,21 +16,10 @@ export async function getPushToken() {
     }
 
     const pushToken = await Notifications.getExpoPushTokenAsync();
-    const token = pushToken.data;
-    /*
-    if (Platform.OS === 'android') {
-        Notifications.createChannelAndroidAsync('default', {
-            name: 'default',
-            sound: true,
-            priority: 'max',
-            vibrate: [0, 250, 250, 250],
-        });
-    }
-    */
 
     setNotificationHandlers();
 
-    return token;
+    return pushToken.data;
 }
 
 /**
