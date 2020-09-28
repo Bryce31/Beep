@@ -58,12 +58,14 @@ async function getNotificationPermission() {
 function setNotificationHandlers() {
     const enteredBeeperQueueActions = [
         {
+            actionId: "accept",
             identifiter: "accept",
-            buttonTitle: "Accept ✅"
+            buttonTitle: "Accept"
         },
         {
+            actionId: "deny",
             identifiter: "deny",
-            buttonTitle: "Deny 🚫",
+            buttonTitle: "Deny",
             options: {
                 isDestructive: true
             }
@@ -109,10 +111,8 @@ export async function updatePushToken(token) {
 }
 
 async function handleNotification(notification) {
-    console.log("Notification:", notification);
-    console.log(await Notifications.getNotificationCategoriesAsync());
     //Vibrate when we recieve a notification
     Vibration.vibrate();
     //Log the entire notification to the console
-    console.log("[App.js] [Notifications] Notification Recieved: ", notification.data);
+    console.log("Notification:", notification);
 }
