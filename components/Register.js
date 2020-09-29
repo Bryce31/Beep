@@ -10,6 +10,7 @@ import { getPushToken } from "../utils/Notifications";
 import { parseError, handleFetchError, handleStatusCodeError } from "../utils/errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as Linking from 'expo-linking';
+import socket from "../utils/Socket";
  
 export class RegisterScreen extends Component {
     static contextType = UserContext;
@@ -80,6 +81,8 @@ export class RegisterScreen extends Component {
                             { name: 'Main' },
                         ],
                     })
+
+                    socket.emit('getUser', this.context.user.token);
                 }
                 else {
                     this.setState({isLoading: false});
