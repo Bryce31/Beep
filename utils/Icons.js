@@ -93,6 +93,10 @@ const EmailIcon = (props) => (
   <Icon {...props} name='email-outline'/>
 );
 
+const LogIcon = (props) => (
+  <Icon {...props} name='file-text-outline'/>
+);
+
 const AcceptIndicator = () => (
   <View style={styles.indicator}>
     <Spinner status="success" size='small'/>
@@ -137,7 +141,8 @@ export {
     EmailIcon,
     AcceptIndicator,
     DenyIndicator,
-    LoadingIndicator
+    LoadingIndicator,
+    LogIcon
 };
 
 

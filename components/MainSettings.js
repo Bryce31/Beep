@@ -4,7 +4,7 @@ import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../utils/theme-context';
 import { UserContext } from '../utils/UserContext.js';
 import socket from '../utils/Socket';
-import { ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../utils/Icons.js';
+import { LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../utils/Icons.js';
 import { config } from "../utils/config";
 import { handleFetchError, handleStatusCodeError } from "../utils/errors";
 import AsyncStorage from '@react-native-community/async-storage';
@@ -145,6 +145,15 @@ export function MainSettingsScreen({ navigation }) {
                     appearance='ghost'
                 >
                     Change Password
+                </Button>
+                <Button
+                    onPress={() => navigation.navigate("RideLogScreen")}
+                    accessoryLeft={LogIcon}
+                    accessoryRight={ForwardIcon}
+                    style={styles.button}
+                    appearance='ghost'
+                >
+                    Ride Log
                 </Button>
                 <Button
                     onPress={logout}
