@@ -45,7 +45,7 @@ export default class App extends Component {
     handleAppStateChange = nextAppState => {
         if (nextAppState === "active" && !socket.connected && this.state.user) {
             console.log("socket is not connected but we need to keep user socket open! we need to reconnect and re-ask for user status");
-            socket.emit('getuser', this.state.user.token);
+            socket.emit('getUser', this.state.user.token);
         }
     }
     
@@ -76,8 +76,10 @@ export default class App extends Component {
                     updatePushToken(tempUser.token);
                 }
 
-                //also enable user socket updates
-                socket.emit('getuser', tempUser.token);
+                //if user has a token, subscribe them to user updates
+                if (tempUser.token) {
+                    socket.emit('getUser', tempUser.token);
+                }
             }
             else {
                 //This mean no one is logged in, send them to login page initally
@@ -101,6 +103,7 @@ export default class App extends Component {
         });
 
         socket.on('updateUser', data => {
+            console.log(data);
             const updatedUser = getUpdatedUser(this.state.user, data);
             if (updatedUser != null) {
                 AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
