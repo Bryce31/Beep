@@ -104,7 +104,7 @@ export class RegisterScreen extends Component {
             <>
                 <TopNavigation title='Sign Up' alignment='center' accessoryLeft={BackAction}/>
                 <Layout style={{flex: 1}}>
-                <KeyboardAwareScrollView scrollEnabled={false} extraScrollHeight={80}>
+                <KeyboardAwareScrollView scrollEnabled={false} extraScrollHeight={90}>
                 <Layout style={styles.container}>
                     <Layout style={styles.form}>
                         <Input
@@ -126,6 +126,7 @@ export class RegisterScreen extends Component {
                             label="Email"
                             textContentType="emailAddress"
                             placeholder="example@ridebeep.app"
+                            caption="Use your .edu email to be verified as a student"
                             returnKeyType="next"
                             onChangeText={(text) => this.setState({email:text})}
                             ref={(input)=>this.thirdTextInput = input}
@@ -135,6 +136,7 @@ export class RegisterScreen extends Component {
                             textContentType="telephoneNumber"
                             placeholder="7048414949"
                             returnKeyType="next"
+                            style={{marginTop: 5}}
                             onChangeText={(text) => this.setState({phone:text})}
                             ref={(input)=>this.fourthTextInput = input}
                             onSubmitEditing={()=>this.fifthTextInput.focus()} />
