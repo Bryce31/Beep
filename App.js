@@ -42,15 +42,10 @@ export default class App extends Component {
         this.setState({ user: user });
     }
 
-    enableGetUser = (token) => {
-        //Tell our socket to push updates to user
-        socket.emit('getUser', token);
-    }
-
     handleAppStateChange = nextAppState => {
         if (nextAppState === "active" && !socket.connected && this.state.user) {
             console.log("socket is not connected but we need to keep user socket open! we need to reconnect and re-ask for user status");
-            this.enableGetUser(this.state.user.token);
+            socket.emit('getuser', this.state.user.token);
         }
     }
     
@@ -82,7 +77,7 @@ export default class App extends Component {
                 }
 
                 //also enable user socket updates
-                this.enableGetUser(tempUser.token);
+                socket.emit('getuser', tempUser.token);
             }
             else {
                 //This mean no one is logged in, send them to login page initally

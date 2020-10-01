@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { Icon, Layout, Text, Button, Input, CheckBox } from '@ui-kitten/components';
 import * as Location from 'expo-location';
 import socket from '../utils/Socket'
@@ -133,7 +133,11 @@ export class MainFindBeepScreen extends Component {
     }
 
     chooseBeep = (id) => {
-        this.setState({isLoading: true});
+        if(this.state.startLocation == "Loading Location...") {
+            alert("Please let your current location finish loading or manualy enter your pickup location");
+        }
+
+        this.setState({ isLoading: true });
 
         fetch(config.apiUrl + "/rider/choose", {
             method: "POST",
@@ -185,7 +189,7 @@ export class MainFindBeepScreen extends Component {
             return;
         }
 
-        this.setState({isLoading: true});
+        this.setState({ isLoading: true });
 
         fetch(config.apiUrl + "/rider/find", {
             method: "POST",
@@ -219,7 +223,7 @@ export class MainFindBeepScreen extends Component {
 
     useCurrentLocation = async () => {
         //TODO: find amore elegent solution to tell user we are loading location data
-        this.setState({ startLocation: "Loading Current Location..." });
+        this.setState({ startLocation: "Loading Location..." });
        
         //yeah this is probably bad to have here, but i dont care enough to move it
         Location.setGoogleApiKey("AIzaSyBgabJrpu7-ELWiUIKJlpBz2mL6GYjwCVI");
@@ -292,14 +296,23 @@ export class MainFindBeepScreen extends Component {
         socket.emit('stopGetRiderStatus');
     }
 
-    handleVenmo = () => {
+    getVenmoLink = () => {
         if (this.state.groupSize > 1) {
-            Linking.openURL('venmo://paycharge?txn=pay&recipients='+ this.state.beeper.venmo + '&amount=' + this.state.beeper.groupRate + '&note=Beep');
+            return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper.venmo + '&amount=' + this.state.beeper.groupRate + '&note=Beep';
         }
-        else {
-            Linking.openURL('venmo://paycharge?txn=pay&recipients='+ this.state.beeper.venmo + '&amount=' + this.state.beeper.singlesRate + '&note=Beep');
-        }
+        return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper.venmo + '&amount=' + this.state.beeper.singlesRate + '&note=Beep';
     }
+
+    shareVenmoInformation = () => {
+        try {
+            Share.share({
+                message: `Please Venmo ${this.state.beeper.venmo} $${this.state.beeper.groupRate} for the beep!`,
+                url: this.getVenmoLink()
+            });
+        } catch (error) {
+            alert(error.message);
+        }
+    }            
 
     render () {
         console.log("[MainFindBeep.js] Rendered");
@@ -522,7 +535,7 @@ export class MainFindBeepScreen extends Component {
                             status='info'
                             accessoryRight={VenmoIcon}
                             style={styles.buttons}
-                            onPress={this.handleVenmo}
+                            onPress={() => Linking.openURL(this.getVenmoLink())}
                         >
                         Pay Beeper with Venmo
                         </Button> 
@@ -532,9 +545,9 @@ export class MainFindBeepScreen extends Component {
                             status='basic'
                             accessoryRight={ShareIcon}
                             style={styles.buttons}
-                            onPress={() =>{ Linking.openURL('sms:' + this.state.beeper.phone); } }
+                            onPress={this.shareVenmoInformation}
                         >
-                        Share Venmo Info with Your Group
+                        Share Venmo Info with Your Friends
                         </Button>
                         
                         : null}

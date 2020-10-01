@@ -253,7 +253,7 @@ export class StartBeepingScreen extends Component {
     handleDirections = (origin, dest) => {
         const platform = Platform.OS;
         if (platform == 'ios') {
-            Linking.openURL('https://www.google.com/maps/dir/' + origin + '/' + dest + '/');
+            Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
         }
         else {
             Linking.openURL('https://www.google.com/maps/dir/' + origin + '/' + dest + '/');
@@ -383,15 +383,27 @@ export class StartBeepingScreen extends Component {
                                     >
                                     Request Money from Rider with Venmo
                                     </Button>
-                                    <Button
-                                        size="small"
-                                        style={styles.paddingUnder}
-                                        status='success'
-                                        accessoryLeft={MapsIcon}
-                                        onPress={() => this.handleDirections(item.origin, item.destination) }
-                                    >
-                                    Get Directions for Beep
-                                    </Button>
+                                    {item.state <= 1 ?
+                                        <Button
+                                            size="small"
+                                            style={styles.paddingUnder}
+                                            status='success'
+                                            accessoryLeft={MapsIcon}
+                                            onPress={() => this.handleDirections("Current+Location", item.origin) }
+                                        >
+                                        Get Directions to Rider
+                                        </Button>
+                                    :
+                                        <Button
+                                            size="small"
+                                            style={styles.paddingUnder}
+                                            status='success'
+                                            accessoryLeft={MapsIcon}
+                                            onPress={() => this.handleDirections(item.origin, item.destination) }
+                                        >
+                                        Get Directions for Beep
+                                        </Button>
+                                    }
                                     <ActionButton ref={this.actionButtonElement} item={item}/>
                                 </Card>
 
