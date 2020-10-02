@@ -16,7 +16,6 @@ import {
     VenmoIcon,
     MapsIcon,
     DollarIcon,
-    GetIcon
 } from '../utils/Icons.js';
 
 export class StartBeepingScreen extends Component {
@@ -39,38 +38,39 @@ export class StartBeepingScreen extends Component {
         //to make sure our toggle switch is accurate with our database
         fetch(config.apiUrl + '/beeper/status/' + this.context.user.id)
         .then(response => {
-            if (response.status !== 200) {
-                return handleStatusCodeError(response);
-            }
-
             response.json().then(async (responseJson) => {
-                if (this.state.isBeeping !== responseJson.isBeeping) {
-                    this.setState({isBeeping: responseJson.isBeeping});
-                }
+                if (responseJson.status == "success") {
+                    if (this.state.isBeeping !== responseJson.isBeeping) {
+                        this.setState({isBeeping: responseJson.isBeeping});
+                    }
 
-                if(responseJson.isBeeping) {
-                    //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
-                    this.getQueue();
-                    this.enableGetQueue();
+                    if(responseJson.isBeeping) {
+                        //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
+                        this.getQueue();
+                        this.enableGetQueue();
 
-                    //ensure we have location permissions before we start beeping
-                    let { status } = await Location.requestPermissionsAsync();
+                        //ensure we have location permissions before we start beeping
+                        let { status } = await Location.requestPermissionsAsync();
 
-                    if (status !== 'granted') {
-                        //if we have no location access, dont let the user beep
-                        //TODO we only disable beeping client side, should we push false to server also?
-                        this.setState({isBeeping: false});
-                        this.disableGetQueue();
-                        //TODO better error handling
-                        alert("You must allow location to beep!");
+                        if (status !== 'granted') {
+                            //if we have no location access, dont let the user beep
+                            //TODO we only disable beeping client side, should we push false to server also?
+                            this.setState({isBeeping: false});
+                            this.disableGetQueue();
+                            //TODO better error handling
+                            alert("You must allow location to beep!");
+                        }
+                    }
+                    else {
+                        //if the socket was somehow connected, make sure we are not lisiting to socket.io
+                        //beacuse isBeeping is false
+                        if (socket.connected) {
+                            this.disableGetQueue();
+                        }
                     }
                 }
                 else {
-                    //if the socket was somehow connected, make sure we are not lisiting to socket.io
-                    //beacuse isBeeping is false
-                    if (socket.connected) {
-                        this.disableGetQueue();
-                    }
+                    alert(message);
                 }
             })
         })
@@ -142,20 +142,15 @@ export class StartBeepingScreen extends Component {
 
     toggleSwitch = async (value) => {
         //Update the toggle switch's value into a isBeeping state
-        this.setState({isBeeping: value});
+        this.setState({ isBeeping: value });
 
         if (value) {
             //if we are turning on isBeeping, ensure we have location permission
             let { status } = await Location.requestPermissionsAsync();
 
             if (status !== 'granted') {
-                //TODO: should I ensure the db agrees 
-                this.setState({isBeeping: !this.state.isBeeping});
-                //TODO better error handling
-                alert("You must allow location to beep!");
-                //dont continue to process this request to turn on isBeeing,
-                //user did not grant us permission
-                return;
+                this.setState({ isBeeping: false });
+                return alert("You must allow location to beep!");
             }
             //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
             this.enableGetQueue();
@@ -191,7 +186,7 @@ export class StartBeepingScreen extends Component {
                         this.getQueue();
                     }
 
-                    let tempUser = JSON.parse(JSON.stringify(this.context.user));
+                    let tempUser = this.context.user;
                     tempUser.isBeeping = value;
                     AsyncStorage.setItem('@user', JSON.stringify(tempUser));
                     this.context.setUser(tempUser);
@@ -231,24 +226,30 @@ export class StartBeepingScreen extends Component {
     updateSingles = (value) => {
         this.setState({singlesRate: value});
 
-        let tempUser = JSON.parse(JSON.stringify(this.context.user));
+        let tempUser = this.context.user;
+
         tempUser.singlesRate = value;
+
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
     updateGroup = (value) => {
         this.setState({groupRate: value});
 
-        let tempUser = JSON.parse(JSON.stringify(this.context.user));
+        let tempUser = this.context.user;
+
         tempUser.groupRate = value;
+
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
     updateCapacity = (value) => {
         this.setState({capacity: value});
 
-        let tempUser = JSON.parse(JSON.stringify(this.context.user));
+        let tempUser = this.context.user;
+
         tempUser.capacity = value;
+
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
@@ -315,8 +316,9 @@ export class StartBeepingScreen extends Component {
                     <CheckBox
                         checked={this.state.masksRequired}
                         onChange={(value) => this.setState({ masksRequired: value })}
+                        style={{marginTop: 15}}
                     >
-                        Masks are required
+                        Require riders to have a mask
                     </CheckBox>
                 </Layout>
                 </TouchableWithoutFeedback>
