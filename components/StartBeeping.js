@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import * as Location from 'expo-location';
 import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Card, Layout, Text, Button, Input, Toggle, List } from '@ui-kitten/components';
+import { Card, Layout, Text, Button, Input, Toggle, List, CheckBox } from '@ui-kitten/components';
 import socket from '../utils/Socket';
 import { UserContext } from '../utils/UserContext.js';
 import { config } from "../utils/config";
@@ -26,6 +26,7 @@ export class StartBeepingScreen extends Component {
         super(props);
         this.state = {
             isBeeping: context.user.isBeeping,
+            masksRequired: context.user.masksRequired,
             capacity: String(context.user.capacity),
             singlesRate: String(context.user.singlesRate),
             groupRate: String(context.user.groupRate),
@@ -174,7 +175,8 @@ export class StartBeepingScreen extends Component {
                 "isBeeping": value,
                 "singlesRate": this.state.singlesRate,
                 "groupRate": this.state.groupRate,
-                "capacity": this.state.capacity
+                "capacity": this.state.capacity,
+                "masksRequired": this.state.masksRequired
             })
         })
         .then(response => {
@@ -311,6 +313,12 @@ export class StartBeepingScreen extends Component {
                         accessoryLeft={DollarIcon}
                         onChangeText={(value) => this.updateGroup(value)}
                     />
+                    <CheckBox
+                        checked={this.state.masksRequired}
+                        onChange={(value) => this.setState({ masksRequired: value })}
+                    >
+                        Masks are required
+                    </CheckBox>
                 </Layout>
                 </TouchableWithoutFeedback>
             );
@@ -337,7 +345,7 @@ export class StartBeepingScreen extends Component {
                                     <Layout style={styles.row}>
                                         <Text category='h6'>Rider</Text>
                                         <Text style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
-                                        {item.personalInfo.isStudent && <Button size="tiny" accessoryRight={GetIcon} appearance="ghost">Student</Button>}
+                                        {item.personalInfo.isStudent && <Text>🎓</Text>}
                                     </Layout>
                                     <Layout style={styles.row}>
                                         <Text category='h6'>Group Size</Text>
@@ -413,7 +421,7 @@ export class StartBeepingScreen extends Component {
                                     <Layout style={styles.row}>
                                         <Text category='h6'>Rider</Text>
                                         <Text style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
-                                        {item.personalInfo.isStudent && <Button size="tiny" accessoryRight={GetIcon} appearance="ghost">Student</Button>}
+                                        {item.personalInfo.isStudent && <Text>🎓</Text>}
                                     </Layout>
                                     <Layout style={styles.row}>
                                         <Text category='h6'>Entered Queue</Text>

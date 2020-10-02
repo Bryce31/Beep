@@ -25,36 +25,25 @@ export function MainSettingsScreen({ navigation }) {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return handleStatusCodeError(response);
-            }
-
             response.json().then(data => {
-                if (data.status == "success" || (data.status === "error" && data.message === "Your auth token is not valid.")) {
-                    //Logout was successfull
-                    console.log("[Settings.js] [Logout] We have internet connection.");
-                    //Using AsyncStorage, remove keys on logout.
-                    //IMPORTANT: we do NOT remove the expo push token beause we need that for any other user that may login
-                    //We can't remove it because it is only set on App.js when we initialize notifications, we may not re-run that code
-                    AsyncStorage.multiRemove(['@user', '@tokenid'], (err) => {
-                        if (err) { 
-                            console.error(err);
-                        }
-                        console.log("[Settings.js] [Logout] Removed all from storage except our push token.");
-                    });
-                    //these two emits tell our socket server that we no longer want the rethinkdb watcher open
-                    socket.emit('stopGetQueue');
-                    socket.emit('stopGetRiderStatus');
-                    socket.emit('stopGetUser');
-                    //this tells our client to stop listening to updates
-                    socket.off('updateRiderStatus');
-                    socket.off('updateQueue');
-                }
-                else {
-                    //Our API returned an error, we didn't logout.
-                    //Use Native Alert to tell user they were not logged out
-                    alert("Could not logout!");
-                }
+                //Logout was successfull
+                console.log("[Settings.js] [Logout] We have internet connection.");
+                //Using AsyncStorage, remove keys on logout.
+                //IMPORTANT: we do NOT remove the expo push token beause we need that for any other user that may login
+                //We can't remove it because it is only set on App.js when we initialize notifications, we may not re-run that code
+                AsyncStorage.multiRemove(['@user', '@tokenid'], (err) => {
+                    if (err) { 
+                        console.error(err);
+                    }
+                    console.log("[Settings.js] [Logout] Removed all from storage except our push token.");
+                });
+                //these two emits tell our socket server that we no longer want the rethinkdb watcher open
+                socket.emit('stopGetQueue');
+                socket.emit('stopGetRiderStatus');
+                socket.emit('stopGetUser');
+                //this tells our client to stop listening to updates
+                socket.off('updateRiderStatus');
+                socket.off('updateQueue');
             });
         })
         .catch((error) => {

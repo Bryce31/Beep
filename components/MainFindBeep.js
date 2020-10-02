@@ -76,11 +76,16 @@ export class MainFindBeepScreen extends Component {
             }
         })
         .then(response => {
+            console.log("Authorization", "Bearer " + this.context.user.token);
             if (response.status !== 200) {
+                //we need to hide splash, example 401 error
+                //TODO: make this better
+                this.doneSplash();
                 return this.setState({ isLoading: handleStatusCodeError(response) });
             }
 
             response.json().then(data => {
+                console.log(data);
                 if (data.status === "success") {
                     if (data.state !== this.state.state) {
                         //TODO work this in with notifications
@@ -342,7 +347,12 @@ export class MainFindBeepScreen extends Component {
                         </Layout>
                         { this.state.beeper.isStudent &&
                         <Layout style={styles.group}>
-                            <Button accessoryLeft={GetIcon} appearance="ghost" size="small">{this.state.beeper.first} is a student! </Button>
+                            <Text>{this.state.beeper.first} is a student 🎓</Text>
+                        </Layout>
+                        }
+                        {this.state.beeper.masksRequired &&
+                        <Layout style={styles.group}>
+                            <Text>{this.state.beeper.first} requires a mask 😷</Text>
                         </Layout>
                         }
                         <Layout style={styles.group}>
@@ -462,6 +472,16 @@ export class MainFindBeepScreen extends Component {
                             <Text category='h6'>{this.state.beeper.first} {this.state.beeper.last}</Text>
                             <Text appearance='hint'>is your beeper!</Text>
                         </Layout>
+                        {this.state.beeper.isStudent &&
+                        <Layout style={styles.group}>
+                            <Text>{this.state.beeper.first} is a student 🎓</Text>
+                        </Layout>
+                        }
+                        {this.state.beeper.masksRequired &&
+                        <Layout style={styles.group}>
+                            <Text>{this.state.beeper.first} requires a mask 😷</Text>
+                        </Layout>
+                        }
 
                         {(this.state.ridersQueuePosition == 0) ?
                             <Layout style={styles.group}>
@@ -564,9 +584,14 @@ export class MainFindBeepScreen extends Component {
                         <Text appearance='hint'>to accept your request.</Text>
                         </Layout>
 
-                        { this.state.beeper.isStudent &&
+                        {this.state.beeper.isStudent &&
                         <Layout style={styles.group}>
-                            <Button accessoryLeft={GetIcon} appearance="ghost" size="small">{this.state.beeper.first} is a student! </Button>
+                            <Text>{this.state.beeper.first} is a student 🎓</Text>
+                        </Layout>
+                        }
+                        {this.state.beeper.masksRequired &&
+                        <Layout style={styles.group}>
+                            <Text>{this.state.beeper.first} requires a mask 😷</Text>
                         </Layout>
                         }
 

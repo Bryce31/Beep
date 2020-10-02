@@ -46,6 +46,14 @@ export class PickBeepScreen extends Component {
         navigation.goBack();
     }
 
+    getDescription(item) {
+        let output = `${item.queueSize} in ${item.first}'s queue\nRider Capacity: ${item.capacity}\nSingles: $${item.singlesRate}\nGroups: $${item.groupRate}`;
+        if (item.masksRequired) {
+            output += "\nMasks required 😷";
+        }
+        return output;
+    }
+
     render() {
         const BackAction = () => (
             <TopNavigationAction icon={BackIcon} onPress={() => this.props.navigation.goBack()}/>
@@ -59,7 +67,7 @@ export class PickBeepScreen extends Component {
             <ListItem
                 onPress={() => this.goBack(item.id)}
                 title={`${item.first} ${item.last}`}
-                description={`${item.queueSize} in ${item.first}'s queue\nRider Capacity: ${item.capacity}\nSingles: $${item.singlesRate}\nGroups: $${item.groupRate}`}
+                description={this.getDescription(item)}
                 accessoryRight={() => {
                     if (item.isStudent) {
                         return (
