@@ -253,8 +253,7 @@ export class StartBeepingScreen extends Component {
     }
 
     handleDirections = (origin, dest) => {
-        const platform = Platform.OS;
-        if (platform == 'ios') {
+        if (Platform.OS == 'ios') {
             Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
         }
         else {
