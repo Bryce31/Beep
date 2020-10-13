@@ -318,7 +318,7 @@ export class StartBeepingScreen extends Component {
                         onChange={(value) => this.setState({ masksRequired: value })}
                         style={{marginTop: 15}}
                     >
-                        Require riders to have a mask
+                        Require riders to have a mask 😷
                     </CheckBox>
                 </Layout>
                 </TouchableWithoutFeedback>

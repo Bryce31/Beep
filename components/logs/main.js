@@ -26,12 +26,12 @@ export const TabViewSimpleUsageShowcase = ({ navigation }) => {
                     onSelect={index => setSelectedIndex(index)}>
                     <Tab title='Beeps'>
                         <Layout style={styles.tabContainer}>
-                            <BeeperRideLogScreen />
+                            <BeeperRideLogScreen navigation={navigation} />
                         </Layout>
                     </Tab>
                     <Tab title='Rides'>
                         <Layout style={styles.tabContainer}>
-                            <RiderRideLogScreen />
+                            <RiderRideLogScreen navigation={navigation} />
                         </Layout>
                     </Tab>
                 </TabView>

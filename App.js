@@ -6,6 +6,7 @@ import { StyleSheet, StatusBar, Platform, AppState } from 'react-native';
 import { RegisterScreen } from './components/Register'
 import LoginScreen from './components/Login'
 import { MainScreen } from './components/MainScreen'
+import { ProfileScreen } from './components/ProfileScreen';
 import { ForgotPassword } from './components/ForgotPassword'
 import * as eva from '@eva-design/eva';
 import { ApplicationProvider, IconRegistry, Layout } from '@ui-kitten/components';
@@ -140,6 +141,7 @@ export default class App extends Component {
                                 <Stack.Screen name="Register" component={RegisterScreen} />
                                 <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
                                 <Stack.Screen name="Main" component={MainScreen} />
+                                <Stack.Screen name='Profile' component={ProfileScreen} />
                             </Stack.Navigator>
                         </NavigationContainer>
                     </ApplicationProvider>

@@ -97,6 +97,10 @@ const LogIcon = (props) => (
   <Icon {...props} name='file-text-outline'/>
 );
 
+const ReportIcon = (props) => (
+  <Icon {...props} name='alert-triangle-outline'/>
+);
+
 const AcceptIndicator = () => (
   <View style={styles.indicator}>
     <Spinner status="success" size='small'/>
@@ -142,7 +146,8 @@ export {
     AcceptIndicator,
     DenyIndicator,
     LoadingIndicator,
-    LogIcon
+    LogIcon,
+    ReportIcon
 };
 
 

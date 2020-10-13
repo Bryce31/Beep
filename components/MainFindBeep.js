@@ -76,7 +76,6 @@ export class MainFindBeepScreen extends Component {
             }
         })
         .then(response => {
-            console.log("Authorization", "Bearer " + this.context.user.token);
             if (response.status !== 200) {
                 //we need to hide splash, example 401 error
                 //TODO: make this better
