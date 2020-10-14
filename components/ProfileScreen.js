@@ -31,6 +31,14 @@ export class ProfileScreen extends Component {
         });
     }
     
+    handleReport() {
+        this.props.navigation.navigate("Report", {
+            id: this.props.route.params.id,
+            first: this.state.user.first,
+            last: this.state.user.last
+        });
+    }
+    
     componentDidMount() {
         this.getUser();
     }
@@ -93,7 +101,7 @@ export class ProfileScreen extends Component {
                                 <Text>${user.groupRate}</Text>
                             </Layout>
                         </Layout>
-                        <Button accessoryRight={ReportIcon} style={styles.button}>Report User</Button>
+                        <Button onPress={() => this.handleReport()} accessoryRight={ReportIcon} style={styles.button}>Report User</Button>
                     </Layout>
                 </>
             );

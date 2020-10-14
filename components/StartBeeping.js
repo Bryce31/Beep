@@ -36,15 +36,15 @@ export class StartBeepingScreen extends Component {
     retrieveData = async () => {
         //Upon loading user data into states, get User's bepper status
         //to make sure our toggle switch is accurate with our database
-        fetch(config.apiUrl + '/beeper/status/' + this.context.user.id)
+        fetch(config.apiUrl + '/user/' + this.context.user.id)
         .then(response => {
             response.json().then(async (responseJson) => {
                 if (responseJson.status == "success") {
-                    if (this.state.isBeeping !== responseJson.isBeeping) {
-                        this.setState({isBeeping: responseJson.isBeeping});
+                    if (this.state.isBeeping !== responseJson.user.isBeeping) {
+                        this.setState({ isBeeping: responseJson.isBeeping });
                     }
 
-                    if(responseJson.isBeeping) {
+                    if(responseJson.user.isBeeping) {
                         //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
                         this.getQueue();
                         this.enableGetQueue();
