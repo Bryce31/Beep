@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { StyleSheet } from "react-native"
 import { Button, Spinner, Text, Layout, TopNavigation, TopNavigationAction } from "@ui-kitten/components";
-import { BackIcon, ReportIcon } from "../utils/Icons";
-import { config } from "../utils/config";
+import { BackIcon, ReportIcon } from "../../utils/Icons";
+import { config } from "../../utils/config";
 
 export class ProfileScreen extends Component {
 

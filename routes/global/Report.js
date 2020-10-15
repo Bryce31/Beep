@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import { Platform, StyleSheet, Keyboard, TouchableWithoutFeedback } from "react-native"
 import { Input, Button, Layout, TopNavigation, TopNavigationAction } from "@ui-kitten/components";
-import { BackIcon } from "../utils/Icons";
-import { config } from "../utils/config";
-import { UserContext } from '../utils/UserContext.js';
-import { LoadingIndicator, ReportIcon } from "../utils/Icons";
-import { parseError } from "../utils/Errors";
+import { BackIcon } from "../../utils/Icons";
+import { config } from "../../utils/config";
+import { UserContext } from '../../utils/UserContext.js';
+import { LoadingIndicator, ReportIcon } from "../../utils/Icons";
+import { parseError } from "../../utils/Errors";
 
 export class ReportScreen extends Component {
     static contextType = UserContext;

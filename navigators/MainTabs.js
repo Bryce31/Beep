@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FindBeepScreen } from './FindBeep';
 import { SettingsScreen } from './Settings';
-import { StartBeepingScreen } from '../routes/StartBeeping';
+import { StartBeepingScreen } from '../routes/beep/StartBeeping';
 import { BottomNavigation, BottomNavigationTab, Icon } from '@ui-kitten/components';
 import { CarIcon, MapIcon, SettingsIcon } from '../utils/Icons';
 

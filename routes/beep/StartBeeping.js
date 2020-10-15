@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import * as Location from 'expo-location';
 import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Card, Layout, Text, Button, Input, Toggle, List, CheckBox } from '@ui-kitten/components';
-import socket from '../utils/Socket';
-import { UserContext } from '../utils/UserContext.js';
-import { config } from "../utils/config";
+import socket from '../../utils/Socket';
+import { UserContext } from '../../utils/UserContext.js';
+import { config } from "../../utils/config";
 import * as Notifications from 'expo-notifications';
-import ActionButton from "../components/ActionButton";
-import AcceptDenyButton from "../components/AcceptDenyButton";
-import { parseError, handleFetchError, handleStatusCodeError } from "../utils/Errors";
+import ActionButton from "../../components/ActionButton";
+import AcceptDenyButton from "../../components/AcceptDenyButton";
+import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 import {
     PhoneIcon,
@@ -16,7 +16,7 @@ import {
     VenmoIcon,
     MapsIcon,
     DollarIcon,
-} from '../utils/Icons.js';
+} from '../../utils/Icons.js';
 
 export class StartBeepingScreen extends Component {
     static contextType = UserContext;

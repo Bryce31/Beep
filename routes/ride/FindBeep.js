@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { Icon, Layout, Text, Button, Input, CheckBox } from '@ui-kitten/components';
 import * as Location from 'expo-location';
-import socket from '../utils/Socket'
+import socket from '../../utils/Socket'
 import * as SplashScreen from 'expo-splash-screen';
-import { UserContext } from '../utils/UserContext.js';
-import { config } from '../utils/config';
-import { parseError, handleFetchError, handleStatusCodeError } from "../utils/Errors";
+import { UserContext } from '../../utils/UserContext.js';
+import { config } from '../../utils/config';
+import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import {
     PhoneIcon, 
     TextIcon, 
@@ -17,7 +17,7 @@ import {
     FindIcon,
     ShareIcon,
     LoadingIndicator
-} from '../utils/Icons.js';
+} from '../../utils/Icons.js';
 
 export class MainFindBeepScreen extends Component {
     static contextType = UserContext;
