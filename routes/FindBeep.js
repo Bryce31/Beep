@@ -6,7 +6,7 @@ import socket from '../utils/Socket'
 import * as SplashScreen from 'expo-splash-screen';
 import { UserContext } from '../utils/UserContext.js';
 import { config } from '../utils/config';
-import { parseError, handleFetchError, handleStatusCodeError } from "../utils/errors";
+import { parseError, handleFetchError, handleStatusCodeError } from "../utils/Errors";
 import {
     PhoneIcon, 
     TextIcon, 

@@ -58,8 +58,20 @@ const DenyIcon = (props) => (
   <Icon {...props} name='close-circle-outline'/>
 );
 
+const MapIcon = (props) => (
+  <Icon {...props} name='map'/>
+);
+
 const MapsIcon = (props) => (
   <Icon {...props} name='map-outline'/>
+);
+
+const CarIcon = (props) => (
+  <Icon {...props} name='car-outline'/>
+);
+
+const SettingsIcon = (props) => (
+  <Icon {...props} name='settings'/>
 );
 
 const DollarIcon = () => (
@@ -134,7 +146,7 @@ export {
     FindIcon,
     AcceptIcon,
     DenyIcon,
-    MapsIcon,
+    MapIcon,
     DollarIcon,
     ShareIcon,
     EditIcon,
@@ -147,9 +159,11 @@ export {
     DenyIndicator,
     LoadingIndicator,
     LogIcon,
-    ReportIcon
+    ReportIcon,
+    SettingsIcon,
+    CarIcon,
+    MapsIcon
 };
-
 
 const styles = StyleSheet.create({
     indicator: {

@@ -1,12 +1,12 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Layout, Button, Card, Text } from '@ui-kitten/components';
-import { ThemeContext } from '../utils/theme-context';
-import { UserContext } from '../utils/UserContext.js';
-import socket from '../utils/Socket';
-import { LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../utils/Icons.js';
-import { config } from "../utils/config";
-import { handleFetchError, handleStatusCodeError } from "../utils/errors";
+import { Icon, Layout, Button, Card, Text } from '@ui-kitten/components';
+import { ThemeContext } from '../../utils/ThemeContext';
+import { UserContext } from '../../utils/UserContext.js';
+import socket from '../../utils/Socket';
+import { LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../../utils/Icons.js';
+import { config } from "../../utils/config";
+import { handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 
 export function MainSettingsScreen({ navigation }) {
@@ -94,6 +94,7 @@ export function MainSettingsScreen({ navigation }) {
     return (
         <Layout style={styles.wrapper}>
             <Layout style={styles.container}>
+                <Text onPress={() => navigation.navigate("Profile", { id: userContext.user.id })} category="h1" style={styles.user}>{userContext.user.first + " " + userContext.user.last}</Text>
                 {!userContext.user.isEmailVerified &&
                     <Card status="danger" style={{maxWidth: 400, marginBottom: 6}}>
                         <Text category="h6">Your email is not verified!</Text>
@@ -178,5 +179,8 @@ const styles = StyleSheet.create({
     },
     button: {
         marginBottom: 10 
+    },
+    user: {
+        marginBottom: 10
     }
 });

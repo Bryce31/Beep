@@ -2,22 +2,11 @@ import React, { Component } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FindBeepScreen } from './FindBeep';
 import { SettingsScreen } from './Settings';
-import { StartBeepingScreen } from './StartBeeping';
+import { StartBeepingScreen } from '../routes/StartBeeping';
 import { BottomNavigation, BottomNavigationTab, Icon } from '@ui-kitten/components';
+import { CarIcon, MapIcon, SettingsIcon } from '../utils/Icons';
 
 const { Navigator, Screen } = createBottomTabNavigator();
-
-const MapIcon = (props) => (
-  <Icon {...props} name='map'/>
-);
-
-const CarIcon = (props) => (
-  <Icon {...props} name='car-outline'/>
-);
-
-const SettingsIcon = (props) => (
-  <Icon {...props} name='settings'/>
-);
 
 const BottomTabBar = ({ navigation, state }) => (
     <BottomNavigation
@@ -30,7 +19,7 @@ const BottomTabBar = ({ navigation, state }) => (
   </BottomNavigation>
 );
 
-export class MainScreen extends Component {
+export class MainTabs extends Component {
     render() {
        return (
             <Navigator tabBar={props => <BottomTabBar {...props} />}>

@@ -1,12 +1,11 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Tab, TabView, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { BeeperRideLogScreen } from "./beeper";
-import { RiderRideLogScreen } from "./rider";
-import { BackIcon } from '../../utils/Icons';
+import { BeeperRideLogScreen } from "../routes/history/beeper";
+import { RiderRideLogScreen } from "../routes/history/rider";
+import { BackIcon } from '../utils/Icons';
 
-
-export const TabViewSimpleUsageShowcase = ({ navigation }) => {
+export const BeepHistoryNavigator = ({ navigation }) => {
 
     const [selectedIndex, setSelectedIndex] = React.useState(0);
     const BackAction = () => (

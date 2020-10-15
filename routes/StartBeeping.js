@@ -6,9 +6,9 @@ import socket from '../utils/Socket';
 import { UserContext } from '../utils/UserContext.js';
 import { config } from "../utils/config";
 import * as Notifications from 'expo-notifications';
-import ActionButton from "./ActionButton";
-import AcceptDenyButton from "./AcceptDenyButton";
-import { parseError, handleFetchError, handleStatusCodeError } from "../utils/errors";
+import ActionButton from "../components/ActionButton";
+import AcceptDenyButton from "../components/AcceptDenyButton";
+import { parseError, handleFetchError, handleStatusCodeError } from "../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 import {
     PhoneIcon,

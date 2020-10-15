@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext } from '../utils/UserContext.js';
-import { config } from "../utils/config";
-import { EditIcon, LoadingIndicator } from "../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../utils/errors";
+import { UserContext } from '../../utils/UserContext.js';
+import { config } from "../../utils/config";
+import { EditIcon, LoadingIndicator } from "../../utils/Icons";
+import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import { BackIcon } from '../utils/Icons';
+import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
 
 export class EditProfileScreen extends Component {

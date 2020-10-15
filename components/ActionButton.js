@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { Button, Spinner } from "@ui-kitten/components";
 import { UserContext } from '../utils/UserContext.js';
 import { config } from "../utils/config";
-import { handleFetchError, handleStatusCodeError } from "../utils/errors";
+import { handleFetchError, handleStatusCodeError } from "../utils/Errors";
 
 const LoadingIndicator = () => (
   <View style={styles.indicator}>

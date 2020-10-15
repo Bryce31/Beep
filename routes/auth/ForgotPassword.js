@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { config } from "../utils/config";
+import { config } from "../../utils/config";
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { StyleSheet, Platform, Keyboard, TouchableWithoutFeedback } from "react-native";
-import { BackIcon, EmailIcon } from "../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../utils/errors";
+import { BackIcon, EmailIcon } from "../../utils/Icons";
+import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 
-export class ForgotPassword extends Component {
+export default class ForgotPassword extends Component {
 
     constructor(props) {
         super(props);

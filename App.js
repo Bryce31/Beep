@@ -3,22 +3,22 @@ import React, { Component } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StyleSheet, StatusBar, Platform, AppState } from 'react-native';
-import { RegisterScreen } from './components/Register'
-import LoginScreen from './components/Login'
-import { MainScreen } from './components/MainScreen'
-import { ProfileScreen } from './components/ProfileScreen';
-import { ReportScreen } from './components/ReportScreen';
-import { ForgotPassword } from './components/ForgotPassword'
+import RegisterScreen from './routes/auth/Register';
+import LoginScreen from './routes/auth/Login';
+import ForgotPassword from './routes/auth/ForgotPassword';
+import { MainTabs } from './navigators/MainTabs';
+import { ProfileScreen } from './routes/Profile';
+import { ReportScreen } from './routes/Report';
 import * as eva from '@eva-design/eva';
 import { ApplicationProvider, IconRegistry, Layout } from '@ui-kitten/components';
 import { default as beepTheme } from './utils/theme.json';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
-import { ThemeContext } from './utils/theme-context';
+import { ThemeContext } from './utils/ThemeContext';
 import { UserContext } from './utils/UserContext.js';
 import * as SplashScreen from 'expo-splash-screen';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { updatePushToken } from "./utils/Notifications";
-import socket, { getUpdatedUser } from './utils/Socket'
+import socket, { getUpdatedUser } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
 
 const Stack = createStackNavigator();
@@ -46,7 +46,6 @@ export default class App extends Component {
 
     handleAppStateChange = nextAppState => {
         if (nextAppState === "active" && !socket.connected && this.state.user) {
-            console.log("socket is not connected but we need to keep user socket open! we need to reconnect and re-ask for user status");
             socket.emit('getUser', this.state.user.token);
         }
     }
@@ -105,7 +104,6 @@ export default class App extends Component {
         });
 
         socket.on('updateUser', data => {
-            console.log(data);
             const updatedUser = getUpdatedUser(this.state.user, data);
             if (updatedUser != null) {
                 AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
@@ -141,7 +139,7 @@ export default class App extends Component {
                                 <Stack.Screen name="Login" component={LoginScreen} />
                                 <Stack.Screen name="Register" component={RegisterScreen} />
                                 <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-                                <Stack.Screen name="Main" component={MainScreen} />
+                                <Stack.Screen name="Main" component={MainTabs} />
                                 <Stack.Screen name='Profile' component={ProfileScreen} />
                                 <Stack.Screen name='Report' component={ReportScreen} />
                             </Stack.Navigator>

@@ -3,7 +3,7 @@ import { Layout, Text, Divider, List, ListItem, Button, TopNavigation, TopNaviga
 import { StyleSheet } from 'react-native';
 import { config } from "../utils/config";
 import { BackIcon, RefreshIcon, GetIcon } from '../utils/Icons';
-import { handleStatusCodeError, handleFetchError } from "../utils/errors";
+import { handleStatusCodeError, handleFetchError } from "../utils/Errors";
 
 export class PickBeepScreen extends Component {
 

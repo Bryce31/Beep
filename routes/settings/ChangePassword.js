@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { StyleSheet, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext } from '../utils/UserContext.js';
-import { config } from "../utils/config";
-import { EditIcon, LoadingIndicator, BackIcon } from "../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../utils/errors";
+import { UserContext } from '../../utils/UserContext.js';
+import { config } from "../../utils/config";
+import { EditIcon, LoadingIndicator, BackIcon } from "../../utils/Icons";
+import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 
 export class ChangePasswordScreen extends Component {
     static contextType = UserContext;

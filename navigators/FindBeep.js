@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { MainFindBeepScreen } from './MainFindBeep' 
-import { PickBeepScreen } from './PickBeep'
+import { MainFindBeepScreen } from '../routes/FindBeep' 
+import { PickBeepScreen } from '../routes/PickBeep'
 
 const Stack = createStackNavigator();
 

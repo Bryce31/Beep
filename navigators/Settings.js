@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { MainSettingsScreen } from './MainSettings'
-import { EditProfileScreen } from './EditProfile'
-import { ChangePasswordScreen } from './ChangePassword'
-import { TabViewSimpleUsageShowcase } from './logs/main'
+import { MainSettingsScreen } from '../routes/settings/Settings'
+import { EditProfileScreen } from '../routes/settings/EditProfile'
+import { ChangePasswordScreen } from '../routes/settings/ChangePassword'
+import { BeepHistoryNavigator } from './BeepHistory'
 
 const Stack = createStackNavigator();
 
@@ -14,7 +14,7 @@ export class SettingsScreen extends Component {
                 <Stack.Screen name="MainSettingsScreen" component={MainSettingsScreen} />
                 <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
                 <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
-                <Stack.Screen name="RideLogScreen" component={TabViewSimpleUsageShowcase} />
+                <Stack.Screen name="RideLogScreen" component={BeepHistoryNavigator} />
             </Stack.Navigator>
         );
     }

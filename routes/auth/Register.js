@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 import { StyleSheet, Platform } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Text, Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext } from '../utils/UserContext.js';
-import { removeOldToken } from '../utils/OfflineToken.js';
-import { config } from "../utils/config";
-import { BackIcon, SignUpIcon, LoadingIndicator } from "../utils/Icons";
-import { getPushToken } from "../utils/Notifications";
-import { parseError, handleFetchError, handleStatusCodeError } from "../utils/errors";
+import { UserContext } from '../../utils/UserContext.js';
+import { removeOldToken } from '../../utils/OfflineToken.js';
+import { config } from "../../utils/config";
+import { BackIcon, SignUpIcon, LoadingIndicator } from "../../utils/Icons";
+import { getPushToken } from "../../utils/Notifications";
+import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as Linking from 'expo-linking';
-import socket from "../utils/Socket";
+import socket from "../../utils/Socket";
  
-export class RegisterScreen extends Component {
+export default class RegisterScreen extends Component {
     static contextType = UserContext;
 
     constructor(props) {

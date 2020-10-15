@@ -4,7 +4,7 @@ import { Button } from "@ui-kitten/components";
 import { UserContext } from '../utils/UserContext.js';
 import { config } from "../utils/config";
 import { AcceptIcon, DenyIcon, AcceptIndicator, DenyIndicator } from "../utils/Icons";
-import { handleFetchError, handleStatusCodeError } from "../utils/errors";
+import { handleFetchError, handleStatusCodeError } from "../utils/Errors";
 
 export default class AcceptDenyButton extends Component {
     static contextType = UserContext;
@@ -17,7 +17,7 @@ export default class AcceptDenyButton extends Component {
     }
 
     UNSAFE_componentWillReceiveProps() {
-        this.setState({isLoading: false});
+        this.setState({ isLoading: false });
     }
 
     updateStatus(queueID, riderID, value) {
