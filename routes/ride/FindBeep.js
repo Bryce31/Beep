@@ -641,7 +641,7 @@ const styles = StyleSheet.create({
     },
     buttons: {
         marginBottom:5,
-        width: "80%"
+        width: "85%"
     },
     rowItem: {
         marginBottom:5,

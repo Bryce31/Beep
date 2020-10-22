@@ -282,7 +282,7 @@ export class StartBeepingScreen extends Component {
                         onChange = {this.toggleSwitch}
                         checked = {this.state.isBeeping}
                     >
-                    Toggle Beeping Status
+                        {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
                     </Toggle>
                     <Input
                         label='Max Capacity'
@@ -333,7 +333,7 @@ export class StartBeepingScreen extends Component {
                             onChange = {this.toggleSwitch}
                             checked = {this.state.isBeeping}
                         >
-                        Toggle Beeping Status
+                            {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
                         </Toggle>
                         <List
                             style={styles.list}
@@ -454,7 +454,7 @@ export class StartBeepingScreen extends Component {
                             onChange = {this.toggleSwitch}
                             checked = {this.state.isBeeping}
                         >
-                        Toggle Beeping Status
+                            {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
                         </Toggle>
                         <Layout style={styles.empty}>
                             <Text category='h5'>Your queue is empty</Text>
