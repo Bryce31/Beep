@@ -110,6 +110,27 @@ export default class App extends Component {
                 this.setState({ user: updatedUser });
             }
         });
+
+        socket.on("isGettingUserData", (isSocketGettingUser) => {
+            console.log(isSocketGettingUser);
+
+            if (!socket.connected) {
+                console.log("Socket is not connected! This is bad");
+            }
+
+            const isUserLoggedIn = this.state.user.token !== null;
+            console.log("isUserLoggedIn", isUserLoggedIn);
+            
+            if (Boolean(isSocketGettingUser) != isUserLoggedIn) {
+                console.log("Client and socket don't agree on whether or not client should be listening for user updates");
+                socket.emit('getUser', this.state.user.token);
+            }
+        });
+
+        setInterval(function() {
+            console.log("Checking to see if socket it working ok");
+            socket.emit('isGettingUser');
+        }, 12000);
     }
 
     render () {

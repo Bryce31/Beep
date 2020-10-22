@@ -54,6 +54,29 @@ export class MainFindBeepScreen extends Component {
             console.log("[FindBeep.js] [Socket.io] Socket.io told us to update rider status.");
             this.getRiderStatus(false);
         });
+
+        socket.on("isInRideData", (isSocketGettingRide) => {
+            console.log(isSocketGettingRide);
+
+            if (!socket.connected) {
+                console.log("Socket is not connected! This is bad");
+            }
+
+            if (isSocketGettingRide != String(this.state.foundBeep)) {
+                console.log("Client and socket don't agree on whether or not client should be listening for ride data");
+                if (this.state.foundBeep) {
+                    //there is a disagreement between the client and the socket server. 
+                    //Asume client is connect and enable getting queue
+                    this.getRiderStatus();
+                    this.enableGetRiderStatus();
+                }
+            }
+        });
+
+        setInterval(function() {
+            console.log("Checking to see if socket it working ok");
+            socket.emit('isInRide');
+        }, 8000);
     }
 
     componentWillUnmount() {

@@ -89,6 +89,29 @@ export class StartBeepingScreen extends Component {
             console.log("[StartBeeping.js] [Socket.io] Socktio.io told us to update queue!");
             this.getQueue();
         });
+
+        socket.on("isBeepingData", (isSocketGettingQueue) => {
+            console.log(isSocketGettingQueue);
+
+            if (!socket.connected) {
+                console.log("Socket is not connected! This is bad");
+            }
+
+            if (isSocketGettingQueue != String(this.state.isBeeping)) {
+                console.log("Client and socket don't agree on whether or not client should be listening for queue");
+                if (this.state.isBeeping) {
+                    //there is a disagreement between the client and the socket server. 
+                    //Asume client is connect and enable getting queue
+                    this.getQueue();
+                    this.enableGetQueue();
+                }
+            }
+        });
+
+        setInterval(function() {
+            console.log("Checking to see if socket it working ok");
+            socket.emit('isBeeping');
+        }, 8000);
     }
 
     componentWillUnmount() {
