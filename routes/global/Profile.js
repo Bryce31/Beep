@@ -58,6 +58,16 @@ export class ProfileScreen extends Component {
                 </>
             );
         }
+        else if (this.state.user?.first == null) {
+            return (
+                <>
+                    <TopNavigation title='User Profile' alignment='center' accessoryLeft={BackAction}/>
+                    <Layout style={styles.container}>            
+                        <Text appearance="hint">User not found</Text>
+                    </Layout>
+                </>
+            );
+        }
         else {
             const user = this.state.user;
 

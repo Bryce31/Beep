@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Layout, Text, Divider, List, ListItem, TopNavigation, TopNavigationAction, Spinner } from '@ui-kitten/components';
+import { Layout, Text, Divider, List, ListItem, Spinner } from '@ui-kitten/components';
 import { StyleSheet } from 'react-native';
 import { config } from "../../utils/config";
-import { BackIcon, RefreshIcon } from '../../utils/Icons';
 import { handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 import { UserContext } from '../../utils/UserContext.js';
 
