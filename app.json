@@ -31,10 +31,10 @@
     },
     "android": {
       "package": "app.ridebeep.App",
-      "versionCode": 17,
+      "versionCode": 18,
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi": true,
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_COARSE_LOCATION", "VIBRATE"]
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "VIBRATE"]
     },
     "splash": {
       "image": "./assets/splash.png",
