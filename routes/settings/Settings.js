@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { Icon, Layout, Button, Card, Text } from '@ui-kitten/components';
+import { StyleSheet, View } from 'react-native';
+import { Avatar, Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../../utils/ThemeContext';
 import { UserContext } from '../../utils/UserContext.js';
 import socket from '../../utils/Socket';
@@ -8,6 +8,7 @@ import { LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon,
 import { config } from "../../utils/config";
 import { handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
+import photo from "../../assets/icon.png";
 
 export function MainSettingsScreen({ navigation }) {
     const themeContext = React.useContext(ThemeContext);
@@ -91,10 +92,32 @@ export function MainSettingsScreen({ navigation }) {
         .catch((error) => handleFetchError(error));
     }
 
+    function UserHeader(props) {
+        return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
+            <Avatar
+                style={{marginHorizontal: 8}}
+                size='large'
+                source={{url:"http://www.puckagency.com/wp-content/uploads/2017/09/blank-profile.jpg"}}
+            />
+            <Layout>
+                <Text category='h4'>
+                    {props.user.first + " " + props.user.last}
+                </Text>
+                <Text
+                    appearance='hint'
+                    category='s1'>
+                    {props.user.venmo}
+                </Text>
+            </Layout>
+        </Layout>
+    }
+
     return (
         <Layout style={styles.wrapper}>
             <Layout style={styles.container}>
-                <Text onPress={() => navigation.navigate("Profile", { id: userContext.user.id })} category="h1" style={styles.user}>{userContext.user.first + " " + userContext.user.last}</Text>
+                <Card style={{width: "80%"}} onPress={() => navigation.navigate("Profile", { id: userContext.user.id })} >
+                    <UserHeader user={userContext.user} />
+                </Card>
                 {!userContext.user.isEmailVerified &&
                     <Card status="danger" style={{maxWidth: 400, marginBottom: 6}}>
                         <Text category="h6">Your email is not verified!</Text>
@@ -180,7 +203,4 @@ const styles = StyleSheet.create({
     button: {
         marginBottom: 10 
     },
-    user: {
-        marginBottom: 10
-    }
 });

@@ -415,7 +415,7 @@ export class MainFindBeepScreen extends Component {
                         <Button
                             status='basic'
                             style={styles.buttons}
-                            accessoryRight={BackIcon}
+                            accessoryLeft={BackIcon}
                             onPress={() => this.setState({'beeper': {}})}
                         >
                         Go Back

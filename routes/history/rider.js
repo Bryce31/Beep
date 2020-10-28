@@ -85,8 +85,7 @@ export class RiderRideLogScreen extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        height: '80%',
-        width: '100%',
+        height: '82%',
         alignItems: "center",
         justifyContent: 'center'
     }

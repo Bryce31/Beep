@@ -307,42 +307,45 @@ export class StartBeepingScreen extends Component {
                     >
                         {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
                     </Toggle>
-                    <Input
-                        label='Max Capacity'
-                        caption='The maximum number of people you can fit in your vehicle not including yourself.'
-                        placeholder='Max Capcity'
-                        keyboardType='numeric'
-                        style={styles.inputs}
-                        value={this.state.capacity}
-                        onChangeText={(value) => this.updateCapacity(value)}
-                    />
-                    <Input
-                        label='Singles Rate'
-                        caption='Riders who need a ride alone will pay this price.'
-                        placeholder='Singles Rate'
-                        keyboardType='numeric'
-                        style={styles.inputs}
-                        value={this.state.singlesRate}
-                        accessoryLeft={DollarIcon}
-                        onChangeText={(value) => this.updateSingles(value)}
-                    />
-                    <Input
-                        label='Group Rate'
-                        caption='Riders who ride in a group will each pay this price.'
-                        placeholder='Group Rate'
-                        keyboardType='numeric'
-                        style={styles.inputs}
-                        value={this.state.groupRate}
-                        accessoryLeft={DollarIcon}
-                        onChangeText={(value) => this.updateGroup(value)}
-                    />
-                    <CheckBox
-                        checked={this.state.masksRequired}
-                        onChange={(value) => this.setState({ masksRequired: value })}
-                        style={{marginTop: 15}}
-                    >
-                        Require riders to have a mask 😷
-                    </CheckBox>
+                    <Layout style={{marginTop: 6}}>
+                        <Text style={{marginBottom: 10}} category="h4">Beeping Options</Text>
+                        <Input
+                            label='Max Capacity'
+                            caption='The maximum number of people you can fit in your vehicle not including yourself.'
+                            placeholder='Max Capcity'
+                            keyboardType='numeric'
+                            style={styles.inputs}
+                            value={this.state.capacity}
+                            onChangeText={(value) => this.updateCapacity(value)}
+                        />
+                        <Input
+                            label='Singles Rate'
+                            caption='Riders who need a ride alone will pay this price.'
+                            placeholder='Singles Rate'
+                            keyboardType='numeric'
+                            style={styles.inputs}
+                            value={this.state.singlesRate}
+                            accessoryLeft={DollarIcon}
+                            onChangeText={(value) => this.updateSingles(value)}
+                        />
+                        <Input
+                            label='Group Rate'
+                            caption='Riders who ride in a group will each pay this price.'
+                            placeholder='Group Rate'
+                            keyboardType='numeric'
+                            style={styles.inputs}
+                            value={this.state.groupRate}
+                            accessoryLeft={DollarIcon}
+                            onChangeText={(value) => this.updateGroup(value)}
+                        />
+                            <Text category="h6" style={{marginBottom: 10, marginTop: 10}}>Additional Options</Text>
+                        <CheckBox
+                            checked={this.state.masksRequired}
+                            onChange={(value) => this.setState({ masksRequired: value })}
+                        >
+                            Require riders to have a mask 😷
+                        </CheckBox>
+                    </Layout>
                 </Layout>
                 </TouchableWithoutFeedback>
             );
@@ -517,7 +520,8 @@ const styles = StyleSheet.create({
         marginBottom: 7
     },
     inputs: {
-        width: "80%"
+        width: "81%",
+        marginBottom: 6
     },
     empty : {
         height: '80%',

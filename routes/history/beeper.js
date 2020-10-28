@@ -85,7 +85,7 @@ export class BeeperRideLogScreen extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        height: '80%',
+        height: '82%',
         alignItems: "center",
         justifyContent: 'center'
     }
