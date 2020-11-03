@@ -97,7 +97,7 @@ export function MainSettingsScreen({ navigation }) {
             <Avatar
                 style={{marginHorizontal: 8}}
                 size='large'
-                source={{url:"http://www.puckagency.com/wp-content/uploads/2017/09/blank-profile.jpg"}}
+                source={{url:"https://avatars0.githubusercontent.com/u/6440455?s=460&u=620a6db2fd54f8b2388ee02e5d963c743af89f34&v=4"}}
             />
             <Layout>
                 <Text category='h4'>

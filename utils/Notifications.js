@@ -82,7 +82,7 @@ function setNotificationHandlers() {
  */
 export async function updatePushToken(token) {
     fetch(config.apiUrl + "/account/pushtoken", {
-        method: "POST",
+        method: "PUT",
         headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token

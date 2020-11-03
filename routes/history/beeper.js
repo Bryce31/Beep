@@ -18,7 +18,7 @@ export class BeeperRideLogScreen extends Component {
 
     getBeeperList = () => {
         fetch(config.apiUrl + "/account/history/beeper", {
-            method: "POST",
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + this.context.user.token

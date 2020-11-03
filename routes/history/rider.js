@@ -18,7 +18,7 @@ export class RiderRideLogScreen extends Component {
 
     getRiderList = () => {
         fetch(config.apiUrl + "/account/history/rider", {
-            method: "POST",
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + this.context.user.token
