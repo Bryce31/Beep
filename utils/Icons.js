@@ -131,6 +131,10 @@ const LoadingIndicator = () => (
   </View>
 );
 
+const PhotoIcon = (props) => (
+    <Icon {...props} name='camera-outline'/>
+);
+
 export {
     ThemeIcon,
     LogoutIcon,
@@ -162,7 +166,8 @@ export {
     ReportIcon,
     SettingsIcon,
     CarIcon,
-    MapsIcon
+    MapsIcon,
+    PhotoIcon
 };
 
 const styles = StyleSheet.create({

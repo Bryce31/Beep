@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Platform, Image, StyleSheet } from 'react-native';
-import { Text, Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
+import { Text, Layout, Button, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext.js';
 import { config } from "../../utils/config";
 import { LoadingIndicator } from "../../utils/Icons";
@@ -29,30 +29,40 @@ export class ProfilePhotoScreen extends Component {
        let result = await ImagePicker.launchImageLibraryAsync({
            mediaTypes: ImagePicker.MediaTypeOptions.Images,
            allowsMultipleSelection: false,
+           allowsEditing: true,
+           aspect: [4, 3],
            base64: false
        });
 
-       if (Platform.OS !== "ios" || Platform.OS !== "android") {
+       if (Platform.OS !== "ios" && Platform.OS !== "android") {
+           console.log("Running as if this is a web device");
            await fetch(result.uri)
                .then(res => res.blob())
                .then(blob => {
-                   const file = new File([blob], "filename.jpeg");
+                   const fileType = blob.type.split("/")[1];
+                   const file = new File([blob], "photo." + fileType);
                    form.append('photo', file)
                });
        }
        else {
+           console.log("Runing as mobile device");
            console.log(result);
+           const fileType = result.uri.substr(result.uri.lastIndexOf("."), result.uri.length);
+           console.log(fileType);
            this.setState({photo: result.uri});
 
            const photo = {
                uri: result.uri,
                type: 'image/jpeg',
-               name: 'photo.jpg',
+               name: 'photo' + fileType,
            };
 
            if (!result.cancelled) {
                form.append("photo", photo);
                //form.append("photo", photo.uri);
+           }
+           else {
+               this.setState({ isLoading: false });
            }
        }
 
@@ -100,30 +110,22 @@ export class ProfilePhotoScreen extends Component {
         const BackAction = () => (
             <TopNavigationAction icon={BackIcon} onPress={() => this.props.navigation.goBack()}/>
         );
-        if (!this.state.isLoading) {
-            return (
-                <>
-                    <TopNavigation title='Profile Photo' alignment='center' accessoryLeft={BackAction}/>
-                    <Layout style={styles.container}>
-                        <Text>Upload Profile Photo</Text>
-                        {this.state.photo && <Image source={{ uri: this.state.photo }} style={{ width: 200, height: 200 }} />}
-                        <Button onPress={() => this.handleUpdate()}>
-                            Choose Photo
-                        </Button>
-                    </Layout>
-                </>
-            );
-        }
-        else {
-            return (
-                <>
-                    <TopNavigation title='Profile Photo' alignment='center' accessoryLeft={BackAction}/>
-                    <Layout style={styles.container}>
-                        <LoadingIndicator />
-                    </Layout>
-                </>
-            );
-        }
+        return (
+            <>
+                <TopNavigation title='Profile Photo' alignment='center' accessoryLeft={BackAction}/>
+                <Layout style={styles.container}>
+                    <Text>Upload Profile Photo</Text>
+                    {this.state.photo && <Image source={{ uri: this.state.photo }} style={{ width: 200, height: 200, borderRadius: 200/ 2, marginTop: 10, marginBottom: 10 }} />}
+                    {!this.state.isLoading ?
+                    <Button onPress={() => this.handleUpdate()}>
+                        Choose Photo
+                    </Button>
+                    :
+                    <LoadingIndicator />
+                    }
+                </Layout>
+            </>
+        );
     }
 }
 

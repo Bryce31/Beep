@@ -76,7 +76,7 @@ export class ProfileScreen extends Component {
                     <TopNavigation title='User Profile' alignment='center' accessoryLeft={BackAction}/>
                     <Layout style={styles.container}>            
                         <Image
-                            style={{marginHorizontal: 8, width: 50, height: 50}}
+                            style={{marginHorizontal: 8, width: 150, height: 150, borderRadius: 150/ 2 }}
                             size='large'
                             source={{uri: user.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                         />

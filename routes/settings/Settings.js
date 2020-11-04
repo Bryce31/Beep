@@ -4,7 +4,7 @@ import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../../utils/ThemeContext';
 import { UserContext } from '../../utils/UserContext.js';
 import socket from '../../utils/Socket';
-import { LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../../utils/Icons.js';
+import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../../utils/Icons.js';
 import { config } from "../../utils/config";
 import { handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
@@ -95,7 +95,7 @@ export function MainSettingsScreen({ navigation }) {
     function UserHeader(props) {
         return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
             <Image
-                style={{marginHorizontal: 8, width: 50, height: 50}}
+                style={{marginHorizontal: 8, width: 50, height: 50, borderRadius: 60/ 2}}
                 size='large'
                 source={{uri: userContext.user.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
             />
@@ -152,7 +152,7 @@ export function MainSettingsScreen({ navigation }) {
                 </Button>
                 <Button
                     onPress={() => navigation.navigate("ProfilePhotoScreen")}
-                    accessoryLeft={ProfileIcon}
+                    accessoryLeft={PhotoIcon}
                     accessoryRight={ForwardIcon}
                     style={styles.button}
                     appearance='ghost'

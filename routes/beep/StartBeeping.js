@@ -307,7 +307,7 @@ export class StartBeepingScreen extends Component {
                     >
                         {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
                     </Toggle>
-                    <Layout style={{marginTop: 6}}>
+                    <Layout style={{marginTop: 6, width: "85%"}}>
                         <Text style={{marginBottom: 10}} category="h4">Beeping Options</Text>
                         <Input
                             label='Max Capacity'
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
-        paddingTop: 15 
+        paddingTop: 15,
     },
     paddingUnder: {
         marginBottom:5,
@@ -520,7 +520,6 @@ const styles = StyleSheet.create({
         marginBottom: 7
     },
     inputs: {
-        width: "81%",
         marginBottom: 6
     },
     empty : {
