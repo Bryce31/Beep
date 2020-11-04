@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import * as Location from 'expo-location';
-import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Image, StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Card, Layout, Text, Button, Input, Toggle, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
 import { UserContext } from '../../utils/UserContext.js';
@@ -368,10 +368,20 @@ export class StartBeepingScreen extends Component {
                             renderItem={({item, index}) =>
                                 item.isAccepted ?
 
-                                <Card style={styles.cards} status={(this.state.currentIndex == index) ? "primary" : "basic"} >
-                                    <Layout style={styles.row}>
-                                        <Text category='h6'>Rider</Text>
-                                        <Text style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
+                                <Card
+                                    style={styles.cards}
+                                    status={(this.state.currentIndex == index) ? "primary" : "basic"} 
+                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.riderid})}
+                                >
+                                    <Layout
+                                        style={{flex: 1, flexDirection: "row", alignItems: 'center'}}
+                                    >
+                                        <Image
+                                            style={{width: 50, height: 50, borderRadius: 50/ 2 }}
+                                            size='large'
+                                            source={{uri: item.personalInfo.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                                        />
+                                        <Text category="h6" style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
                                         {item.personalInfo.isStudent && <Text>🎓</Text>}
                                     </Layout>
                                     <Layout style={styles.row}>
@@ -444,10 +454,17 @@ export class StartBeepingScreen extends Component {
 
                                 :
 
-                                <Card style={styles.cards}>
-                                    <Layout style={styles.row}>
-                                        <Text category='h6'>Rider</Text>
-                                        <Text style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
+                                <Card
+                                    style={styles.cards}
+                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.riderid})}
+                                >
+                                    <Layout style={{flex: 1, flexDirection: "row", alignItems: 'center'}}>
+                                        <Image
+                                            style={{width: 50, height: 50, borderRadius: 50/ 2 }}
+                                            size='large'
+                                            source={{uri: item.personalInfo.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                                        />
+                                        <Text category="h6" style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
                                         {item.personalInfo.isStudent && <Text>🎓</Text>}
                                     </Layout>
                                     <Layout style={styles.row}>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { Image, Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { Icon, Layout, Text, Button, Input, CheckBox } from '@ui-kitten/components';
 import * as Location from 'expo-location';
 import socket from '../../utils/Socket'
@@ -363,9 +363,16 @@ export class MainFindBeepScreen extends Component {
             if (this.state.beeper.id) {
                 return(
                     <Layout style={styles.container}>
-                        <Layout style={styles.group}>
-                            <Text category='h5'>{this.state.beeper.first} {this.state.beeper.last}</Text>
-                            <Text appearance='hint'>is avalible to beep you!</Text>
+                        <Layout onPress={() => this.props.navigation.navigate("Profile", {id: this.state.beeper.id})} style={{alignItems: "center", justifyContent: 'center'}}>
+                            <Image
+                                style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
+                                size='large'
+                                source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                            />
+                            <Layout style={styles.group}>
+                                <Text category='h5'>{this.state.beeper.first} {this.state.beeper.last}</Text>
+                                <Text appearance='hint'>is avalible to beep you!</Text>
+                            </Layout>
                         </Layout>
                         { this.state.beeper.isStudent &&
                         <Layout style={styles.group}>
@@ -490,9 +497,16 @@ export class MainFindBeepScreen extends Component {
             if (this.state.isAccepted) {
                 return (
                     <Layout style={styles.container}>
-                        <Layout style={styles.group}>
-                            <Text category='h6'>{this.state.beeper.first} {this.state.beeper.last}</Text>
-                            <Text appearance='hint'>is your beeper!</Text>
+                        <Layout onPress={() => this.props.navigation.navigate("Profile", {id: this.state.beeper.id})} style={{alignItems: "center", justifyContent: 'center'}}>
+                            <Image
+                                style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
+                                size='large'
+                                source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                            />
+                            <Layout style={styles.group}>
+                                <Text category='h6'>{this.state.beeper.first} {this.state.beeper.last}</Text>
+                                <Text appearance='hint'>is your beeper!</Text>
+                            </Layout>
                         </Layout>
                         {this.state.beeper.isStudent &&
                         <Layout style={styles.group}>
@@ -599,13 +613,20 @@ export class MainFindBeepScreen extends Component {
             else {
                 return (
                     <Layout style={styles.container}>
-
-                        <Layout style={styles.group}>
-                        <Text appearance='hint'>Waiting on</Text>
-                        <Text category='h6'>{this.state.beeper.first} {this.state.beeper.last}</Text>
-                        <Text appearance='hint'>to accept your request.</Text>
-                        </Layout>
-
+                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", {id: this.state.beeper.id})} style={{alignItems: "center", justifyContent: 'center'}}>
+                            <>
+                            <Image
+                                style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
+                                size='large'
+                                source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                            />
+                            <Layout style={styles.group}>
+                            <Text appearance='hint'>Waiting on</Text>
+                            <Text category='h6'>{this.state.beeper.first} {this.state.beeper.last}</Text>
+                            <Text appearance='hint'>to accept your request.</Text>
+                            </Layout>
+                            </>
+                        </TouchableWithoutFeedback>
                         {this.state.beeper.isStudent &&
                         <Layout style={styles.group}>
                             <Text>{this.state.beeper.first} is a student 🎓</Text>
