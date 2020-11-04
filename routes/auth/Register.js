@@ -37,6 +37,12 @@ export default class RegisterScreen extends Component {
         //make button show loading state
         this.setState({isLoading: true});
 
+        if (this.state.photo == null) {
+            alert("Please choose a profile photo");
+            this.setState({isLoading: false});
+            return;
+        }
+
         //remove any old tokens they were not able to have been removed
         removeOldToken();
 
@@ -140,7 +146,6 @@ export default class RegisterScreen extends Component {
 
            if (!result.cancelled) {
                form.append("photo", photo);
-               //form.append("photo", photo.uri);
            }
            else {
                this.setState({ isLoading: false });
@@ -246,12 +251,13 @@ export default class RegisterScreen extends Component {
                             ref={(input)=>this.seventhTextInput = input}
                             onChangeText={(text) => this.setState({password:text})}
                             onSubmitEditing={() => this.handleRegister()} />
-                        <Layout>
-                            {this.state.photo && <Image source={{ uri: this.state.photo }} style={{ width: 50, height: 50, borderRadius: 50/ 2, marginTop: 10, marginBottom: 10 }} />}
+                        <Layout style={{flex: 1, flexDirection: "row", justifyContent: "center", marginTop: 5, marginBottom: 5}}>
+                            {this.state.photo && <Image source={{ uri: this.state.photo }} style={{ width: 50, height: 50, borderRadius: 50/ 2, marginTop: 10, marginBottom: 10, marginRight: 10 }} />}
                             <Button
                                 onPress={() => this.handlePhoto()}
                                 accessoryRight={PhotoIcon}
-                                style={{width: "50%"}}
+                                style={{width: "60%"}}
+                                size="small"
                             >
                                 Choose Profile Photo
                             </Button>
