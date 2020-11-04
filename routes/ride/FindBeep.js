@@ -364,11 +364,13 @@ export class MainFindBeepScreen extends Component {
                 return(
                     <Layout style={styles.container}>
                         <Layout onPress={() => this.props.navigation.navigate("Profile", {id: this.state.beeper.id})} style={{alignItems: "center", justifyContent: 'center'}}>
+                            {this.state.beeper.photoUrl &&
                             <Image
                                 style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
                                 size='large'
                                 source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                             />
+                            }
                             <Layout style={styles.group}>
                                 <Text category='h5'>{this.state.beeper.first} {this.state.beeper.last}</Text>
                                 <Text appearance='hint'>is avalible to beep you!</Text>
@@ -498,11 +500,13 @@ export class MainFindBeepScreen extends Component {
                 return (
                     <Layout style={styles.container}>
                         <Layout onPress={() => this.props.navigation.navigate("Profile", {id: this.state.beeper.id})} style={{alignItems: "center", justifyContent: 'center'}}>
+                            {this.state.beeper.photoUrl &&
                             <Image
                                 style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
                                 size='large'
                                 source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                             />
+                            }
                             <Layout style={styles.group}>
                                 <Text category='h6'>{this.state.beeper.first} {this.state.beeper.last}</Text>
                                 <Text appearance='hint'>is your beeper!</Text>
@@ -615,11 +619,13 @@ export class MainFindBeepScreen extends Component {
                     <Layout style={styles.container}>
                         <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", {id: this.state.beeper.id})} style={{alignItems: "center", justifyContent: 'center'}}>
                             <>
+                            {this.state.beeper.photoUrl &&
                             <Image
                                 style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
                                 size='large'
                                 source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                             />
+                            }
                             <Layout style={styles.group}>
                             <Text appearance='hint'>Waiting on</Text>
                             <Text category='h6'>{this.state.beeper.first} {this.state.beeper.last}</Text>

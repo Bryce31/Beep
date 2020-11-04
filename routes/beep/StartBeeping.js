@@ -376,11 +376,13 @@ export class StartBeepingScreen extends Component {
                                     <Layout
                                         style={{flex: 1, flexDirection: "row", alignItems: 'center'}}
                                     >
+                                        {item.personalInfo.photoUrl &&
                                         <Image
                                             style={{width: 50, height: 50, borderRadius: 50/ 2 }}
                                             size='large'
                                             source={{uri: item.personalInfo.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                                         />
+                                        }
                                         <Text category="h6" style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
                                         {item.personalInfo.isStudent && <Text>🎓</Text>}
                                     </Layout>
@@ -459,11 +461,13 @@ export class StartBeepingScreen extends Component {
                                     onPress={() => this.props.navigation.navigate("Profile", {id: item.riderid})}
                                 >
                                     <Layout style={{flex: 1, flexDirection: "row", alignItems: 'center'}}>
+                                        {item.personalInfo.photoUrl &&
                                         <Image
                                             style={{width: 50, height: 50, borderRadius: 50/ 2 }}
                                             size='large'
                                             source={{uri: item.personalInfo.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                                         />
+                                        }
                                         <Text category="h6" style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
                                         {item.personalInfo.isStudent && <Text>🎓</Text>}
                                     </Layout>
