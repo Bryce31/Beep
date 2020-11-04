@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Avatar, Layout, Button, Card, Text } from '@ui-kitten/components';
+import { Image, StyleSheet, View } from 'react-native';
+import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../../utils/ThemeContext';
 import { UserContext } from '../../utils/UserContext.js';
 import socket from '../../utils/Socket';
@@ -94,10 +94,10 @@ export function MainSettingsScreen({ navigation }) {
 
     function UserHeader(props) {
         return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
-            <Avatar
-                style={{marginHorizontal: 8}}
+            <Image
+                style={{marginHorizontal: 8, width: 50, height: 50}}
                 size='large'
-                source={{url:"https://avatars0.githubusercontent.com/u/6440455?s=460&u=620a6db2fd54f8b2388ee02e5d963c743af89f34&v=4"}}
+                source={{uri: userContext.user.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
             />
             <Layout>
                 <Text category='h4'>
@@ -149,6 +149,15 @@ export function MainSettingsScreen({ navigation }) {
                     appearance='ghost'
                 >
                     Edit Profile
+                </Button>
+                <Button
+                    onPress={() => navigation.navigate("ProfilePhotoScreen")}
+                    accessoryLeft={ProfileIcon}
+                    accessoryRight={ForwardIcon}
+                    style={styles.button}
+                    appearance='ghost'
+                >
+                    Profile Photo
                 </Button>
                 <Button
                     onPress={() => navigation.navigate("ChangePasswordScreen")}

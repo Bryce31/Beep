@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet } from "react-native"
+import { Image, StyleSheet } from "react-native"
 import { Button, Spinner, Text, Layout, TopNavigation, TopNavigationAction } from "@ui-kitten/components";
 import { BackIcon, ReportIcon } from "../../utils/Icons";
 import { config } from "../../utils/config";
@@ -75,6 +75,11 @@ export class ProfileScreen extends Component {
                 <>
                     <TopNavigation title='User Profile' alignment='center' accessoryLeft={BackAction}/>
                     <Layout style={styles.container}>            
+                        <Image
+                            style={{marginHorizontal: 8, width: 50, height: 50}}
+                            size='large'
+                            source={{uri: user.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                        />
                         <Text style={styles.item} category="h1">{user.first} {user.last}</Text>
 
                         {user.isBeeping && <Text style={styles.item} >{user.first} is beeping 🚗</Text>}
