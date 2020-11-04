@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
-import { StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Platform } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Text, Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext.js';
 import { removeOldToken } from '../../utils/OfflineToken.js';
 import { config } from "../../utils/config";
-import { BackIcon, SignUpIcon, LoadingIndicator } from "../../utils/Icons";
+import { PhotoIcon, BackIcon, SignUpIcon, LoadingIndicator } from "../../utils/Icons";
 import { getPushToken } from "../../utils/Notifications";
 import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as Linking from 'expo-linking';
 import socket from "../../utils/Socket";
- 
+import * as ImagePicker from 'expo-image-picker';
+
+let result; 
+
 export default class RegisterScreen extends Component {
     static contextType = UserContext;
 
@@ -26,6 +29,7 @@ export default class RegisterScreen extends Component {
             venmo: '',
             username: '',
             password: '',
+            photo: null
         }
     }
 
@@ -73,6 +77,8 @@ export default class RegisterScreen extends Component {
                     //store user in storage so user can persist untill logout
                     AsyncStorage.setItem("@user", JSON.stringify(data));
 
+                    this.uploadPhoto();
+
                     //Signup has been completed. We are ready to send user into main app.
                     //Use our Navigation we defined earlier to RESET the navigation stack where Main is the root
                     this.props.navigation.reset({
@@ -92,6 +98,80 @@ export default class RegisterScreen extends Component {
         })
         .catch((error) => {
             this.setState({ isLoading: handleFetchError(error) });
+        });
+    }
+
+   async handlePhoto() {
+       result = await ImagePicker.launchImageLibraryAsync({
+           mediaTypes: ImagePicker.MediaTypeOptions.Images,
+           allowsMultipleSelection: false,
+           allowsEditing: true,
+           aspect: [4, 3],
+           base64: false
+       });
+       this.setState({photo: result.uri});
+    }
+
+    async uploadPhoto() {
+       let form = new FormData();
+
+       if (Platform.OS !== "ios" && Platform.OS !== "android") {
+           console.log("Running as if this is a web device");
+           await fetch(result.uri)
+               .then(res => res.blob())
+               .then(blob => {
+                   const fileType = blob.type.split("/")[1];
+                   const file = new File([blob], "photo." + fileType);
+                   form.append('photo', file)
+               });
+       }
+       else {
+           console.log("Runing as mobile device");
+           console.log(result);
+           const fileType = result.uri.substr(result.uri.lastIndexOf("."), result.uri.length);
+           console.log(fileType);
+           this.setState({photo: result.uri});
+
+           const photo = {
+               uri: result.uri,
+               type: 'image/jpeg',
+               name: 'photo' + fileType,
+           };
+
+           if (!result.cancelled) {
+               form.append("photo", photo);
+               //form.append("photo", photo.uri);
+           }
+           else {
+               this.setState({ isLoading: false });
+           }
+       }
+
+       fetch(config.apiUrl + "/files/upload", {
+           method: "POST",
+           headers: {
+               //'Content-Type': `multipart/form-data`,
+               "Authorization": "Bearer " + this.context.user.token
+           },
+           body: form
+       })
+        .then(response => {
+            response.json().then(data => {
+                //make a copy of the current user
+                let tempUser = this.context.user;
+
+                //update the tempUser with the new data
+                tempUser.photoUrl = data.url;
+
+                //update the context
+                this.context.setUser(tempUser);
+
+                //put the tempUser back into storage
+                AsyncStorage.setItem('@user', JSON.stringify(tempUser));
+            });
+        })
+        .catch((error) => {
+            console.error(error);
         });
     }
 
@@ -166,6 +246,16 @@ export default class RegisterScreen extends Component {
                             ref={(input)=>this.seventhTextInput = input}
                             onChangeText={(text) => this.setState({password:text})}
                             onSubmitEditing={() => this.handleRegister()} />
+                        <Layout>
+                            {this.state.photo && <Image source={{ uri: this.state.photo }} style={{ width: 50, height: 50, borderRadius: 50/ 2, marginTop: 10, marginBottom: 10 }} />}
+                            <Button
+                                onPress={() => this.handlePhoto()}
+                                accessoryRight={PhotoIcon}
+                                style={{width: "50%"}}
+                            >
+                                Choose Profile Photo
+                            </Button>
+                        </Layout>
                         {!this.state.isLoading ? 
                             <Button
                                 onPress={() => this.handleRegister()}

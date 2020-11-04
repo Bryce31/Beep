@@ -61,6 +61,8 @@ export function MainSettingsScreen({ navigation }) {
             });
         });
 
+        userContext.setUser(null);
+
         //Now that we have completed the logout procedue, send them to the Login page.
         navigation.reset({
             index: 0,
