@@ -34,6 +34,11 @@ export class ProfilePhotoScreen extends Component {
            base64: false
        });
 
+       if (result.cancelled) {
+           this.setState({ isLoading: false });
+           return;
+       }
+
        if (Platform.OS !== "ios" && Platform.OS !== "android") {
            console.log("Running as if this is a web device");
            await fetch(result.uri)
