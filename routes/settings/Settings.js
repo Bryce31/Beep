@@ -95,11 +95,13 @@ export function MainSettingsScreen({ navigation }) {
 
     function UserHeader(props) {
         return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
+            {userContext.user.photoUrl &&
             <Image
                 style={{marginHorizontal: 8, width: 50, height: 50, borderRadius: 60/ 2}}
                 size='large'
                 source={{uri: userContext.user.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
             />
+            }
             <Layout>
                 <Text category='h4'>
                     {props.user.first + " " + props.user.last}
