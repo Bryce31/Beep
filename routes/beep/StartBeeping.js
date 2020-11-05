@@ -10,13 +10,7 @@ import ActionButton from "../../components/ActionButton";
 import AcceptDenyButton from "../../components/AcceptDenyButton";
 import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
-import {
-    PhoneIcon,
-    TextIcon,
-    VenmoIcon,
-    MapsIcon,
-    DollarIcon,
-} from '../../utils/Icons.js';
+import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons.js';
 
 export class StartBeepingScreen extends Component {
     static contextType = UserContext;
@@ -198,10 +192,6 @@ export class StartBeepingScreen extends Component {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return handleStatusCodeError(response);
-            }
-
             response.json().then(data => {
                 if (data.status === "success") {
                     //We sucessfuly updated beeper status in database
