@@ -118,7 +118,7 @@ export default class App extends Component {
 
             const isUserLoggedIn = this.state.user !== null && this.state.user.token !== null;
             
-            if ((!Boolean(isSocketGettingUser)) && isUserLoggedIn) {
+            if ((isSocketGettingUser == "false") && isUserLoggedIn) {
                 console.log("Client and socket don't agree on whether or not client should be listening for user updates");
                 socket.emit('getUser', this.state.user.token);
             }

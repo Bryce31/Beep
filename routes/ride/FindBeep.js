@@ -7,17 +7,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { UserContext } from '../../utils/UserContext.js';
 import { config } from '../../utils/config';
 import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
-import {
-    PhoneIcon, 
-    TextIcon, 
-    VenmoIcon,
-    LeaveIcon,
-    BackIcon,
-    GetIcon,
-    FindIcon,
-    ShareIcon,
-    LoadingIndicator
-} from '../../utils/Icons.js';
+import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons.js';
 
 export class MainFindBeepScreen extends Component {
     static contextType = UserContext;
@@ -56,14 +46,19 @@ export class MainFindBeepScreen extends Component {
         });
 
         socket.on("isInRideData", (isSocketGettingRide) => {
-            console.log(isSocketGettingRide);
-
             if (!socket.connected) {
                 console.log("Socket is not connected! This is bad");
             }
 
             if (isSocketGettingRide != String(this.state.foundBeep)) {
                 console.log("Client and socket don't agree on whether or not client should be listening for ride data");
+
+                if (isSocketGettingRide == "true") {
+                    console.log(" - socket says client wants rider status but client does not want rider status");
+                }
+                else {
+                    console.log(" - socket says it is not sending rider updates while client wants updates");
+                }
                 if (this.state.foundBeep) {
                     //there is a disagreement between the client and the socket server. 
                     //Asume client is connect and enable getting queue

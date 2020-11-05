@@ -85,14 +85,20 @@ export class StartBeepingScreen extends Component {
         });
 
         socket.on("isBeepingData", (isSocketGettingQueue) => {
-            console.log(isSocketGettingQueue);
-
             if (!socket.connected) {
-                console.log("Socket is not connected! This is bad");
+                console.log("[Socket Issue] Socket is not connected! This is bad");
             }
 
-            if (isSocketGettingQueue != String(this.state.isBeeping)) {
-                console.log("Client and socket don't agree on whether or not client should be listening for queue");
+            if (isSocketGettingQueue !== String(this.state.isBeeping)) {
+                console.log("[Socket Issue] Client and socket don't agree on whether or not client should be listening for queue");
+
+                if (isSocketGettingQueue == "true") {
+                    console.log(" - socket says client wants queue but client does not want queue");
+                }
+                else {
+                    console.log(" - socket says it is not sending queue updates while client wants updates");
+                }
+
                 if (this.state.isBeeping) {
                     //there is a disagreement between the client and the socket server. 
                     //Asume client is connect and enable getting queue
@@ -106,6 +112,28 @@ export class StartBeepingScreen extends Component {
             console.log("Checking to see if socket it working ok");
             socket.emit('isBeeping');
         }, 8000);
+    }
+
+    async UNSAFE_componentWillReceiveProps() {
+        if (this.state.isBeeping != this.context.user.isBeeping) {
+            if (this.context.user.isBeeping) {
+                //if we are turning on isBeeping, ensure we have location permission
+                let { status } = await Location.requestPermissionsAsync();
+
+                if (status !== 'granted') {
+                    this.setState({ isBeeping: false });
+                    return alert("You must allow location to beep!");
+                }
+
+                //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
+                this.enableGetQueue();
+            }
+            else {
+                //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
+                this.disableGetQueue();
+            }
+            this.setState({ isBeeping: this.context.user.isBeeping });
+        }
     }
 
     componentWillUnmount() {
