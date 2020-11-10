@@ -54,8 +54,3 @@ Banks Nussman - [@bnussman](https://twitter.com/bnussman) - banks@nussman.us
 
 ## Acknowledgements
 * [Expo](https://expo.io)
-
-## Related Beep App Repos
-* [Beep-API-v3](https://gitlab.nussman.us/beep-app/Beep-API-v3)
-* [Beep-Socket](https://gitlab.nussman.us/beep-app/Beep-Socket)
-* [Beep-Website](https://github.com/bnussman/Beep-Website)
