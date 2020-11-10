@@ -22,11 +22,25 @@ import socket, { getUpdatedUser } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
 
 const Stack = createStackNavigator();
-let initialScreen;
+let initialScreen: string;
 
-export default class App extends Component {
+interface User {
+    token?: string;
+}
 
-    constructor(props) {
+interface AppProps {
+    
+}
+
+//App State, lol
+interface AppState {
+    user: User;
+    theme: string;
+}
+
+export default class App extends Component<AppProps, AppState> {
+
+    constructor(props: AppProps) {
         super(props);
         this.state = {
             user: {},
@@ -40,11 +54,11 @@ export default class App extends Component {
         AsyncStorage.setItem('@theme', nextempTheme);
     }
 
-    setUser = (user) => {
+    setUser = (user: User) => {
         this.setState({ user: user });
     }
 
-    handleAppStateChange = nextAppState => {
+    handleAppStateChange = (nextAppState: string) => {
         if (nextAppState === "active" && !socket.connected && this.state.user) {
             socket.emit('getUser', this.state.user.token);
         }
@@ -103,7 +117,7 @@ export default class App extends Component {
             console.log("[App.js] [AsyncStorage] ", error);
         });
 
-        socket.on('updateUser', data => {
+        socket.on('updateUser', (data: unknown) => {
             const updatedUser = getUpdatedUser(this.state.user, data);
             if (updatedUser != null) {
                 AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
@@ -111,7 +125,7 @@ export default class App extends Component {
             }
         });
 
-        socket.on("isGettingUserData", (isSocketGettingUser) => {
+        socket.on("isGettingUserData", (isSocketGettingUser: string) => {
             if (!socket.connected) {
                 console.log("Socket is not connected! This is bad");
             }
