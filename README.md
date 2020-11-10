@@ -7,10 +7,6 @@
 
   <p align="center">
     A simple way to get a ride at Appalachian State University. A product by students for students.
-    <br />
-    <br />
-    <a href="https://www.youtube.com/watch?v=dOxNLhEI5mE">View Demo</a>
-  </p>
 </p>
 
 <p align="center">
