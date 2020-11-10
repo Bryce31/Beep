@@ -44,6 +44,7 @@ expo start
 ## Help us imporove the Beep App
 
 See the [open issues](https://github.com/bnussman/Beep/issues) for a list of proposed features and known issues
+
 ## License
 
 Please don't take our code and use it to make a competing app
@@ -51,6 +52,3 @@ Please don't take our code and use it to make a competing app
 ## Contact
 
 Banks Nussman - [@bnussman](https://twitter.com/bnussman) - banks@nussman.us
-
-## Acknowledgements
-* [Expo](https://expo.io)
