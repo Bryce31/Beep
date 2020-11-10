@@ -6,12 +6,12 @@
   <h3 align="center">Ride Beep App</h3>
 
   <p align="center">
-    A simple way to get a ride at Appalachian State University. A product by students for students.    <br />
+    A simple way to get a ride at Appalachian State University. A product by students for students.
+    <br />
+    <br />
     <a href="https://www.youtube.com/watch?v=dOxNLhEI5mE">View Demo</a>
   </p>
 </p>
-
-## About The Beep App
 
 <p align="center">
     <img src="https://ridebeep.app/white.png" alt="Screenshot" height="400">
