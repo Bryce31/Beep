@@ -14,7 +14,7 @@ import { ApplicationProvider, IconRegistry, Layout } from '@ui-kitten/components
 import { default as beepTheme } from './utils/theme.json';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
 import { ThemeContext } from './utils/ThemeContext';
-import { UserContext } from './utils/UserContext.js';
+import { UserContext } from './utils/UserContext';
 import * as SplashScreen from 'expo-splash-screen';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { updatePushToken } from "./utils/Notifications";

@@ -3,14 +3,14 @@ import * as Location from 'expo-location';
 import { Image, StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Card, Layout, Text, Button, Input, Toggle, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
-import { UserContext } from '../../utils/UserContext.js';
+import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import * as Notifications from 'expo-notifications';
 import ActionButton from "../../components/ActionButton";
 import AcceptDenyButton from "../../components/AcceptDenyButton";
 import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
-import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons.js';
+import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons';
 
 export class StartBeepingScreen extends Component {
     static contextType = UserContext;

@@ -3,7 +3,7 @@ import { Platform, StyleSheet, Keyboard, TouchableWithoutFeedback } from "react-
 import { Input, Button, Layout, TopNavigation, TopNavigationAction } from "@ui-kitten/components";
 import { BackIcon } from "../../utils/Icons";
 import { config } from "../../utils/config";
-import { UserContext } from '../../utils/UserContext.js';
+import { UserContext } from '../../utils/UserContext';
 import { LoadingIndicator, ReportIcon } from "../../utils/Icons";
 import { parseError } from "../../utils/Errors";
 

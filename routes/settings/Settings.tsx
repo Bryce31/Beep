@@ -2,13 +2,12 @@ import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../../utils/ThemeContext';
-import { UserContext } from '../../utils/UserContext.js';
+import { UserContext } from '../../utils/UserContext';
 import socket from '../../utils/Socket';
-import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../../utils/Icons.js';
+import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../../utils/Icons';
 import { config } from "../../utils/config";
 import { handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
-import photo from "../../assets/icon.png";
 
 export function MainSettingsScreen({ navigation }) {
     const themeContext = React.useContext(ThemeContext);

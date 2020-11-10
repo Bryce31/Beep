@@ -3,7 +3,7 @@ import { Layout, Text, Divider, List, ListItem, Spinner } from '@ui-kitten/compo
 import { StyleSheet } from 'react-native';
 import { config } from "../../utils/config";
 import { handleStatusCodeError, handleFetchError } from "../../utils/Errors";
-import { UserContext } from '../../utils/UserContext.js';
+import { UserContext } from '../../utils/UserContext';
 
 export class RiderRideLogScreen extends Component {
     static contextType = UserContext;

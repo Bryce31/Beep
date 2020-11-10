@@ -4,10 +4,10 @@ import { Icon, Layout, Text, Button, Input, CheckBox } from '@ui-kitten/componen
 import * as Location from 'expo-location';
 import socket from '../../utils/Socket'
 import * as SplashScreen from 'expo-splash-screen';
-import { UserContext } from '../../utils/UserContext.js';
+import { UserContext } from '../../utils/UserContext';
 import { config } from '../../utils/config';
 import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
-import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons.js';
+import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 
 export class MainFindBeepScreen extends Component {
     static contextType = UserContext;
