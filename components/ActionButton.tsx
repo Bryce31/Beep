@@ -1,12 +1,17 @@
 import React, { Component } from "react";
-import { StyleSheet } from "react-native";
-import { Button } from "@ui-kitten/components";
-import { UserContext } from '../utils/UserContext.js';
+import { StyleSheet, View } from "react-native";
+import { Button, Spinner } from "@ui-kitten/components";
+import { UserContext } from '../utils/UserContext';
 import { config } from "../utils/config";
-import { AcceptIcon, DenyIcon, AcceptIndicator, DenyIndicator } from "../utils/Icons";
 import { handleFetchError, handleStatusCodeError } from "../utils/Errors";
 
-export default class AcceptDenyButton extends Component {
+const LoadingIndicator = () => (
+  <View style={styles.indicator}>
+    <Spinner size='small'/>
+  </View>
+);
+
+export default class ActionButton extends Component {
     static contextType = UserContext;
 
     constructor(props) {
@@ -51,24 +56,38 @@ export default class AcceptDenyButton extends Component {
             this.setState({ isLoading: handleFetchError(error) });
         });
     }
-    
+
+    getMessage() {
+        switch(this.props.item.state) {
+            case 0:
+                return "I'm on the way";
+            case 1:
+                return "I'm here";
+            case 2:
+                return "I'm now beeping this rider";
+            case 3:
+                return "I'm done beeping this rider";
+            default:
+                return "Yikes";
+        }
+    }
 
     render() {
         if (this.state.isLoading) {
-            return(
-                <Button style={styles.button} appearance="outline" status={(this.props.type == "accept") ? "success" : "danger" } accessoryLeft={(this.props.type == "accept") ? AcceptIndicator : DenyIndicator }>
+            return (
+                <Button appearance='outline' accessoryLeft={LoadingIndicator}>
                     Loading
                 </Button>
             );
         }
 
         return (
-            <Button style={styles.button} status={(this.props.type == "accept") ? "success" : "danger" } accessoryLeft={(this.props.type == "accept") ? AcceptIcon : DenyIcon } onPress={()=> this.updateStatus(this.props.item.id, this.props.item.riderid, this.props.type)}>
-                {(this.props.type == "accept") ? "Accept" : "Deny" }
+            <Button onPress={() => this.updateStatus(this.props.item.id, this.props.item.riderid, (this.props.item.state < 3) ? "next" : "complete")}>
+                {this.getMessage()}
             </Button>
-        );
+        ) 
     }
-}
+} 
 
 const styles = StyleSheet.create({
     container: {
@@ -77,5 +96,9 @@ const styles = StyleSheet.create({
     },
     button: {
         margin: 2,
+    },
+    indicator: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

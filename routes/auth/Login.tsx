@@ -3,9 +3,9 @@ import { Platform, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-
 import AsyncStorage from '@react-native-community/async-storage';
 import { Layout, Text, Button, Input } from '@ui-kitten/components';
 import * as SplashScreen from 'expo-splash-screen';
-import { UserContext } from '../../utils/UserContext.js';
-import { removeOldToken } from '../../utils/OfflineToken.js';
-import { getPushToken } from '../../utils/Notifications.js';
+import { UserContext } from '../../utils/UserContext';
+import { removeOldToken } from '../../utils/OfflineToken';
+import { getPushToken } from '../../utils/Notifications';
 import { config } from '../../utils/config';
 import { LoginIcon, SignUpIcon, QuestionIcon, LoadingIndicator } from '../../utils/Icons';
 import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
