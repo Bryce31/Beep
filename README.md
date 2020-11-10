@@ -3,7 +3,7 @@
     <img src="https://ridebeep.app/favicon.png" alt="Logo" width="50" height="50">
   </a>
 
-  <h3 align="center">Ride Beep App</h3>
+  <h1 align="center">Ride Beep App</h1>
 
   <p align="center">
     A simple way to get a ride at Appalachian State University. A product by students for students.
