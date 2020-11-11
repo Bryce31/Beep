@@ -9,10 +9,27 @@ import { config } from '../../utils/config';
 import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 
-export class MainFindBeepScreen extends Component {
+interface Props {
+    navigation: any;
+}
+
+interface State {
+    isLoading: boolean;
+    foundBeep: boolean;
+    isAccepted: boolean;
+    groupSize: string;
+    startLocation: string;
+    destination: string;
+    pickBeeper: boolean;
+    beeper: any;
+    state: number;
+    ridersQueuePosition: number;
+}
+
+export class MainFindBeepScreen extends Component<Props, State> {
     static contextType = UserContext;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,
@@ -22,7 +39,9 @@ export class MainFindBeepScreen extends Component {
             startLocation: '',
             destination: '',
             pickBeeper: true,
-            beeper: {}
+            beeper: {},
+            state: 0,
+            ridersQueuePosition: 0
         }
     }
 
@@ -45,7 +64,7 @@ export class MainFindBeepScreen extends Component {
             this.getRiderStatus(false);
         });
 
-        socket.on("isInRideData", (isSocketGettingRide) => {
+        socket.on("isInRideData", (isSocketGettingRide: string) => {
             if (!socket.connected) {
                 console.log("Socket is not connected! This is bad");
             }
@@ -78,14 +97,14 @@ export class MainFindBeepScreen extends Component {
         AppState.removeEventListener("change", this.handleAppStateChange);
     }
 
-    handleAppStateChange = nextAppState => {
+    handleAppStateChange = (nextAppState: string) => {
         if(nextAppState === "active" && !socket.connected && this.state.beeper.id) {
             this.getRiderStatus(true);
             console.log("Socket.io is not conntected! We need to reconnect to continue to get updates");
         }
     }
 
-    getRiderStatus(isInitial) {
+    getRiderStatus(isInitial?: boolean) {
         fetch(config.apiUrl + "/rider/status", {
             method: "POST",
             headers: {
@@ -154,7 +173,7 @@ export class MainFindBeepScreen extends Component {
         });
     }
 
-    chooseBeep = (id) => {
+    chooseBeep = (id: string) => {
         if(this.state.startLocation == "Loading Location...") {
             alert("Please let your current location finish loading or manualy enter your pickup location");
         }
@@ -206,7 +225,7 @@ export class MainFindBeepScreen extends Component {
         if (this.state.pickBeeper) {
             //navigate to the Pick Beeper Screen and terminate this function
             this.props.navigation.navigate('PickBeepScreen', {
-                handlePick: (id) => this.chooseBeep(id)
+                handlePick: (id: string) => this.chooseBeep(id)
             });
             return;
         }
@@ -319,7 +338,7 @@ export class MainFindBeepScreen extends Component {
     }
 
     getVenmoLink = () => {
-        if (this.state.groupSize > 1) {
+        if (Number(this.state.groupSize) > 1) {
             return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper.venmo + '&amount=' + this.state.beeper.groupRate + '&note=Beep';
         }
         return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper.venmo + '&amount=' + this.state.beeper.singlesRate + '&note=Beep';
@@ -339,7 +358,7 @@ export class MainFindBeepScreen extends Component {
     render () {
         console.log("[MainFindBeep.js] Rendered");
 
-        const CurrentLocationIcon = (props) => (
+        const CurrentLocationIcon = (props: Props) => (
             <TouchableWithoutFeedback onPress={this.useCurrentLocation}>
                 <Icon {...props} name='pin'/>
             </TouchableWithoutFeedback>
@@ -362,7 +381,6 @@ export class MainFindBeepScreen extends Component {
                             {this.state.beeper.photoUrl &&
                             <Image
                                 style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
-                                size='large'
                                 source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                             />
                             }
@@ -498,7 +516,6 @@ export class MainFindBeepScreen extends Component {
                             {this.state.beeper.photoUrl &&
                             <Image
                                 style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
-                                size='large'
                                 source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                             />
                             }
@@ -572,7 +589,6 @@ export class MainFindBeepScreen extends Component {
                             status='basic'
                             accessoryRight={PhoneIcon}
                             style={styles.buttons}
-                            title="Text Beeper"
                             onPress={() =>{ Linking.openURL('tel:' + this.state.beeper.phone); } }
                         >
                         Call Beeper
@@ -594,7 +610,7 @@ export class MainFindBeepScreen extends Component {
                         >
                         Pay Beeper with Venmo
                         </Button> 
-                        {(this.state.groupSize > 1) ?
+                        {(Number(this.state.groupSize) > 1) ?
 
                         <Button
                             status='basic'
@@ -617,7 +633,6 @@ export class MainFindBeepScreen extends Component {
                             {this.state.beeper.photoUrl &&
                             <Image
                                 style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
-                                size='large'
                                 source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                             />
                             }

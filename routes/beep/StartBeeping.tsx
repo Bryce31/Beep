@@ -12,12 +12,27 @@ import { parseError, handleFetchError, handleStatusCodeError } from "../../utils
 import AsyncStorage from '@react-native-community/async-storage';
 import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons';
 
-export class StartBeepingScreen extends Component {
+interface Props {
+    navigation: any;
+}
+
+interface State {
+    isBeeping: boolean; 
+    masksRequired: boolean;
+    capacity: undefined | string;
+    singlesRate: undefined | string;
+    groupRate: undefined | string;
+    queue: any[];
+    currentIndex: number;
+}
+
+export class StartBeepingScreen extends Component<Props, State> {
     static contextType = UserContext;
     
-    constructor(props, context) {
+    constructor(props: Props, context: any) {
         super(props);
         this.state = {
+            currentIndex: 0,
             isBeeping: context.user.isBeeping,
             masksRequired: context.user.masksRequired,
             capacity: String(context.user.capacity),
@@ -64,7 +79,7 @@ export class StartBeepingScreen extends Component {
                     }
                 }
                 else {
-                    alert(message);
+                    alert(responseJson.message);
                 }
             })
         })
@@ -84,7 +99,7 @@ export class StartBeepingScreen extends Component {
             this.getQueue();
         });
 
-        socket.on("isBeepingData", (isSocketGettingQueue) => {
+        socket.on("isBeepingData", (isSocketGettingQueue: string) => {
             if (!socket.connected) {
                 console.log("[Socket Issue] Socket is not connected! This is bad");
             }
@@ -140,7 +155,7 @@ export class StartBeepingScreen extends Component {
         AppState.removeEventListener("change", this.handleAppStateChange);
     }
 
-    handleAppStateChange = nextAppState => {
+    handleAppStateChange = (nextAppState: string) => {
         if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
             console.log("socket is not connected but user is beeping! We need to resubscribe and get our queue.");
             this.enableGetQueue();
@@ -171,7 +186,7 @@ export class StartBeepingScreen extends Component {
                     //We sucessfuly updated beeper status in database
                     //This will calculate the array index of your current beep
                     //TODO revisit this, I think the index will always be zero?
-                    let currentIndex;
+                    let currentIndex = 0;
                     for(let i = 0;  i < data.queue.length; i++) {
                         if (data.queue[i].isAccepted) {
                             currentIndex = i;
@@ -185,7 +200,7 @@ export class StartBeepingScreen extends Component {
         .catch((error) => handleFetchError(error));
     }
 
-    toggleSwitch = async (value) => {
+    toggleSwitch = async (value: boolean) => {
         //Update the toggle switch's value into a isBeeping state
         this.setState({ isBeeping: value });
 
@@ -264,7 +279,7 @@ export class StartBeepingScreen extends Component {
     }
 
 
-    updateSingles = (value) => {
+    updateSingles = (value: undefined | string) => {
         this.setState({singlesRate: value});
 
         let tempUser = this.context.user;
@@ -274,7 +289,7 @@ export class StartBeepingScreen extends Component {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    updateGroup = (value) => {
+    updateGroup = (value: undefined | string) => {
         this.setState({groupRate: value});
 
         let tempUser = this.context.user;
@@ -284,7 +299,7 @@ export class StartBeepingScreen extends Component {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    updateCapacity = (value) => {
+    updateCapacity = (value: undefined | string) => {
         this.setState({capacity: value});
 
         let tempUser = this.context.user;
@@ -294,7 +309,7 @@ export class StartBeepingScreen extends Component {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    handleDirections = (origin, dest) => {
+    handleDirections = (origin: string, dest: string) => {
         if (Platform.OS == 'ios') {
             Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
         }
@@ -303,7 +318,7 @@ export class StartBeepingScreen extends Component {
         }
     }
 
-    handleVenmo = (groupSize, venmo) => {
+    handleVenmo = (groupSize: string | number, venmo: string) => {
         if (groupSize > 1) {
             Linking.openURL('venmo://paycharge?txn=pay&recipients='+ venmo + '&amount=' + this.state.groupRate + '&note=Beep');
         }
@@ -397,7 +412,6 @@ export class StartBeepingScreen extends Component {
                                         {item.personalInfo.photoUrl &&
                                         <Image
                                             style={{width: 50, height: 50, borderRadius: 50/ 2 }}
-                                            size='large'
                                             source={{uri: item.personalInfo.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                                         />
                                         }
@@ -469,7 +483,10 @@ export class StartBeepingScreen extends Component {
                                         Get Directions for Beep
                                         </Button>
                                     }
-                                    <ActionButton ref={this.actionButtonElement} item={item}/>
+                                    <ActionButton ref={
+                                    //@ts-ignore
+                                        this.actionButtonElement
+                                    } item={item}/>
                                 </Card>
 
                                 :
@@ -482,7 +499,6 @@ export class StartBeepingScreen extends Component {
                                         {item.personalInfo.photoUrl &&
                                         <Image
                                             style={{width: 50, height: 50, borderRadius: 50/ 2 }}
-                                            size='large'
                                             source={{uri: item.personalInfo.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                                         />
                                         }

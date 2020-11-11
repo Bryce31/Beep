@@ -5,10 +5,19 @@ import { config } from "../../utils/config";
 import { handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 import { UserContext } from '../../utils/UserContext';
 
-export class RiderRideLogScreen extends Component {
+interface Props {
+    navigation: any;
+}
+
+interface State {
+    isLoading: boolean;
+    riderList: any[];
+}
+
+export class RiderRideLogScreen extends Component<Props, State> {
     static contextType = UserContext;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: true,
@@ -43,7 +52,7 @@ export class RiderRideLogScreen extends Component {
     }
 
     render() {
-        const renderItem = ({ item, index }) => (
+        const renderItem = ({ item }: any) => (
             <ListItem
                 onPress={() => this.props.navigation.push("Profile", { id: item.beepersid })}
                 title={`${item.beepersName} beeped you`}

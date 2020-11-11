@@ -6,10 +6,20 @@ import { config } from "../../utils/config";
 import { EditIcon, LoadingIndicator, BackIcon } from "../../utils/Icons";
 import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 
-export class ChangePasswordScreen extends Component {
+interface Props {
+    navigation: any;
+}
+
+interface State {
+    isLoading: boolean;
+    password: string;
+    password2: string;
+}
+
+export class ChangePasswordScreen extends Component<Props, State> {
     static contextType = UserContext;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,
@@ -74,7 +84,7 @@ export class ChangePasswordScreen extends Component {
                             textContentType="password"
                             placeholder="New Password"
                             onChangeText={(text) => this.setState({password: text})}
-                            onSubmitEditing={()=>this.secondTextInput.focus()} />
+                            onSubmitEditing={() => this.secondTextInput.focus()} />
                         <Input
                             secureTextEntry={true}
                             label="Repeat New Password"
@@ -82,7 +92,7 @@ export class ChangePasswordScreen extends Component {
                             placeholder="New Password"
                             returnKeyType="go"
                             onChangeText={(text) => this.setState({password2: text})}
-                            ref={(input)=>this.secondTextInput = input}
+                            ref={(input) => this.secondTextInput = input}
                             onSubmitEditing={() => this.handleChangePassword()} />
                         {!this.state.isLoading ? 
                             <Button

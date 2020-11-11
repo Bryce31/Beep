@@ -9,10 +9,19 @@ import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 
-export class ProfilePhotoScreen extends Component {
+interface Props {
+    navigation: any;
+}
+
+interface State {
+    isLoading: boolean;
+    photo: any;
+}
+
+export class ProfilePhotoScreen extends Component<Props, State> {
     static contextType = UserContext;
     
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,
@@ -63,8 +72,8 @@ export class ProfilePhotoScreen extends Component {
            };
 
            if (!result.cancelled) {
+               //@ts-ignore
                form.append("photo", photo);
-               //form.append("photo", photo.uri);
            }
            else {
                this.setState({ isLoading: false });

@@ -5,9 +5,19 @@ import { config } from "../../utils/config";
 import { BackIcon, RefreshIcon, GetIcon } from '../../utils/Icons';
 import { handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 
-export class PickBeepScreen extends Component {
+interface Props {
+    navigation: any;
+    route: any;
+}
 
-    constructor(props) {
+interface State {
+    isLoading: boolean;
+    beeperList: any[];
+}
+
+export class PickBeepScreen extends Component<Props, State> {
+
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: true,
@@ -40,13 +50,13 @@ export class PickBeepScreen extends Component {
         this.getBeeperList();
     }
 
-    goBack (id) {
+    goBack (id: string) {
         const { navigation, route } = this.props;
         route.params.handlePick(id);
         navigation.goBack();
     }
 
-    getDescription(item) {
+    getDescription(item: any) {
         let output = `${item.queueSize} in ${item.first}'s queue\nRider Capacity: ${item.capacity}\nSingles: $${item.singlesRate}\nGroups: $${item.groupRate}`;
         if (item.masksRequired) {
             output += "\nMasks required 😷";
@@ -63,7 +73,8 @@ export class PickBeepScreen extends Component {
             <TopNavigationAction icon={RefreshIcon} onPress={() => this.getBeeperList()}/>
         );
 
-        const renderItem = ({ item, index }) => (
+        const renderItem = ({ item }: any) => (
+            //@ts-ignore
             <ListItem
                 onPress={() => this.goBack(item.id)}
                 title={`${item.first} ${item.last}`}
@@ -81,7 +92,6 @@ export class PickBeepScreen extends Component {
                         return (
                             <Image
                                 style={{width: 50, height: 50, borderRadius: 50/ 2 }}
-                                size='large'
                                 source={{uri: item.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
                             />
                         );

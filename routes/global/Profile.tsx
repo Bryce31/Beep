@@ -4,9 +4,19 @@ import { Button, Spinner, Text, Layout, TopNavigation, TopNavigationAction } fro
 import { BackIcon, ReportIcon } from "../../utils/Icons";
 import { config } from "../../utils/config";
 
-export class ProfileScreen extends Component {
+interface Props {
+    route: any; 
+    navigation: any;
+}
 
-    constructor(props) {
+interface State {
+    isLoading: boolean;
+    user: any;
+}
+
+export class ProfileScreen extends Component<Props, State> {
+
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: true,
@@ -78,7 +88,6 @@ export class ProfileScreen extends Component {
                         {user.photoUrl &&
                         <Image
                             style={{marginHorizontal: 8, width: 150, height: 150, borderRadius: 150/ 2 }}
-                            size='large'
                             source={{uri: user.photoUrl}}
                         />
                         }

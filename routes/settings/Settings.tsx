@@ -9,9 +9,9 @@ import { config } from "../../utils/config";
 import { handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 
-export function MainSettingsScreen({ navigation }) {
-    const themeContext = React.useContext(ThemeContext);
-    const userContext = React.useContext(UserContext);
+export function MainSettingsScreen({ navigation }: any) {
+    const themeContext: any = React.useContext(ThemeContext);
+    const userContext: any = React.useContext(UserContext);
 
     async function logout() {
         fetch(config.apiUrl + "/auth/logout", {
@@ -25,7 +25,7 @@ export function MainSettingsScreen({ navigation }) {
             })
         })
         .then(response => {
-            response.json().then(data => {
+            response.json().then(() => {
                 //Logout was successfull
                 console.log("[Settings.js] [Logout] We have internet connection.");
                 //Using AsyncStorage, remove keys on logout.
@@ -92,12 +92,11 @@ export function MainSettingsScreen({ navigation }) {
         .catch((error) => handleFetchError(error));
     }
 
-    function UserHeader(props) {
+    function UserHeader(props: any) {
         return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
             {userContext.user.photoUrl &&
             <Image
                 style={{marginHorizontal: 8, width: 50, height: 50, borderRadius: 60/ 2}}
-                size='large'
                 source={{uri: userContext.user.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
             />
             }

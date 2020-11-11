@@ -7,10 +7,20 @@ import { UserContext } from '../../utils/UserContext';
 import { LoadingIndicator, ReportIcon } from "../../utils/Icons";
 import { parseError } from "../../utils/Errors";
 
-export class ReportScreen extends Component {
+interface Props {
+    route: any;
+    navigation: any;
+}
+
+interface State {
+    isLoading: boolean;
+    reason: string;
+}
+
+export class ReportScreen extends Component<Props, State> {
     static contextType = UserContext;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,
@@ -63,7 +73,6 @@ export class ReportScreen extends Component {
                         <Input
                             label="Reason"
                             multiline={true}
-                            textContentType="text"
                             placeholder="Your reason for reporting here"
                             returnKeyType="go"
                             textStyle={{ minHeight: 64 }}

@@ -9,10 +9,24 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
 
-export class EditProfileScreen extends Component {
+interface Props {
+    navigation: any;
+}
+
+interface State {
+    isLoading: boolean;
+    username: string;
+    first: string;
+    last: string;
+    email: string;
+    phone: string;
+    venmo: string;
+}
+
+export class EditProfileScreen extends Component<Props, State> {
     static contextType = UserContext;
     
-    constructor(props, context) {
+    constructor(props: Props, context: any) {
         super(props);
         this.state = {
             isLoading: false,
@@ -138,7 +152,7 @@ export class EditProfileScreen extends Component {
                             placeholder="First Name"
                             returnKeyType="next"
                             onChangeText={(text) => this.setState({first:text})}
-                            onSubmitEditing={()=>this.secondTextInput.focus()} />
+                            onSubmitEditing={() => this.secondTextInput.focus()} />
                         <Input
                             label="Last Name"
                             value={this.state.last}
@@ -147,7 +161,7 @@ export class EditProfileScreen extends Component {
                             returnKeyType="next"
                             onChangeText={(text) => this.setState({last:text})}
                             ref={(input)=>this.secondTextInput = input}
-                            onSubmitEditing={()=>this.thirdTextInput.focus()} />
+                            onSubmitEditing={() => this.thirdTextInput.focus()} />
                         <Input
                             label="Email"
                             value={this.state.email}
@@ -156,8 +170,8 @@ export class EditProfileScreen extends Component {
                             caption={this.context.user.isEmailVerified ? (this.context.user.isStudent) ? "Your email is verified and you are a student": "Your email is verified" : "Your email is not verified"}
                             returnKeyType="next"
                             onChangeText={(text) => this.setState({email:text})}
-                            ref={(input)=>this.thirdTextInput = input}
-                            onSubmitEditing={()=>this.fourthTextInput.focus()} />
+                            ref={(input) => this.thirdTextInput = input}
+                            onSubmitEditing={() => this.fourthTextInput.focus()} />
                         <Input
                             label="Phone Number"
                             value={this.state.phone}
