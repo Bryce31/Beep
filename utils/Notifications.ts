@@ -72,7 +72,9 @@ function setNotificationHandlers() {
         }
 
     ];
+    //@ts-ignore
     Notifications.setNotificationCategoryAsync("enteredBeeperQueue", enteredBeeperQueueActions);
+    //@ts-ignore
     Notifications.addNotificationReceivedListener(handleNotification);
 }
 
@@ -80,7 +82,7 @@ function setNotificationHandlers() {
  * call getPushToken and send to backend
  * @param token a user's auth token
  */
-export async function updatePushToken(token) {
+export async function updatePushToken(token: string) {
     fetch(config.apiUrl + "/account/pushtoken", {
         method: "PUT",
         headers: {
@@ -110,7 +112,7 @@ export async function updatePushToken(token) {
 
 }
 
-async function handleNotification(notification) {
+async function handleNotification(notification: Notification) {
     //Vibrate when we recieve a notification
     Vibration.vibrate();
     //Log the entire notification to the console
