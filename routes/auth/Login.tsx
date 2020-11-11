@@ -12,10 +12,21 @@ import { parseError, handleStatusCodeError, handleFetchError } from "../../utils
 import { Icon } from '@ui-kitten/components';
 import socket from "../../utils/Socket";
 
-export default class LoginScreen extends Component {
+interface Props {
+    navigation: any;
+}
+
+interface State {
+    isLoading: boolean;
+    username: string;
+    password: string;
+    secureTextEntry: boolean;
+}
+
+export default class LoginScreen extends Component<Props, State> {
     static contextType = UserContext;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,
@@ -29,7 +40,7 @@ export default class LoginScreen extends Component {
         this.setState({ secureTextEntry: !this.state.secureTextEntry });
     }
 
-    renderIcon = (props) => (
+    renderIcon = (props: unknown) => (
         <TouchableWithoutFeedback onPress={this.toggleSecureEntry}>
             <Icon {...props} name={this.state.secureTextEntry ? 'eye-off' :'eye'}/>
         </TouchableWithoutFeedback>

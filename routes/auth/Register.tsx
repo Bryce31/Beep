@@ -13,12 +13,28 @@ import * as Linking from 'expo-linking';
 import socket from "../../utils/Socket";
 import * as ImagePicker from 'expo-image-picker';
 
-let result; 
+interface Props {
+    navigation: any;
+}
 
-export default class RegisterScreen extends Component {
+interface State {
+    isLoading: boolean;
+    first: string;
+    last: string;
+    email: string;
+    phone: string;
+    venmo: string;
+    username: string;
+    password: string;
+    photo: any | null;
+}
+
+let result: any; 
+
+export default class RegisterScreen extends Component<Props, State> {
     static contextType = UserContext;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,

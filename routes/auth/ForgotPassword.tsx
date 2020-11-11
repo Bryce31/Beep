@@ -5,9 +5,19 @@ import { StyleSheet, Platform, Keyboard, TouchableWithoutFeedback } from "react-
 import { BackIcon, EmailIcon } from "../../utils/Icons";
 import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 
-export default class ForgotPassword extends Component {
+interface Props {
+    navigation: any;
+}
 
-    constructor(props) {
+interface State {
+    isLoading: boolean;
+    email: string;
+    status: any;
+}
+
+export default class ForgotPassword extends Component<Props, State> {
+
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,

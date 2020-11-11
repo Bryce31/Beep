@@ -6,10 +6,19 @@ import { config } from "../utils/config";
 import { AcceptIcon, DenyIcon, AcceptIndicator, DenyIndicator } from "../utils/Icons";
 import { handleFetchError, handleStatusCodeError } from "../utils/Errors";
 
-export default class AcceptDenyButton extends Component {
+interface Props {
+    type: string;
+    item: any;
+}
+
+interface State {
+    isLoading: boolean;
+}
+
+export default class AcceptDenyButton extends Component<Props, State> {
     static contextType = UserContext;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,
@@ -20,7 +29,7 @@ export default class AcceptDenyButton extends Component {
         this.setState({ isLoading: false });
     }
 
-    updateStatus(queueID, riderID, value) {
+    updateStatus(queueID: string, riderID: string, value: string | boolean) {
         this.setState({ isLoading: true });
 
         fetch(config.apiUrl + "/beeper/queue/status", {

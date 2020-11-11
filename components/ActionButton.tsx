@@ -5,16 +5,24 @@ import { UserContext } from '../utils/UserContext';
 import { config } from "../utils/config";
 import { handleFetchError, handleStatusCodeError } from "../utils/Errors";
 
+interface Props {
+    item: any;
+}
+
+interface State {
+    isLoading: boolean;
+}
+
 const LoadingIndicator = () => (
   <View style={styles.indicator}>
     <Spinner size='small'/>
   </View>
 );
 
-export default class ActionButton extends Component {
+export default class ActionButton extends Component<Props, State> {
     static contextType = UserContext;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,
@@ -25,7 +33,7 @@ export default class ActionButton extends Component {
         this.setState({ isLoading: false });
     }
 
-    updateStatus(queueID, riderID, value) {
+    updateStatus(queueID: string, riderID: string, value: string | boolean) {
         this.setState({ isLoading: true });
 
         fetch(config.apiUrl + "/beeper/queue/status", {
