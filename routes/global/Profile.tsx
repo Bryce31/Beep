@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { Image, StyleSheet } from "react-native"
+import { StyleSheet } from "react-native"
 import { Button, Spinner, Text, Layout, TopNavigation, TopNavigationAction } from "@ui-kitten/components";
 import { BackIcon, ReportIcon } from "../../utils/Icons";
 import { config } from "../../utils/config";
+import ProfilePicture from "../../components/ProfilePicture";
 
 interface Props {
     route: any; 
@@ -86,10 +87,11 @@ export class ProfileScreen extends Component<Props, State> {
                     <TopNavigation title='User Profile' alignment='center' accessoryLeft={BackAction}/>
                     <Layout style={styles.container}>            
                         {user.photoUrl &&
-                        <Image
-                            style={{marginHorizontal: 8, width: 150, height: 150, borderRadius: 150/ 2 }}
-                            source={{uri: user.photoUrl}}
-                        />
+                            <ProfilePicture
+                                style={{marginHorizontal: 8}}
+                                size={150}
+                                url={user.photoUrl}
+                            />
                         }
                         <Text style={styles.item} category="h1">{user.first} {user.last}</Text>
 

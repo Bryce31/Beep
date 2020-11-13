@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { Layout, Text, Divider, List, ListItem, Button, TopNavigation, TopNavigationAction, Spinner } from '@ui-kitten/components';
-import { Image, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { config } from "../../utils/config";
 import { BackIcon, RefreshIcon, GetIcon } from '../../utils/Icons';
 import { handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import ProfilePicture from '../../components/ProfilePicture';
 
 interface Props {
     navigation: any;
@@ -90,9 +91,9 @@ export class PickBeepScreen extends Component<Props, State> {
                 accessoryLeft={() => {
                     if (item.photoUrl) {
                         return (
-                            <Image
-                                style={{width: 50, height: 50, borderRadius: 50/ 2 }}
-                                source={{uri: item.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                            <ProfilePicture
+                                size={50}
+                                url={item.photoUrl}
                             />
                         );
                     }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../../utils/ThemeContext';
 import { UserContext } from '../../utils/UserContext';
@@ -8,6 +8,7 @@ import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, F
 import { config } from "../../utils/config";
 import { handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
+import ProfilePicture from '../../components/ProfilePicture';
 
 export function MainSettingsScreen({ navigation }: any) {
     const themeContext: any = React.useContext(ThemeContext);
@@ -95,9 +96,10 @@ export function MainSettingsScreen({ navigation }: any) {
     function UserHeader(props: any) {
         return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
             {userContext.user.photoUrl &&
-            <Image
-                style={{marginHorizontal: 8, width: 50, height: 50, borderRadius: 60/ 2}}
-                source={{uri: userContext.user.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+            <ProfilePicture
+                style={{marginHorizontal: 8}}
+                size={50}
+                url={userContext.user.photoUrl}
             />
             }
             <Layout>

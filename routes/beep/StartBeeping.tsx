@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import * as Location from 'expo-location';
-import { Image, StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Card, Layout, Text, Button, Input, Toggle, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
 import { UserContext } from '../../utils/UserContext';
@@ -11,6 +11,7 @@ import AcceptDenyButton from "../../components/AcceptDenyButton";
 import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons';
+import ProfilePicture from '../../components/ProfilePicture';
 
 interface Props {
     navigation: any;
@@ -410,9 +411,9 @@ export class StartBeepingScreen extends Component<Props, State> {
                                         style={{flex: 1, flexDirection: "row", alignItems: 'center'}}
                                     >
                                         {item.personalInfo.photoUrl &&
-                                        <Image
-                                            style={{width: 50, height: 50, borderRadius: 50/ 2 }}
-                                            source={{uri: item.personalInfo.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                                        <ProfilePicture
+                                            size={50}
+                                            url={item.personalInfo.photoUrl}
                                         />
                                         }
                                         <Text category="h6" style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
@@ -497,9 +498,9 @@ export class StartBeepingScreen extends Component<Props, State> {
                                 >
                                     <Layout style={{flex: 1, flexDirection: "row", alignItems: 'center'}}>
                                         {item.personalInfo.photoUrl &&
-                                        <Image
-                                            style={{width: 50, height: 50, borderRadius: 50/ 2 }}
-                                            source={{uri: item.personalInfo.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                                        <ProfilePicture
+                                            size={50}
+                                            url={item.personalInfo.photoUrl}
                                         />
                                         }
                                         <Text category="h6" style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>

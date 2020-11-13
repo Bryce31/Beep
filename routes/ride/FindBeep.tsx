@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Image, Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { Icon, Layout, Text, Button, Input, CheckBox } from '@ui-kitten/components';
 import * as Location from 'expo-location';
 import socket from '../../utils/Socket'
@@ -8,6 +8,7 @@ import { UserContext } from '../../utils/UserContext';
 import { config } from '../../utils/config';
 import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
+import ProfilePicture from "../../components/ProfilePicture";
 
 interface Props {
     navigation: any;
@@ -380,9 +381,10 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", {id: this.state.beeper.id})} >
                             <Layout style={{alignItems: "center", justifyContent: 'center'}}>
                                 {this.state.beeper.photoUrl &&
-                                <Image
-                                    style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
-                                    source={{uri: this.state.beeper.photoUrl || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}}
+                                <ProfilePicture
+                                    style={{marginBottom: 5}}
+                                    size={100}
+                                    url={this.state.beeper.photoUrl}
                                 />
                                 }
                                 <Layout style={styles.group}>
@@ -517,9 +519,10 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", {id: this.state.beeper.id})} >
                             <Layout style={{alignItems: "center", justifyContent: 'center'}}>
                                 {this.state.beeper.photoUrl &&
-                                <Image
-                                    style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
-                                    source={{uri: this.state.beeper.photoUrl}}
+                                <ProfilePicture
+                                    style={{marginBottom: 5}}
+                                    size={100}
+                                    url={this.state.beeper.photoUrl}
                                 />
                                 }
                                 <Layout style={styles.group}>
@@ -635,9 +638,10 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", {id: this.state.beeper.id})} >
                             <Layout style={{alignItems: "center", justifyContent: 'center'}}>
                                 {this.state.beeper.photoUrl &&
-                                <Image
-                                    style={{marginBottom: 5, width: 100, height: 100, borderRadius: 100/ 2 }}
-                                    source={{uri: this.state.beeper.photoUrl}}
+                                <ProfilePicture
+                                    style={{marginBottom: 5}}
+                                    size={100}
+                                    url={this.state.beeper.photoUrl}
                                 />
                                 }
                                 <Layout style={styles.group}>

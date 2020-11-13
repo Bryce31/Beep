@@ -89,6 +89,7 @@ export class ProfilePhotoScreen extends Component<Props, State> {
            body: form
        })
            .then(response => {
+               console.log(response);
                if (response.status !== 200) {
                    return this.setState({ isLoading: handleStatusCodeError(response) });
                }
@@ -111,11 +112,13 @@ export class ProfilePhotoScreen extends Component<Props, State> {
                        this.props.navigation.goBack();
                    }
                    else {
+                       console.log(data);
                        alert(parseError(data.message));
                    }
                });
            })
            .catch((error) => {
+               console.log(error);
                this.setState({ isLoading: handleFetchError(error) });
            });
     }
