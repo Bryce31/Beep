@@ -139,6 +139,10 @@ const PhotoIcon = (props: Props) => (
     <Icon {...props} name='camera-outline'/>
 );
 
+const StudentIcon = () => (
+    <Text>🎓</Text>
+);
+
 export {
     ThemeIcon,
     LogoutIcon,
@@ -171,7 +175,8 @@ export {
     SettingsIcon,
     CarIcon,
     MapsIcon,
-    PhotoIcon
+    PhotoIcon,
+    StudentIcon
 };
 
 const styles = StyleSheet.create({

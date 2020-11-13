@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Layout, Text, Divider, List, ListItem, Button, TopNavigation, TopNavigationAction, Spinner } from '@ui-kitten/components';
 import { StyleSheet } from 'react-native';
 import { config } from "../../utils/config";
-import { BackIcon, RefreshIcon, GetIcon } from '../../utils/Icons';
+import { BackIcon, RefreshIcon, GetIcon, StudentIcon } from '../../utils/Icons';
 import { handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 import ProfilePicture from '../../components/ProfilePicture';
 
@@ -83,7 +83,7 @@ export class PickBeepScreen extends Component<Props, State> {
                 accessoryRight={() => {
                     if (item.isStudent) {
                         return (
-                            <Button appearance="outline" size='tiny' accessoryRight={GetIcon}>Student</Button>
+                            <Button appearance="outline" status="basic" size='tiny' accessoryRight={StudentIcon}>Student</Button>
                         );
                     }
                     return null;
