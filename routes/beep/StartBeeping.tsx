@@ -13,6 +13,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons';
 import ProfilePicture from '../../components/ProfilePicture';
 
+let checker: NodeJS.Timer | null  = null;
+
 interface Props {
     navigation: any;
 }
@@ -104,7 +106,9 @@ export class StartBeepingScreen extends Component<Props, State> {
             if (!socket.connected) {
                 console.log("[Socket Issue] Socket is not connected! This is bad");
             }
-
+            
+            console.log("from socket:", isSocketGettingQueue);
+            console.log("from client:", String(this.state.isBeeping));
             if (isSocketGettingQueue !== String(this.state.isBeeping)) {
                 console.log("[Socket Issue] Client and socket don't agree on whether or not client should be listening for queue");
 
@@ -124,7 +128,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             }
         });
 
-        setInterval(function() {
+        checker = setInterval(function() {
             console.log("Checking to see if socket it working ok");
             socket.emit('isBeeping');
         }, 8000);
@@ -154,6 +158,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
     componentWillUnmount() {
         AppState.removeEventListener("change", this.handleAppStateChange);
+        if (checker) clearInterval(checker);
     }
 
     handleAppStateChange = (nextAppState: string) => {

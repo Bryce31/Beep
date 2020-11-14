@@ -69,7 +69,7 @@ export function MainSettingsScreen({ navigation }: any) {
             ],
             key: null
         });
-        //userContext.setUser({});
+        userContext.setUser(null);
     }
 
     function resendEmailVerification() {

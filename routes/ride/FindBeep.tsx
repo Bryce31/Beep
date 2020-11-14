@@ -10,6 +10,8 @@ import { parseError, handleFetchError, handleStatusCodeError } from "../../utils
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
 
+let checker: NodeJS.Timer | null  = null;
+
 interface Props {
     navigation: any;
 }
@@ -88,7 +90,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             }
         });
 
-        setInterval(function() {
+        checker = setInterval(function() {
             console.log("Checking to see if socket it working ok");
             socket.emit('isInRide');
         }, 8000);
@@ -96,6 +98,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
     componentWillUnmount() {
         AppState.removeEventListener("change", this.handleAppStateChange);
+        if (checker) clearInterval(checker);
     }
 
     handleAppStateChange = (nextAppState: string) => {
