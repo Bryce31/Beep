@@ -22,6 +22,11 @@ import socket, { getUpdatedUser } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
 
 const Stack = createStackNavigator();
+
+SplashScreen.preventAutoHideAsync()
+  .then(result => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
+  .catch(console.warn); // it's good to explicitly catch and inspect any error
+
 let initialScreen: string;
 
 interface User {
@@ -33,12 +38,12 @@ interface AppProps {
 }
 
 //App State, lol
-interface AppState {
+interface State {
     user: User;
     theme: string;
 }
 
-export default class App extends Component<AppProps, AppState> {
+export default class App extends Component<AppProps, State> {
 
     constructor(props: AppProps) {
         super(props);
@@ -65,13 +70,6 @@ export default class App extends Component<AppProps, AppState> {
     }
     
     async componentDidMount() {
-        //Ensure native splash screen stays up
-        try {
-          await SplashScreen.preventAutoHideAsync();
-        } catch (e) {
-          console.warn(e);
-        }
-
         //listen for App State chnages ;)
         AppState.addEventListener("change", this.handleAppStateChange);
 
