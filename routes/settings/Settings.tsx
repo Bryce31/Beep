@@ -62,14 +62,15 @@ export function MainSettingsScreen({ navigation }: any) {
         });
 
         //Now that we have completed the logout procedue, send them to the Login page.
-        navigation.reset({
+        await navigation.reset({
             index: 0,
             routes: [
                 { name: 'Login' },
             ],
             key: null
         });
-        userContext.setUser(null);
+
+        setTimeout(() => userContext.setUser(null), 1000);
     }
 
     function resendEmailVerification() {
