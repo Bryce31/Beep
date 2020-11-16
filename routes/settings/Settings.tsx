@@ -118,7 +118,7 @@ export function MainSettingsScreen({ navigation }: any) {
     return (
         <Layout style={styles.wrapper}>
             <Layout style={styles.container}>
-                <Card style={{width: "80%"}} onPress={() => navigation.navigate("Profile", { id: userContext.user.id })} >
+                <Card style={{width: "80%", marginBottom: 20}} onPress={() => navigation.navigate("Profile", { id: userContext.user.id })} >
                     <UserHeader user={userContext.user} />
                 </Card>
                 {!userContext.user.isEmailVerified &&
