@@ -48,14 +48,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
     }
 
-    async doneSplash () {
-        try {
-            SplashScreen.hideAsync();
-        }
-        catch (error) {
-            console.log(error);
-        }
-    }
 
     componentDidMount () {
         this.getRiderStatus(true);
@@ -116,15 +108,16 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 "Authorization": "Bearer " + this.context.user.token
             }
         })
-        .then(response => {
+        .then(async response => {
             if (response.status !== 200) {
                 //we need to hide splash, example 401 error
                 //TODO: make this better
-                this.doneSplash();
-                return this.setState({ isLoading: handleStatusCodeError(response) });
+                return this.setState({ isLoading: handleStatusCodeError(response) }, async () => {
+                    await SplashScreen.hideAsync();
+                });
             }
 
-            response.json().then(data => {
+            response.json().then(async data => {
                 console.log(data);
                 if (data.status === "success") {
                     if (data.state !== this.state.state) {
@@ -164,15 +157,15 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 }
                 if (isInitial) {
                     //now that we know inital rider status, unhide the splash screen
-                    this.doneSplash();
+                    await SplashScreen.hideAsync();
                 }
             });
         })
-        .catch((error) => {
+        .catch(async (error) => {
             this.setState({ isLoading: handleFetchError(error) });
             if (isInitial) {
                 //now that we know inital rider status, unhide the splash screen
-                this.doneSplash();
+                await SplashScreen.hideAsync();
             }
         });
     }
