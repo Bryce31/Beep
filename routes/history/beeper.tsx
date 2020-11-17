@@ -85,8 +85,9 @@ export class BeeperRideLogScreen extends Component<Props, State> {
         }
         else {
             return (
-                <Layout style={styles.container}>
-                    <Spinner style={{marginTop: 20}} size='large' />
+                <Layout>
+                    <Text category='h5'>Loading your history</Text>
+                    <Spinner />
                 </Layout>
             );
         }
