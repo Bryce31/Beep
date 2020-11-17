@@ -11,7 +11,6 @@ export async function removeOldToken () {
             console.log("There was a tokenid stored in memory, this means user logged out while offline. We need to deactivate their token by tokenid.");
             console.log("Removing", tokenid);
 
-            //POST to our token API
             fetch(config.apiUrl + "/auth/token", {
                 method: "POST",
                 headers: {
@@ -22,10 +21,6 @@ export async function removeOldToken () {
             })
             .then(
                 function(response) {
-                    if (response.status !== 200) {
-                        console.log('[OfflineToken.js] [API] Looks like our API is not responding correctly. Status Code: ' + response.status);
-                        return;
-                    }
                     response.json().then(
                         function(data) {
                             //Hopefully the token was revoked server-side
@@ -34,6 +29,9 @@ export async function removeOldToken () {
                             console.log("[OfflineToken.js] [API] Token Revoker API Responce: ", data);
                             if (data.status == "success") {
                                 AsyncStorage.removeItem("@tokenid");
+                            }
+                            else {
+                                //Log error in background 
                             }
                         }
                     )

@@ -8,7 +8,7 @@ import { config } from "../../utils/config";
 import * as Notifications from 'expo-notifications';
 import ActionButton from "../../components/ActionButton";
 import AcceptDenyButton from "../../components/AcceptDenyButton";
-import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons';
 import ProfilePicture from '../../components/ProfilePicture';
@@ -82,7 +82,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                     }
                 }
                 else {
-                    alert(responseJson.message);
+                    handleFetchError(responseJson.message);
                 }
             })
         })
@@ -178,10 +178,6 @@ export class StartBeepingScreen extends Component<Props, State> {
             }
         })
         .then(response => {
-            if (response.status !== 200) {
-                return handleStatusCodeError(response);
-            }
-
             response.json().then(data => {
                 if (data.status === "success") {
                     //this is cool and it works with web somehow, iOS or web
@@ -199,7 +195,10 @@ export class StartBeepingScreen extends Component<Props, State> {
                             break;
                         }
                     }
-                    this.setState({queue: data.queue, currentIndex: currentIndex});
+                    this.setState({ queue: data.queue, currentIndex: currentIndex });
+                }
+                else {
+                    handleFetchError(data.message);
                 }
             });
         })
@@ -257,7 +256,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                     //Use native popup to tell user why they could not change their status
                     //Unupdate the toggle switch because something failed
                     //We redo our actions so the client does not have to wait on server to update the switch
-                    this.setState({isBeeping: !this.state.isBeeping});
+                    this.setState({ isBeeping: !this.state.isBeeping });
                     //we also need to resubscribe to the socket
                     if (this.state.isBeeping) {
                         this.enableGetQueue();
@@ -265,7 +264,8 @@ export class StartBeepingScreen extends Component<Props, State> {
                     else {
                         this.disableGetQueue();
                     }
-                    alert(parseError(data.message));
+
+                    handleFetchError(data.message);
                 }
             });
         })

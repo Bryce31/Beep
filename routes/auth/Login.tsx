@@ -8,7 +8,7 @@ import { removeOldToken } from '../../utils/OfflineToken';
 import { getPushToken } from '../../utils/Notifications';
 import { config } from '../../utils/config';
 import { LoginIcon, SignUpIcon, QuestionIcon, LoadingIndicator } from '../../utils/Icons';
-import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 import { Icon } from '@ui-kitten/components';
 import socket from "../../utils/Socket";
 
@@ -81,10 +81,6 @@ export default class LoginScreen extends Component<Props, State> {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 if (data.status === "success") {
                     //set user in global context
@@ -104,11 +100,7 @@ export default class LoginScreen extends Component<Props, State> {
                     socket.emit('getUser', this.context.user.token);
                 }
                 else {
-                    //stop loading because we got an error and need to retry login
-                    this.setState({ isLoading: false });
-
-                    //give user the parsed error
-                    alert(parseError(data.message));
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
             });
         })
@@ -127,7 +119,7 @@ export default class LoginScreen extends Component<Props, State> {
                             textContentType="username"
                             placeholder="Username"
                             returnKeyType="next"
-                            onChangeText={(text) => this.setState({username: text})}
+                            onChangeText={(text) => this.setState({ username: text })}
                             onSubmitEditing={() => this.secondTextInput.focus()}
                             blurOnSubmit={true}
                         />
@@ -137,7 +129,7 @@ export default class LoginScreen extends Component<Props, State> {
                             returnKeyType="go"
                             accessoryRight={this.renderIcon}
                             secureTextEntry={this.state.secureTextEntry}
-                            onChangeText={(text) => this.setState({password: text})}
+                            onChangeText={(text) => this.setState({ password: text })}
                             ref={(input) => this.secondTextInput = input}
                             onSubmitEditing={() => this.handleLogin()}
                             blurOnSubmit={true}

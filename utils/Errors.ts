@@ -28,20 +28,6 @@ export function parseError(validatorError: string | any) {
 export function handleFetchError(error: any) {
     const message = "[API] Fetch Error:";
     console.log(message, error);
-    alert(error);
-    return false;
-}
-
-/**
- * When we run fetches in our app, we use this to handle any status code error
- *
- * @param response is the fetch response
- * @returns false so I can throw this is the isLoading setState
- */
-export function handleStatusCodeError(response: any) {
-    const message = `[API] The Beep API returned status code ${response.status}:`;
-    console.log(message, response);
-    //alert(`The Beep API returned status code ${response.status}. We are very sorry for this. Please try again later!`);
-    response.json().then((data: any) => alert(parseError(data.message))).catch((error: any) => alert(error));
+    alert(parseError(error));
     return false;
 }

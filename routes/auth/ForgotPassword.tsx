@@ -3,7 +3,7 @@ import { config } from "../../utils/config";
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { StyleSheet, Platform, Keyboard, TouchableWithoutFeedback } from "react-native";
 import { BackIcon, EmailIcon } from "../../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 
 interface Props {
     navigation: any;
@@ -28,7 +28,7 @@ export default class ForgotPassword extends Component<Props, State> {
 
     handleForgotPassword () {
         //make button show loading state
-        this.setState({isLoading: true});
+        this.setState({ isLoading: true });
 
         fetch(config.apiUrl + "/auth/password/forgot", {
             method: "POST",
@@ -39,10 +39,6 @@ export default class ForgotPassword extends Component<Props, State> {
             body: JSON.stringify({ "email": this.state.email })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 this.setState({
                     isLoading: false
@@ -53,9 +49,8 @@ export default class ForgotPassword extends Component<Props, State> {
                     this.props.navigation.goBack();
                 } 
                 else {
-                    alert(parseError(data.message));
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
-
             })
         })
         .catch((error) => {

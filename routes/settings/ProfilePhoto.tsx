@@ -83,44 +83,34 @@ export class ProfilePhotoScreen extends Component<Props, State> {
        fetch(config.apiUrl + "/files/upload", {
            method: "POST",
            headers: {
-               //'Content-Type': `multipart/form-data`,
                "Authorization": "Bearer " + this.context.user.token
            },
            body: form
        })
-           .then(response => {
-               console.log(response);
-               if (response.status !== 200) {
-                   return this.setState({ isLoading: handleStatusCodeError(response) });
+       .then(response => {
+           response.json().then(data => {
+               if (data.status === "success") {
+                   //make a copy of the current user
+                   let tempUser = this.context.user;
+
+                   //update the tempUser with the new data
+                   tempUser.photoUrl = data.url;
+
+                   //update the context
+                   this.context.setUser(tempUser);
+
+                   //put the tempUser back into storage
+                   AsyncStorage.setItem('@user', JSON.stringify(tempUser));
+
+                   //on success, go back to settings page
+                   this.props.navigation.goBack();
                }
-
-               response.json().then(data => {
-                   if (data.status === "success") {
-                       //make a copy of the current user
-                       let tempUser = this.context.user;
-
-                       //update the tempUser with the new data
-                       tempUser.photoUrl = data.url;
-
-                       //update the context
-                       this.context.setUser(tempUser);
-
-                       //put the tempUser back into storage
-                       AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-
-                       //on success, go back to settings page
-                       this.props.navigation.goBack();
-                   }
-                   else {
-                       console.log(data);
-                       alert(parseError(data.message));
-                   }
-               });
-           })
-           .catch((error) => {
-               console.log(error);
-               this.setState({ isLoading: handleFetchError(error) });
+               else {
+                   this.setState({ isLoading: handleFetchError(data.message) });
+               }
            });
+       })
+       .catch((error) => this.setState({ isLoading: handleFetchError(error) }));
     }
 
     render () {

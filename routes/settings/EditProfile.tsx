@@ -4,7 +4,7 @@ import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-k
 import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { EditIcon, LoadingIndicator } from "../../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -59,10 +59,6 @@ export class EditProfileScreen extends Component<Props, State> {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 if (data.status === "success") {
                     //make a copy of the current user
@@ -91,7 +87,6 @@ export class EditProfileScreen extends Component<Props, State> {
                     this.props.navigation.goBack();
                 }
                 else {
-                    alert(parseError(data.message));
                     this.setState({
                         isLoading: false,
                         username: this.context.user.username,
@@ -101,6 +96,7 @@ export class EditProfileScreen extends Component<Props, State> {
                         phone: this.context.user.phone,
                         venmo: this.context.user.venmo
                     });
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
             });
         })

@@ -7,7 +7,7 @@ import { removeOldToken } from '../../utils/OfflineToken';
 import { config } from "../../utils/config";
 import { PhotoIcon, BackIcon, SignUpIcon, LoadingIndicator } from "../../utils/Icons";
 import { getPushToken } from "../../utils/Notifications";
-import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as Linking from 'expo-linking';
 import socket from "../../utils/Socket";
@@ -51,12 +51,11 @@ export default class RegisterScreen extends Component<Props, State> {
 
     async handleRegister () {
         //make button show loading state
-        this.setState({isLoading: true});
+        this.setState({ isLoading: true });
 
         if (this.state.photo == null) {
             alert("Please choose a profile photo");
-            this.setState({isLoading: false});
-            return;
+            return this.setState({ isLoading: false });
         }
 
         //remove any old tokens they were not able to have been removed
@@ -68,7 +67,6 @@ export default class RegisterScreen extends Component<Props, State> {
             expoPushToken = await getPushToken();
         }
 
-        //POST to our signup API
         fetch(config.apiUrl + "/auth/signup", {
             method: "POST",
             headers: {
@@ -87,10 +85,6 @@ export default class RegisterScreen extends Component<Props, State> {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 if (data.status === "success") {
                     //set user in global context
@@ -113,8 +107,7 @@ export default class RegisterScreen extends Component<Props, State> {
                     socket.emit('getUser', this.context.user.token);
                 }
                 else {
-                    this.setState({isLoading: false});
-                    alert(parseError(data.message));
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
             })
         })

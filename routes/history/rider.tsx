@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Layout, Text, Divider, List, ListItem, Spinner } from '@ui-kitten/components';
 import { StyleSheet } from 'react-native';
 import { config } from "../../utils/config";
-import { handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 import { UserContext } from '../../utils/UserContext';
 
 interface Props {
@@ -25,7 +25,7 @@ export class RiderRideLogScreen extends Component<Props, State> {
         }
     }
 
-    getRiderList = () => {
+    getRiderList() {
         fetch(config.apiUrl + "/account/history/rider", {
             method: "GET",
             headers: {
@@ -34,12 +34,13 @@ export class RiderRideLogScreen extends Component<Props, State> {
             }
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
-                this.setState({isLoading: false, riderList: data});
+                if (data.status == "success") {
+                    this.setState({ isLoading: false, riderList: data.data });
+                }
+                else {
+                    this.setState({ isLoading: handleFetchError(data.message) });
+                }
             });
         })
         .catch((error) => {

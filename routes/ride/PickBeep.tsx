@@ -29,16 +29,12 @@ export class PickBeepScreen extends Component<Props, State> {
     getBeeperList = () => {
         fetch(config.apiUrl + "/rider/list")
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 if (data.status === "success") {
-                    this.setState({isLoading: false, beeperList: data.beeperList});
+                    this.setState({ isLoading: false, beeperList: data.beeperList });
                 }
                 else {
-                    alert(data.message);
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
             });
         })

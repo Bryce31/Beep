@@ -73,6 +73,7 @@ export function MainSettingsScreen({ navigation }: any) {
         setTimeout(() => userContext.setUser(null), 1000);
     }
 
+    //TODO: does this button action need a loading state?
     function resendEmailVerification() {
         fetch(config.apiUrl + "/account/verify/resend", {
             method: "POST",
@@ -82,10 +83,6 @@ export function MainSettingsScreen({ navigation }: any) {
             }
         })
         .then(response => {
-            if (response.status !== 200) {
-                return handleStatusCodeError(response);
-            }
-
             response.json().then(data => {
                     console.log("[Settings.js] [API] Get Email Status Responce: ", data);
                     alert(data.message);

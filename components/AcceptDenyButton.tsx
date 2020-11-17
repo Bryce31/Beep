@@ -45,14 +45,9 @@ export default class AcceptDenyButton extends Component<Props, State> {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 if (data.status === "error") {
-                    alert(data.message);
-                    this.setState({isLoading: false});
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
             });
         })

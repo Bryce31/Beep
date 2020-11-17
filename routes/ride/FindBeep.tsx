@@ -6,7 +6,7 @@ import socket from '../../utils/Socket'
 import * as SplashScreen from 'expo-splash-screen';
 import { UserContext } from '../../utils/UserContext';
 import { config } from '../../utils/config';
-import { parseError, handleFetchError, handleStatusCodeError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
 
@@ -109,20 +109,10 @@ export class MainFindBeepScreen extends Component<Props, State> {
             }
         })
         .then(async response => {
-            if (response.status !== 200) {
-                //we need to hide splash, example 401 error
-                //TODO: make this better
-                return this.setState({ isLoading: handleStatusCodeError(response) }, async () => {
-                    await SplashScreen.hideAsync();
-                });
-            }
-
             response.json().then(async data => {
-                console.log(data);
                 if (data.status === "success") {
                     if (data.state !== this.state.state) {
-                        //TODO work this in with notifications
-                        console.log("The state of this beep changed! Display a toast?");
+                        //TODO do something to emphesise beep state change
                     }
 
                     if (data.isAccepted) {
@@ -150,8 +140,14 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     }
                 }
                 else {
+                    //TODO: our API should really not return a result with status: "error"
+                    //we need to rewrite the API to NOT return error when rider is not in a queue
+                    if (response.status !== 200) {
+                        return this.setState({ isLoading: handleFetchError(data.message) });
+                    }
+
                     if (!isInitial) {
-                        this.setState({isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0});
+                        this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0 });
                         this.disableGetRiderStatus();
                     }
                 }
@@ -162,15 +158,17 @@ export class MainFindBeepScreen extends Component<Props, State> {
             });
         })
         .catch(async (error) => {
-            this.setState({ isLoading: handleFetchError(error) });
-            if (isInitial) {
-                //now that we know inital rider status, unhide the splash screen
-                await SplashScreen.hideAsync();
-            }
+            this.setState({ isLoading: handleFetchError(error) }, async () => {
+                if (isInitial) {
+                    //now that we know inital rider status, unhide the splash screen
+                    await SplashScreen.hideAsync();
+                }
+            });
         });
     }
 
     chooseBeep = (id: string) => {
+        //TODO: make this better
         if(this.state.startLocation == "Loading Location...") {
             alert("Please let your current location finish loading or manualy enter your pickup location");
         }
@@ -191,10 +189,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 if (data.status === "success") {
                     this.setState({
@@ -207,8 +201,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     this.enableGetRiderStatus();
                 }
                 else {
-                    this.setState({isLoading: false});
-                    alert(parseError(data.message));
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
             });
         })
@@ -237,10 +230,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
             }
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 if (data.status === "success") {
                     this.setState({
@@ -249,8 +238,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     });
                 }
                 else {
-                    this.setState({isLoading: false});
-                    alert(data.message);
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
             });
         })
@@ -293,7 +281,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
     }
 
     leaveQueue = () => {
-        this.setState({isLoading: true});
+        this.setState({ isLoading: true });
 
         fetch(config.apiUrl + "/rider/leave", {
             method: "POST",
@@ -306,12 +294,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
-                console.log("[StartBeeping.js] [API] Leave Queue Responce: ", data);
                 if (data.status === "error") {
                     alert(data.message);
                 }

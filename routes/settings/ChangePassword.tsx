@@ -36,7 +36,6 @@ export class ChangePasswordScreen extends Component<Props, State> {
             return alert("Your passwords do not match");
         }
 
-        //POST to our edit profile API
         fetch(config.apiUrl + "/account/password", {
             method: "POST",
             headers: {
@@ -48,17 +47,12 @@ export class ChangePasswordScreen extends Component<Props, State> {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 if (data.status === "success") {
                     this.props.navigation.goBack();
                 }
                 else {
-                    this.setState({ isLoading: false });
-                    alert(parseError(data.message));
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
             });
         })

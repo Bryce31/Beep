@@ -3,6 +3,7 @@ import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import { Vibration, Platform } from 'react-native';
 import { config } from '../utils/config';
+import { handleFetchError } from './Errors';
 
 /**
  * Checks for permssion for Notifications, asks expo for push token, sets up notification listeners, returns 
@@ -95,13 +96,11 @@ export async function updatePushToken(token: string) {
     })
     .then(
         function(response) {
-            if (response.status !== 200) {
-                console.log('[Notifications.js] [API] Looks like our API is not responding correctly. Status Code: ' + response.status);
-                return;
-            }
             response.json().then(
                 function(data) {
-                    console.log(data);
+                    if (data.status == "error") {
+                        handleFetchError(data.message);
+                    }
                 }
             );
         }

@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { Button, Spinner } from "@ui-kitten/components";
 import { UserContext } from '../utils/UserContext';
 import { config } from "../utils/config";
-import { handleFetchError, handleStatusCodeError } from "../utils/Errors";
+import { handleFetchError } from "../utils/Errors";
 
 interface Props {
     item: any;
@@ -49,14 +49,9 @@ export default class ActionButton extends Component<Props, State> {
             })
         })
         .then(response => {
-            if (response.status !== 200) {
-                return this.setState({ isLoading: handleStatusCodeError(response) });
-            }
-
             response.json().then(data => {
                 if (data.status === "error") {
-                    alert(data.message);
-                    this.setState({isLoading: false});
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
             });
         })
