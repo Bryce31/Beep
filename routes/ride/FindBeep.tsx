@@ -20,7 +20,7 @@ interface State {
     isLoading: boolean;
     foundBeep: boolean;
     isAccepted: boolean;
-    groupSize: string;
+    groupSize: number | string;
     startLocation: string;
     destination: string;
     pickBeeper: boolean;
@@ -38,7 +38,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             isLoading: false,
             foundBeep: false,
             isAccepted: false,
-            groupSize: '1',
+            groupSize: 1,
             startLocation: '',
             destination: '',
             pickBeeper: true,
@@ -168,9 +168,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
     }
 
     chooseBeep = (id: string) => {
-        //TODO: make this better
         if(this.state.startLocation == "Loading Location...") {
-            alert("Please let your current location finish loading or manualy enter your pickup location");
+            return alert("Please let your current location finish loading or manualy enter your pickup location");
         }
 
         this.setState({ isLoading: true });
@@ -184,7 +183,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             body: JSON.stringify({
                 "origin": this.state.startLocation,
                 "destination": this.state.destination,
-                "groupSize": this.state.groupSize,
+                "groupSize": Number(this.state.groupSize),
                 "beepersID": id
             })
         })
@@ -438,10 +437,11 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!(Platform.OS == "ios" || Platform.OS == "android")} >
                     <Layout style={styles.container}>
                         <Input
+                            keyboardType="number-pad"
                             label='Group Size'
                             style={styles.buttons}
                             placeholder='Group Size'
-                            value={this.state.groupSize}
+                            value={String(this.state.groupSize)}
                             onChangeText={value => this.setState({groupSize: value})}
                         />
                         <Input
