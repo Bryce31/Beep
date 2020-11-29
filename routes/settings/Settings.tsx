@@ -6,9 +6,10 @@ import { UserContext } from '../../utils/UserContext';
 import socket from '../../utils/Socket';
 import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../../utils/Icons';
 import { config } from "../../utils/config";
-import { handleFetchError, handleStatusCodeError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
+import ResendButton from './ResendButton';
 
 export function MainSettingsScreen({ navigation }: any) {
     const themeContext: any = React.useContext(ThemeContext);
@@ -125,14 +126,7 @@ export function MainSettingsScreen({ navigation }: any) {
                     </Card>
                 }
                 {!userContext.user.isEmailVerified &&
-                <Button
-                    onPress={resendEmailVerification}
-                    accessoryLeft={EmailIcon}
-                    style={styles.button}
-                    appearance='ghost'
-                >
-                    Resend Varification Email
-                </Button>
+                <ResendButton />
                 }
                 <Button
                     onPress={themeContext.toggleTheme}
