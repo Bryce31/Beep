@@ -69,27 +69,7 @@ export function MainSettingsScreen({ navigation }: any) {
                 { name: 'Login' },
             ],
             key: null
-        });
-
-        setTimeout(() => userContext.setUser(null), 1000);
-    }
-
-    //TODO: does this button action need a loading state?
-    function resendEmailVerification() {
-        fetch(config.apiUrl + "/account/verify/resend", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + userContext.user.token
-            }
-        })
-        .then(response => {
-            response.json().then(data => {
-                    console.log("[Settings.js] [API] Get Email Status Responce: ", data);
-                    alert(data.message);
-            });
-        })
-        .catch((error) => handleFetchError(error));
+        }, () => userContext.setUser(null));
     }
 
     function UserHeader(props: any) {
@@ -125,9 +105,7 @@ export function MainSettingsScreen({ navigation }: any) {
                         <Text category="h6">Your email is not verified!</Text>
                     </Card>
                 }
-                {!userContext.user.isEmailVerified &&
-                <ResendButton />
-                }
+                {!userContext.user.isEmailVerified && <ResendButton />}
                 <Button
                     onPress={themeContext.toggleTheme}
                     accessoryLeft={ThemeIcon}
