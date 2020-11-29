@@ -33,19 +33,18 @@ interface User {
     token?: string;
 }
 
-interface AppProps {
+interface Props {
     
 }
 
-//App State, lol
 interface State {
     user: User;
     theme: string;
 }
 
-export default class App extends Component<AppProps, State> {
+export default class App extends Component<Props, State> {
 
-    constructor(props: AppProps) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             user: {},
@@ -122,27 +121,6 @@ export default class App extends Component<AppProps, State> {
                 this.setState({ user: updatedUser });
             }
         });
-
-        socket.on("isGettingUserData", (isSocketGettingUser: string) => {
-            if (!socket.connected) {
-                console.log("Socket is not connected! This is bad");
-            }
-
-            const isUserLoggedIn = this.state.user !== null && this.state.user.token !== null;
-
-            if ((isSocketGettingUser == "false") && isUserLoggedIn) {
-                console.log("client says isUserLoggedIn", isUserLoggedIn);
-                console.log("socket says does user want user updates", isSocketGettingUser);
-            
-                console.log("Client and socket don't agree on whether or not client should be listening for user updates");
-                socket.emit('getUser', this.state.user.token);
-            }
-        });
-
-        setInterval(function() {
-            console.log("Checking to see if socket it working ok");
-            socket.emit('isGettingUser');
-        }, 12000);
     }
 
     render () {

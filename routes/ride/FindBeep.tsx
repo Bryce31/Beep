@@ -10,8 +10,6 @@ import { handleFetchError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
 
-let checker: NodeJS.Timer | null  = null;
-
 interface Props {
     navigation: any;
 }
@@ -58,39 +56,10 @@ export class MainFindBeepScreen extends Component<Props, State> {
             console.log("[FindBeep.js] [Socket.io] Socket.io told us to update rider status.");
             this.getRiderStatus(false);
         });
-
-        socket.on("isInRideData", (isSocketGettingRide: string) => {
-            if (!socket.connected) {
-                console.log("Socket is not connected! This is bad");
-            }
-
-            if (isSocketGettingRide != String(this.state.foundBeep)) {
-                console.log("Client and socket don't agree on whether or not client should be listening for ride data");
-
-                if (isSocketGettingRide == "true") {
-                    console.log(" - socket says client wants rider status but client does not want rider status");
-                }
-                else {
-                    console.log(" - socket says it is not sending rider updates while client wants updates");
-                }
-                if (this.state.foundBeep) {
-                    //there is a disagreement between the client and the socket server. 
-                    //Asume client is connect and enable getting queue
-                    this.getRiderStatus();
-                    this.enableGetRiderStatus();
-                }
-            }
-        });
-
-        checker = setInterval(function() {
-            console.log("Checking to see if socket it working ok");
-            socket.emit('isInRide');
-        }, 8000);
     }
 
     componentWillUnmount() {
         AppState.removeEventListener("change", this.handleAppStateChange);
-        if (checker) clearInterval(checker);
     }
 
     handleAppStateChange = (nextAppState: string) => {
