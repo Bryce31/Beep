@@ -43,7 +43,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         };
     }
 
-    retrieveData = async () => {
+    async retrieveData() {
         //Upon loading user data into states, get User's bepper status
         //to make sure our toggle switch is accurate with our database
         fetch(config.apiUrl + '/user/' + this.context.user.id)
@@ -101,6 +101,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         });
     }
 
+    /*
     async UNSAFE_componentWillReceiveProps() {
         if (this.state.isBeeping != this.context.user.isBeeping) {
             if (this.context.user.isBeeping) {
@@ -122,6 +123,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             this.setState({ isBeeping: this.context.user.isBeeping });
         }
     }
+     */
 
     componentWillUnmount() {
         AppState.removeEventListener("change", this.handleAppStateChange);
@@ -161,7 +163,13 @@ export class StartBeepingScreen extends Component<Props, State> {
                             break;
                         }
                     }
-                    this.setState({ queue: data.queue, currentIndex: currentIndex });
+
+                    if (JSON.stringify(this.state.queue) !== JSON.stringify(data.queue)) {
+                        console.log("queue is not same, set state");
+                        console.log(this.state.queue);
+                        console.log(data.queue);
+                        this.setState({ queue: data.queue, currentIndex: currentIndex });
+                    }
                 }
                 else {
                     handleFetchError(data.message);
@@ -171,7 +179,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         .catch((error) => handleFetchError(error));
     }
 
-    toggleSwitch = async (value: boolean) => {
+    async toggleSwitch (value: boolean) {
         //Update the toggle switch's value into a isBeeping state
         this.setState({ isBeeping: value });
 
@@ -238,20 +246,20 @@ export class StartBeepingScreen extends Component<Props, State> {
         .catch((error) => handleFetchError(error));
     }
 
-    enableGetQueue = () => {
+    enableGetQueue() {
         console.log("Subscribing to Socket.io for Beeper's Queue");
         //tell the socket server we want to get updates of our queue
         socket.emit('getQueue', this.context.user.id);
     }
 
-    disableGetQueue = () => {
+    disableGetQueue() {
         console.log("Unsubscribing to Socket.io for Beeper's Queue");
         //tell socket.io to close cursor
         socket.emit('stopGetQueue');
     }
 
 
-    updateSingles = (value: undefined | string) => {
+    updateSingles (value: undefined | string) {
         this.setState({singlesRate: value});
 
         let tempUser = this.context.user;
@@ -261,7 +269,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    updateGroup = (value: undefined | string) => {
+    updateGroup (value: undefined | string) {
         this.setState({groupRate: value});
 
         let tempUser = this.context.user;
@@ -271,7 +279,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    updateCapacity = (value: undefined | string) => {
+    updateCapacity (value: undefined | string) {
         this.setState({capacity: value});
 
         let tempUser = this.context.user;
@@ -281,7 +289,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    handleDirections = (origin: string, dest: string) => {
+    handleDirections (origin: string, dest: string) {
         if (Platform.OS == 'ios') {
             Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
         }
@@ -290,7 +298,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
-    handleVenmo = (groupSize: string | number, venmo: string) => {
+    handleVenmo (groupSize: string | number, venmo: string) {
         if (groupSize > 1) {
             Linking.openURL('venmo://paycharge?txn=pay&recipients='+ venmo + '&amount=' + this.state.groupRate + '&note=Beep');
         }
@@ -307,7 +315,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                 <Layout style={styles.container}>
                     <Toggle
                         style={styles.toggle}
-                        onChange = {this.toggleSwitch}
+                        onChange = {(value) => this.toggleSwitch(value)}
                         checked = {this.state.isBeeping}
                     >
                         {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
@@ -361,7 +369,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                     <Layout style={styles.container}>
                         <Toggle
                             style={styles.toggle}
-                            onChange = {this.toggleSwitch}
+                            onChange = {(value) => this.toggleSwitch(value)}
                             checked = {this.state.isBeeping}
                         >
                             {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
@@ -504,7 +512,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                     <Layout style={styles.container}>
                         <Toggle
                             style={styles.toggle}
-                            onChange = {this.toggleSwitch}
+                            onChange = {(value) => this.toggleSwitch(value)}
                             checked = {this.state.isBeeping}
                         >
                             {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
