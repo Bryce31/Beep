@@ -69,116 +69,120 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
     }
 
-    getRiderStatus(isInitial?: boolean) {
-        fetch(config.apiUrl + "/rider/status", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            }
-        })
-        .then(async response => {
-            response.json().then(async data => {
-                if (data.status === "success") {
-                    if (data.state !== this.state.state) {
-                        //TODO do something to emphesise beep state change
-                    }
-
-                    if (data.isAccepted) {
-                        this.setState({
-                            foundBeep: true,
-                            isAccepted: data.isAccepted,
-                            ridersQueuePosition: data.ridersQueuePosition,
-                            state: data.state,
-                            beeper: data.beeper,
-                            groupSize: data.groupSize,
-                            isLoading: false
-                        });
-                    }
-                    else {
-                        this.setState({
-                            foundBeep: true,
-                            isAccepted: data.isAccepted,
-                            groupSize: data.groupSize,
-                            beeper: data.beeper
-                        });
-                    }
-                    
-                    if (isInitial) {
-                        this.enableGetRiderStatus();
-                    }
-                }
-                else {
-                    //TODO: our API should really not return a result with status: "error"
-                    //we need to rewrite the API to NOT return error when rider is not in a queue
-                    if (response.status !== 200) {
-                        return this.setState({ isLoading: handleFetchError(data.message) });
-                    }
-
-                    if (!isInitial) {
-                        this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0 });
-                        this.disableGetRiderStatus();
-                    }
-                }
-                if (isInitial) {
-                    //now that we know inital rider status, unhide the splash screen
-                    await SplashScreen.hideAsync();
+    async getRiderStatus(isInitial?: boolean) {
+        try {
+            const result = await fetch(config.apiUrl + "/rider/status", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + this.context.user.token
                 }
             });
-        })
-        .catch(async (error) => {
+
+            const data = await result.json();
+
+            if (data.status === "success") {
+
+                if (data.state !== this.state.state) {
+                    //TODO do something to emphesise beep state change
+                }
+
+                if (data.isAccepted) {
+                    this.setState({
+                        foundBeep: true,
+                        isAccepted: data.isAccepted,
+                        ridersQueuePosition: data.ridersQueuePosition,
+                        state: data.state,
+                        beeper: data.beeper,
+                        groupSize: data.groupSize,
+                        isLoading: false
+                    });
+                }
+                else {
+                    this.setState({
+                        foundBeep: true,
+                        isAccepted: data.isAccepted,
+                        groupSize: data.groupSize,
+                        beeper: data.beeper
+                    });
+                }
+
+                if (isInitial) {
+                    this.enableGetRiderStatus();
+                }
+            }
+            else {
+                //TODO: our API should really not return a result with status: "error"
+                //we need to rewrite the API to NOT return error when rider is not in a queue
+                if (result.status !== 200) {
+                    return this.setState({ isLoading: handleFetchError(data.message) });
+                }
+
+                if (!isInitial) {
+                    this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0 });
+                    this.disableGetRiderStatus();
+                }
+            }
+            if (isInitial) {
+                //now that we know inital rider status, unhide the splash screen
+                await SplashScreen.hideAsync();
+            }
+
+        }
+        catch (error) {
             this.setState({ isLoading: handleFetchError(error) }, async () => {
                 if (isInitial) {
                     //now that we know inital rider status, unhide the splash screen
                     await SplashScreen.hideAsync();
                 }
             });
-        });
+        }
     }
 
-    chooseBeep = (id: string) => {
+    async chooseBeep (id: string) {
         if(this.state.startLocation == "Loading Location...") {
             return alert("Please let your current location finish loading or manualy enter your pickup location");
         }
 
         this.setState({ isLoading: true });
 
-        fetch(config.apiUrl + "/rider/choose", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            },
-            body: JSON.stringify({
-                "origin": this.state.startLocation,
-                "destination": this.state.destination,
-                "groupSize": Number(this.state.groupSize),
-                "beepersID": id
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    this.setState({
-                        beeper: data.beeper,
-                        foundBeep: true,
-                        isLoading: false
-                    });
 
-                    //tell socket server to listen for updates
-                    this.enableGetRiderStatus();
-                }
-                else {
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
+        try {
+            const result = await fetch(config.apiUrl + "/rider/choose", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + this.context.user.token
+                },
+                body: JSON.stringify({
+                    "origin": this.state.startLocation,
+                    "destination": this.state.destination,
+                    "groupSize": Number(this.state.groupSize),
+                    "beepersID": id
+                })
             });
-        })
-        .catch((error) => {
+
+            const data = await result.json();
+
+            if (data.status === "success") {
+                this.setState({
+                    beeper: data.beeper,
+                    foundBeep: true,
+                    isLoading: false
+                });
+
+                this.enableGetRiderStatus();
+            }
+            else {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch (error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
-    findBeep = () => {
+    async findBeep () {
         //if the "pick beeper" checbox is checked, run this code
         if (this.state.pickBeeper) {
             //navigate to the Pick Beeper Screen and terminate this function
@@ -190,32 +194,33 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
         this.setState({ isLoading: true });
 
-        fetch(config.apiUrl + "/rider/find", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            }
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    this.setState({
-                        beeper: data.beeper,
-                        isLoading: false
-                    });
-                }
-                else {
-                    this.setState({ isLoading: handleFetchError(data.message) });
+        try {
+            const result = await fetch(config.apiUrl + "/rider/find", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + this.context.user.token
                 }
             });
-        })
-        .catch((error) => {
+
+            const data = await result.json();
+
+            if (data.status === "success") {
+                this.setState({
+                    beeper: data.beeper,
+                    isLoading: false
+                });
+            }
+            else {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch (error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
-    useCurrentLocation = async () => {
+    async useCurrentLocation() {
         //TODO: find amore elegent solution to tell user we are loading location data
         this.setState({ startLocation: "Loading Location..." });
        
@@ -248,57 +253,59 @@ export class MainFindBeepScreen extends Component<Props, State> {
         this.setState({ startLocation: string });
     }
 
-    leaveQueue = () => {
+    async leaveQueue() {
         this.setState({ isLoading: true });
 
-        fetch(config.apiUrl + "/rider/leave", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            },
-            body: JSON.stringify({
-                "beepersID": this.state.beeper.id
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "error") {
-                    alert(data.message);
-                }
+        try {
+            const result = await fetch(config.apiUrl + "/rider/leave", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + this.context.user.token
+                },
+                body: JSON.stringify({
+                    "beepersID": this.state.beeper.id
+                })
             });
-        })
-        .catch((error) => {
+
+            const data = await result.json();
+
+            if (data.status === "error") {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch (error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
-    enableGetRiderStatus = () => {
+    enableGetRiderStatus() {
         console.log("Subscribing to Socket.io for Rider Status");
         //Tell our socket to push updates to user
         socket.emit('getRiderStatus', this.state.beeper.id);
     }
 
-    disableGetRiderStatus = () => {
+    disableGetRiderStatus() {
         console.log("Unsubscribing to Socket.io for Rider Status");
         //Tell our socket to push updates to user
         socket.emit('stopGetRiderStatus');
     }
 
-    getVenmoLink = () => {
+    getVenmoLink() {
         if (Number(this.state.groupSize) > 1) {
             return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper.venmo + '&amount=' + this.state.beeper.groupRate + '&note=Beep';
         }
         return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper.venmo + '&amount=' + this.state.beeper.singlesRate + '&note=Beep';
     }
 
-    shareVenmoInformation = () => {
+    shareVenmoInformation() {
         try {
             Share.share({
                 message: `Please Venmo ${this.state.beeper.venmo} $${this.state.beeper.groupRate} for the beep!`,
                 url: this.getVenmoLink()
             });
-        } catch (error) {
+        }
+        catch (error) {
             alert(error.message);
         }
     }            
@@ -307,7 +314,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
         console.log("[MainFindBeep.js] Rendered");
 
         const CurrentLocationIcon = (props: Props) => (
-            <TouchableWithoutFeedback onPress={this.useCurrentLocation}>
+            <TouchableWithoutFeedback onPress={() => this.useCurrentLocation()}>
                 <Icon {...props} name='pin'/>
             </TouchableWithoutFeedback>
         );
@@ -437,7 +444,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         {!this.state.isLoading ?
                             <Button
                                 accessoryRight={FindIcon}
-                                onPress={this.findBeep}
+                                onPress={() => this.findBeep()}
                                 size='large'
                                 style={{marginTop:15}}
                             >
@@ -571,7 +578,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                             status='basic'
                             accessoryRight={ShareIcon}
                             style={styles.buttons}
-                            onPress={this.shareVenmoInformation}
+                            onPress={() => this.shareVenmoInformation()}
                         >
                         Share Venmo Info with Your Friends
                         </Button>
