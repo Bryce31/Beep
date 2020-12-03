@@ -44,53 +44,42 @@ export class StartBeepingScreen extends Component<Props, State> {
     }
 
     async retrieveData() {
-        //Upon loading user data into states, get User's bepper status
-        //to make sure our toggle switch is accurate with our database
-        fetch(config.apiUrl + '/user/' + this.context.user.id)
-        .then(response => {
-            response.json().then(async (responseJson) => {
-                if (responseJson.status == "success") {
-                    if (this.state.isBeeping !== responseJson.user.isBeeping) {
-                        this.setState({ isBeeping: responseJson.isBeeping });
-                    }
+        try {
+            const result = await fetch(config.apiUrl + '/user/' + this.context.user.id);
 
-                    if(responseJson.user.isBeeping) {
-                        //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
-                        this.getQueue();
-                        this.enableGetQueue();
+            const data = await result.json();
 
-                        //ensure we have location permissions before we start beeping
-                        let { status } = await Location.requestPermissionsAsync();
+            if (data.status == "success") {
+                if (this.state.isBeeping !== data.user.isBeeping) {
+                    this.setState({ isBeeping: data.isBeeping });
+                }
 
-                        if (status !== 'granted') {
-                            //if we have no location access, dont let the user beep
-                            //TODO we only disable beeping client side, should we push false to server also?
-                            this.setState({isBeeping: false});
-                            this.disableGetQueue();
-                            //TODO better error handling
-                            alert("You must allow location to beep!");
-                        }
-                    }
-                    else {
-                        //if the socket was somehow connected, make sure we are not lisiting to socket.io
-                        //beacuse isBeeping is false
-                        if (socket.connected) {
-                            this.disableGetQueue();
-                        }
+                if(data.user.isBeeping) {
+                    this.getQueue();
+                    this.enableGetQueue();
+
+                    let { status } = await Location.requestPermissionsAsync();
+
+                    if (status !== 'granted') {
+                        //if we have no location access, dont let the user beep
+                        //TODO we only disable beeping client side, should we push false to server also?
+                        this.setState({ isBeeping: false });
+                        this.disableGetQueue();
+                        //TODO better error handling
+                        alert("You must allow location to beep!");
                     }
                 }
-                else {
-                    handleFetchError(responseJson.message);
-                }
-            })
-        })
-        .catch((error) => {
+            }
+            else {
+                handleFetchError(data.message);
+            }
+        }
+        catch (error) {
             handleFetchError(error);
-        });
+        }
     }
 
     componentDidMount () {
-        //get user information and set toggle switch to correct status on mount
         this.retrieveData();
 
         AppState.addEventListener("change", this.handleAppStateChange);
@@ -137,46 +126,50 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
-    getQueue() {
-        fetch(config.apiUrl + "/beeper/queue", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            }
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    //this is cool and it works with web somehow, iOS or web
-                    //badge count will be your queue size!!
-                    //TODO revisit this
-                    Notifications.setBadgeCountAsync(data.queue.length);
-
-                    //We sucessfuly updated beeper status in database
-                    //This will calculate the array index of your current beep
-                    //TODO revisit this, I think the index will always be zero?
-                    let currentIndex = 0;
-                    for(let i = 0;  i < data.queue.length; i++) {
-                        if (data.queue[i].isAccepted) {
-                            currentIndex = i;
-                            break;
-                        }
-                    }
-
-                    if (JSON.stringify(this.state.queue) !== JSON.stringify(data.queue)) {
-                        console.log("queue is not same, set state");
-                        console.log(this.state.queue);
-                        console.log(data.queue);
-                        this.setState({ queue: data.queue, currentIndex: currentIndex });
-                    }
-                }
-                else {
-                    handleFetchError(data.message);
+    async getQueue() {
+        try {
+            const result = await fetch(config.apiUrl + "/beeper/queue", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + this.context.user.token
                 }
             });
-        })
-        .catch((error) => handleFetchError(error));
+
+            const data = await result.json();
+            
+            if (data.status === "success") {
+                //this is cool and it works with web somehow, iOS or web
+                //badge count will be your queue size!!
+                //TODO revisit this
+                Notifications.setBadgeCountAsync(data.queue.length);
+
+                //We sucessfuly updated beeper status in database
+                //This will calculate the array index of your current beep
+                //TODO revisit this, I think the index will always be zero?
+                let currentIndex = 0;
+                for(let i = 0;  i < data.queue.length; i++) {
+                    if (data.queue[i].isAccepted) {
+                        currentIndex = i;
+                        break;
+                    }
+                }
+
+                //TODO is this a bad way to compare arrays
+                if (JSON.stringify(this.state.queue) !== JSON.stringify(data.queue)) {
+                    console.log("queue is not same, set state");
+                    console.log(this.state.queue);
+                    console.log(data.queue);
+                    this.setState({ queue: data.queue, currentIndex: currentIndex });
+                }
+            }
+            else {
+                handleFetchError(data.message);
+            }
+        }
+        catch (error) {
+            handleFetchError(error);
+        }
     }
 
     async toggleSwitch (value: boolean) {
@@ -198,69 +191,71 @@ export class StartBeepingScreen extends Component<Props, State> {
             //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
             this.disableGetQueue();
         }
+        
+        try {
+            const result = await fetch(config.apiUrl + "/beeper/status", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + this.context.user.token
+                },
+                body: JSON.stringify({
+                    "isBeeping": value,
+                    "singlesRate": this.state.singlesRate,
+                    "groupRate": this.state.groupRate,
+                    "capacity": this.state.capacity,
+                    "masksRequired": this.state.masksRequired
+                })
+            });
 
-        fetch(config.apiUrl + "/beeper/status", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            },
-            body: JSON.stringify({
-                "isBeeping": value,
-                "singlesRate": this.state.singlesRate,
-                "groupRate": this.state.groupRate,
-                "capacity": this.state.capacity,
-                "masksRequired": this.state.masksRequired
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    //We sucessfuly updated beeper status in database
-                    if (value) {
-                        this.getQueue();
-                    }
+            const data = await result.json();
 
-                    let tempUser = this.context.user;
-                    tempUser.isBeeping = value;
-                    AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-                    this.context.setUser(tempUser);
+            if (data.status === "success") {
+                //We sucessfuly updated beeper status in database
+                if (value) {
+                    this.getQueue();
+                }
+
+                let tempUser = this.context.user;
+                tempUser.isBeeping = value;
+                AsyncStorage.setItem('@user', JSON.stringify(tempUser));
+
+                //TODO: better way to update context
+                this.context.setUser(tempUser);
+            }
+            else {
+                //Use native popup to tell user why they could not change their status
+                //Unupdate the toggle switch because something failed
+                //We redo our actions so the client does not have to wait on server to update the switch
+                this.setState({ isBeeping: !this.state.isBeeping });
+                //we also need to resubscribe to the socket
+                if (this.state.isBeeping) {
+                    this.enableGetQueue();
                 }
                 else {
-                    //Use native popup to tell user why they could not change their status
-                    //Unupdate the toggle switch because something failed
-                    //We redo our actions so the client does not have to wait on server to update the switch
-                    this.setState({ isBeeping: !this.state.isBeeping });
-                    //we also need to resubscribe to the socket
-                    if (this.state.isBeeping) {
-                        this.enableGetQueue();
-                    }
-                    else {
-                        this.disableGetQueue();
-                    }
-
-                    handleFetchError(data.message);
+                    this.disableGetQueue();
                 }
-            });
-        })
-        .catch((error) => handleFetchError(error));
+
+                handleFetchError(data.message);
+            }
+        }
+        catch (error) {
+            handleFetchError(error);
+        }
     }
 
-    enableGetQueue() {
+    enableGetQueue(): void {
         console.log("Subscribing to Socket.io for Beeper's Queue");
-        //tell the socket server we want to get updates of our queue
         socket.emit('getQueue', this.context.user.id);
     }
 
-    disableGetQueue() {
+    disableGetQueue(): void {
         console.log("Unsubscribing to Socket.io for Beeper's Queue");
-        //tell socket.io to close cursor
         socket.emit('stopGetQueue');
     }
 
-
     updateSingles (value: undefined | string) {
-        this.setState({singlesRate: value});
+        this.setState({ singlesRate: value });
 
         let tempUser = this.context.user;
 
