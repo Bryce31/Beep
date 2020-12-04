@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import * as Location from 'expo-location';
 import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Card, Layout, Text, Button, Input, Toggle, List, CheckBox } from '@ui-kitten/components';
+import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
 import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
@@ -12,6 +12,7 @@ import { handleFetchError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons';
 import ProfilePicture from '../../components/ProfilePicture';
+import Toggle from "./components/Toggle";
 
 interface Props {
     navigation: any;
@@ -118,7 +119,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         AppState.removeEventListener("change", this.handleAppStateChange);
     }
 
-    handleAppStateChange = (nextAppState: string) => {
+    handleAppStateChange(nextAppState: string) {
         if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
             console.log("socket is not connected but user is beeping! We need to resubscribe and get our queue.");
             this.enableGetQueue();
@@ -264,7 +265,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    updateGroup (value: undefined | string) {
+    updateGroup(value: undefined | string): void {
         this.setState({groupRate: value});
 
         let tempUser = this.context.user;
@@ -274,7 +275,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    updateCapacity (value: undefined | string) {
+    updateCapacity(value: undefined | string): void {
         this.setState({capacity: value});
 
         let tempUser = this.context.user;
@@ -284,7 +285,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    handleDirections (origin: string, dest: string) {
+    handleDirections(origin: string, dest: string): void {
         if (Platform.OS == 'ios') {
             Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
         }
@@ -293,7 +294,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
-    handleVenmo (groupSize: string | number, venmo: string) {
+    handleVenmo (groupSize: string | number, venmo: string): void {
         if (groupSize > 1) {
             Linking.openURL('venmo://paycharge?txn=pay&recipients='+ venmo + '&amount=' + this.state.groupRate + '&note=Beep');
         }
@@ -308,13 +309,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             return (
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!(Platform.OS == "ios" || Platform.OS == "android")} >
                 <Layout style={styles.container}>
-                    <Toggle
-                        style={styles.toggle}
-                        onChange = {(value) => this.toggleSwitch(value)}
-                        checked = {this.state.isBeeping}
-                    >
-                        {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
-                    </Toggle>
+                    <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
                     <Layout style={{marginTop: 6, width: "85%"}}>
                         <Text style={{marginBottom: 10}} category="h4">Beeping Options</Text>
                         <Input
@@ -362,13 +357,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             if (this.state.queue && this.state.queue.length != 0) {
                 return (
                     <Layout style={styles.container}>
-                        <Toggle
-                            style={styles.toggle}
-                            onChange = {(value) => this.toggleSwitch(value)}
-                            checked = {this.state.isBeeping}
-                        >
-                            {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
-                        </Toggle>
+                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
                         <List
                             style={styles.list}
                             data={this.state.queue}
@@ -505,13 +494,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             else {
                 return (
                     <Layout style={styles.container}>
-                        <Toggle
-                            style={styles.toggle}
-                            onChange = {(value) => this.toggleSwitch(value)}
-                            checked = {this.state.isBeeping}
-                        >
-                            {this.state.isBeeping ? "Stop Beeping" : "Start Beeping"}
-                        </Toggle>
+                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
                         <Layout style={styles.empty}>
                             <Text category='h5'>Your queue is empty</Text>
                             <Text appearance='hint'>If someone wants you to beep them, it will appear here. If your app is closed, you will recieve a push notification.</Text>
