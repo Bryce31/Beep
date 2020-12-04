@@ -8,7 +8,7 @@ import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, F
 import { config } from "../../utils/config";
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
-import ResendButton from './ResendButton';
+import ResendButton from '../../components/ResendVarificationEmailButton';
 
 export function MainSettingsScreen({ navigation }: any) {
     const themeContext: any = React.useContext(ThemeContext);

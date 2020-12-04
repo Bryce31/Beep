@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { config } from "../../utils/config";
-import { handleFetchError } from "../../utils/Errors";
-import { UserContext } from '../../utils/UserContext';
+import { config } from "../utils/config";
+import { handleFetchError } from "../utils/Errors";
+import { UserContext } from '../utils/UserContext';
 import { Button } from '@ui-kitten/components';
-import { EmailIcon, LoadingIndicator } from '../../utils/Icons';
+import { EmailIcon, LoadingIndicator } from '../utils/Icons';
 
 interface props {
 
