@@ -30,18 +30,18 @@ export default class LoginScreen extends Component<Props, State> {
         super(props);
         this.state = {
             isLoading: false,
+            secureTextEntry: true,
             username: "",
-            password: "",
-            secureTextEntry: true
+            password: ""
         };
     }
 
-    toggleSecureEntry = () => {
+    toggleSecureEntry() {
         this.setState({ secureTextEntry: !this.state.secureTextEntry });
     }
 
     renderIcon = (props: unknown) => (
-        <TouchableWithoutFeedback onPress={this.toggleSecureEntry}>
+        <TouchableWithoutFeedback onPress={() => this.toggleSecureEntry()}>
             <Icon {...props} name={this.state.secureTextEntry ? 'eye-off' :'eye'}/>
         </TouchableWithoutFeedback>
     );
@@ -56,11 +56,8 @@ export default class LoginScreen extends Component<Props, State> {
     }
 
     async handleLogin() {
-        //make button show loading state
         this.setState({ isLoading: true });
 
-        //in the background (asyncronously) tell the app to call the api to 
-        //try to remove any old extra token
         removeOldToken();
 
         let expoPushToken;
@@ -69,44 +66,42 @@ export default class LoginScreen extends Component<Props, State> {
             expoPushToken = await getPushToken();
         }
 
-        fetch(config.apiUrl + "/auth/login", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "username": this.state.username,
-                "password": this.state.password,
-                "expoPushToken": expoPushToken
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    //set user in global context
-                    this.context.setUser(data);
-
-                    //also store user in local storage so user can persist
-                    AsyncStorage.setItem("@user", JSON.stringify(data));
-
-                    //navigate to the Main screen
-                    this.props.navigation.reset({
-                        index: 0,
-                        routes: [
-                            { name: 'Main' },
-                        ],
-                    });
-
-                    socket.emit('getUser', this.context.user.token);
-                }
-                else {
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
+        try {
+            const result = await fetch(config.apiUrl + "/auth/login", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "username": this.state.username,
+                    "password": this.state.password,
+                    "expoPushToken": expoPushToken
+                })
             });
-        })
-        .catch((error) => {
+
+            const data = await result.json();
+
+            if (data.status === "success") {
+                this.context.setUser(data);
+
+                this.props.navigation.reset({
+                    index: 0,
+                    routes: [
+                        { name: 'Main' },
+                    ],
+                });
+
+                AsyncStorage.setItem("@user", JSON.stringify(data));
+
+                socket.emit('getUser', this.context.user.token);
+            }
+            else {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch (error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
     render () {

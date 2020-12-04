@@ -12,7 +12,6 @@ interface Props {
 interface State {
     isLoading: boolean;
     email: string;
-    status: any;
 }
 
 export default class ForgotPassword extends Component<Props, State> {
@@ -21,46 +20,43 @@ export default class ForgotPassword extends Component<Props, State> {
         super(props);
         this.state = {
             isLoading: false,
-            status: {},
             email: ""
         }
     }
 
-    handleForgotPassword () {
-        //make button show loading state
+    async handleForgotPassword () {
         this.setState({ isLoading: true });
 
-        fetch(config.apiUrl + "/auth/password/forgot", {
-            method: "POST",
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ "email": this.state.email })
-        })
-        .then(response => {
-            response.json().then(data => {
-                this.setState({
-                    isLoading: false
-                });
+        try {
+            const result = await fetch(config.apiUrl + "/auth/password/forgot", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ "email": this.state.email })
+            });
 
-                if (data.status == "success") {
-                    alert(data.message);
-                    this.props.navigation.goBack();
-                } 
-                else {
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
-            })
-        })
-        .catch((error) => {
+            const data = await result.json();
+
+            this.setState({ isLoading: false });
+
+            if (data.status == "success") {
+                alert(data.message);
+                this.props.navigation.goBack();
+            } 
+            else {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch (error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
     render () {
         const BackAction = () => (
-            <TopNavigationAction icon={BackIcon} onPress={() =>this.props.navigation.goBack()}/>
+            <TopNavigationAction icon={BackIcon} onPress={() => this.props.navigation.goBack()}/>
         );
 
         return (

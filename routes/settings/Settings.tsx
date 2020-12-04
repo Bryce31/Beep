@@ -4,9 +4,8 @@ import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../../utils/ThemeContext';
 import { UserContext } from '../../utils/UserContext';
 import socket from '../../utils/Socket';
-import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, EmailIcon } from '../../utils/Icons';
+import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon } from '../../utils/Icons';
 import { config } from "../../utils/config";
-import { handleFetchError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
 import ResendButton from './ResendButton';
@@ -16,53 +15,39 @@ export function MainSettingsScreen({ navigation }: any) {
     const userContext: any = React.useContext(UserContext);
 
     async function logout() {
-        fetch(config.apiUrl + "/auth/logout", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + userContext.user.token
-            },
-            body: JSON.stringify({
-                "isApp": true
-            })
-        })
-        .then(response => {
-            response.json().then(() => {
-                //Logout was successfull
-                console.log("[Settings.js] [Logout] We have internet connection.");
-                //Using AsyncStorage, remove keys on logout.
-                //IMPORTANT: we do NOT remove the expo push token beause we need that for any other user that may login
-                //We can't remove it because it is only set on App.js when we initialize notifications, we may not re-run that code
-                AsyncStorage.multiRemove(['@user', '@tokenid'], (err) => {
-                    if (err) { 
-                        console.error(err);
-                    }
-                    console.log("[Settings.js] [Logout] Removed all from storage except our push token.");
-                });
-                //these two emits tell our socket server that we no longer want the rethinkdb watcher open
-                socket.emit('stopGetQueue');
-                socket.emit('stopGetRiderStatus');
-                socket.emit('stopGetUser');
-                //this tells our client to stop listening to updates
-                socket.off('updateRiderStatus');
-                socket.off('updateQueue');
+        try {
+            fetch(config.apiUrl + "/auth/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + userContext.user.token
+                },
+                body: JSON.stringify({
+                    "isApp": true
+                })
             });
-        })
-        .catch((error) => {
-            //The fetch encountered an error.
-            console.log("[Settings.js] [Logout] We have no internet!", error);
-            //Define the keys we will remove from storage
-            //IMPORTANT: notice how we did NOT remove the 'tokenid'
-            //This is because use is offline, we will remove it upon the next signin or signup
-            //Also, we still keep expoPushToken
+
+            AsyncStorage.multiRemove(['@user', '@tokenid'], (err) => {
+                if (err) { 
+                    console.error(err);
+                }
+            });
+
+            socket.emit('stopGetQueue');
+            socket.emit('stopGetRiderStatus');
+            socket.emit('stopGetUser');
+            socket.off('updateRiderStatus');
+            socket.off('updateQueue');
+        }
+        catch (error) {
+            //Probably no internet. Save tokenid so we can call the token revoker upon the next signin or signup
             AsyncStorage.setItem("@tokenid", userContext.user.tokenid);
-            //Remove user from AsyncStorage
             AsyncStorage.removeItem("@user", (error) => {
                 console.log("Removed all except tokenid and expoPushToken from storage.", error);
             });
-        });
+        }
 
-        //Now that we have completed the logout procedue, send them to the Login page.
+        //Reset the navigation state and as a callback, remove the user from context
         await navigation.reset({
             index: 0,
             routes: [

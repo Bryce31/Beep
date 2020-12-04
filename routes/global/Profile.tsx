@@ -4,6 +4,7 @@ import { Button, Spinner, Text, Layout, TopNavigation, TopNavigationAction } fro
 import { BackIcon, ReportIcon } from "../../utils/Icons";
 import { config } from "../../utils/config";
 import ProfilePicture from "../../components/ProfilePicture";
+import { handleFetchError } from "../../utils/Errors";
 
 interface Props {
     route: any; 
@@ -25,21 +26,22 @@ export class ProfileScreen extends Component<Props, State> {
         };
     }
 
-    getUser() {
-        fetch(config.apiUrl + "/user/" + this.props.route.params.id, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-        .then(response => {
-            response.json().then(data => {
-                this.setState({isLoading: false, user: data.user});
+    async getUser() {
+        try {
+            const result = await fetch(config.apiUrl + "/user/" + this.props.route.params.id, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
             });
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+
+            const data = await result.json();
+
+            this.setState({isLoading: false, user: data.user});
+        }
+        catch(error) {
+            this.setState({isLoading: handleFetchError(error)});
+        }
     }
     
     handleReport() {

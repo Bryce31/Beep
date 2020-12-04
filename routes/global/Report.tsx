@@ -5,7 +5,7 @@ import { BackIcon } from "../../utils/Icons";
 import { config } from "../../utils/config";
 import { UserContext } from '../../utils/UserContext';
 import { LoadingIndicator, ReportIcon } from "../../utils/Icons";
-import { parseError } from "../../utils/Errors";
+import { handleFetchError, parseError } from "../../utils/Errors";
 
 interface Props {
     route: any;
@@ -28,29 +28,31 @@ export class ReportScreen extends Component<Props, State> {
         };
     }
 
-    reportUser() {
+    async reportUser() {
         this.setState({ isLoading: true });
-
-        fetch(config.apiUrl + "/user/report", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + this.context.user.token,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                id: this.props.route.params.id,
-                reason: this.state.reason
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                alert(parseError(data.message));
-                this.setState({ isLoading: false });
+        
+        try {
+            const result = await fetch(config.apiUrl + "/user/report", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + this.context.user.token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: this.props.route.params.id,
+                    reason: this.state.reason
+                })
             });
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+
+            const data = await result.json();
+
+            alert(parseError(data.message));
+
+            this.setState({ isLoading: false });
+        }
+        catch(error) {
+            this.setState({ isLoading: handleFetchError(error) });
+        }
     }
 
     render () {

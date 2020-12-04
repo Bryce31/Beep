@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Layout, Text, Divider, List, ListItem, Button, TopNavigation, TopNavigationAction, Spinner } from '@ui-kitten/components';
 import { StyleSheet } from 'react-native';
 import { config } from "../../utils/config";
-import { BackIcon, RefreshIcon, GetIcon, StudentIcon } from '../../utils/Icons';
-import { handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { BackIcon, RefreshIcon, StudentIcon } from '../../utils/Icons';
+import { handleFetchError } from "../../utils/Errors";
 import ProfilePicture from '../../components/ProfilePicture';
 
 interface Props {
@@ -26,34 +26,35 @@ export class PickBeepScreen extends Component<Props, State> {
         }
     }
 
-    getBeeperList = () => {
-        fetch(config.apiUrl + "/rider/list")
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    this.setState({ isLoading: false, beeperList: data.beeperList });
-                }
-                else {
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
-            });
-        })
-        .catch((error) => {
+    async getBeeperList(): Promise<void> {
+        try {
+            const result = await fetch(config.apiUrl + "/rider/list");
+
+            const data = await result.json();
+
+            if (data.status === "success") {
+                this.setState({ isLoading: false, beeperList: data.beeperList });
+            }
+            else {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch (error){
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
-    componentDidMount () {
+    componentDidMount(): void {
         this.getBeeperList();
     }
 
-    goBack (id: string) {
+    goBack(id: string): void {
         const { navigation, route } = this.props;
         route.params.handlePick(id);
         navigation.goBack();
     }
 
-    getDescription(item: any) {
+    getDescription(item: any): string {
         let output = `${item.queueSize} in ${item.first}'s queue\nRider Capacity: ${item.capacity}\nSingles: $${item.singlesRate}\nGroups: $${item.groupRate}`;
         if (item.masksRequired) {
             output += "\nMasks required 😷";

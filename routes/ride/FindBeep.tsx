@@ -46,8 +46,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
     }
 
-
-    componentDidMount () {
+    componentDidMount() {
         this.getRiderStatus(true);
 
         AppState.addEventListener("change", this.handleAppStateChange);
@@ -62,7 +61,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
         AppState.removeEventListener("change", this.handleAppStateChange);
     }
 
-    handleAppStateChange = (nextAppState: string) => {
+    handleAppStateChange(nextAppState: string) {
         if(nextAppState === "active" && !socket.connected && this.state.beeper.id) {
             this.getRiderStatus(true);
             console.log("Socket.io is not conntected! We need to reconnect to continue to get updates");
@@ -124,15 +123,12 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 }
             }
             if (isInitial) {
-                //now that we know inital rider status, unhide the splash screen
                 await SplashScreen.hideAsync();
             }
-
         }
         catch (error) {
             this.setState({ isLoading: handleFetchError(error) }, async () => {
                 if (isInitial) {
-                    //now that we know inital rider status, unhide the splash screen
                     await SplashScreen.hideAsync();
                 }
             });
@@ -145,7 +141,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
 
         this.setState({ isLoading: true });
-
 
         try {
             const result = await fetch(config.apiUrl + "/rider/choose", {
@@ -183,9 +178,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
     }
 
     async findBeep () {
-        //if the "pick beeper" checbox is checked, run this code
         if (this.state.pickBeeper) {
-            //navigate to the Pick Beeper Screen and terminate this function
             this.props.navigation.navigate('PickBeepScreen', {
                 handlePick: (id: string) => this.chooseBeep(id)
             });
@@ -221,22 +214,16 @@ export class MainFindBeepScreen extends Component<Props, State> {
     }
 
     async useCurrentLocation() {
-        //TODO: find amore elegent solution to tell user we are loading location data
         this.setState({ startLocation: "Loading Location..." });
        
-        //yeah this is probably bad to have here, but i dont care enough to move it
         Location.setGoogleApiKey("AIzaSyBgabJrpu7-ELWiUIKJlpBz2mL6GYjwCVI");
 
         let { status } = await Location.requestPermissionsAsync();
 
         if (status !== 'granted') {
-            //TODO: improve this alert
-            alert("You must enable location to use this feature.");
-            //If we don't have location permission, DO NOT continue
-            return;
+            return alert("You must enable location to use this feature.");
         }
 
-        //get location
         let position = await Location.getCurrentPositionAsync({});
         let location = await Location.reverseGeocodeAsync({ latitude: position.coords.latitude, longitude: position.coords.longitude });
 
@@ -249,7 +236,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
             string = location[0].name + " " + location[0].street + " " + location[0].city + ", " + location[0].region + " " + location[0].postalCode;  
         }
 
-        //Update Origin Location
         this.setState({ startLocation: string });
     }
 
@@ -281,13 +267,11 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
     enableGetRiderStatus() {
         console.log("Subscribing to Socket.io for Rider Status");
-        //Tell our socket to push updates to user
         socket.emit('getRiderStatus', this.state.beeper.id);
     }
 
     disableGetRiderStatus() {
         console.log("Unsubscribing to Socket.io for Rider Status");
-        //Tell our socket to push updates to user
         socket.emit('stopGetRiderStatus');
     }
 

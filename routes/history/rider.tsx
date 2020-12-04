@@ -25,27 +25,28 @@ export class RiderRideLogScreen extends Component<Props, State> {
         }
     }
 
-    getRiderList() {
-        fetch(config.apiUrl + "/account/history/rider", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            }
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status == "success") {
-                    this.setState({ isLoading: false, riderList: data.data });
-                }
-                else {
-                    this.setState({ isLoading: handleFetchError(data.message) });
+    async getRiderList() {
+        try {
+            const result = await fetch(config.apiUrl + "/account/history/rider", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + this.context.user.token
                 }
             });
-        })
-        .catch((error) => {
+
+            const data = await result.json();
+
+            if (data.status == "success") {
+                this.setState({ isLoading: false, riderList: data.data });
+            }
+            else {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch(error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
     componentDidMount () {

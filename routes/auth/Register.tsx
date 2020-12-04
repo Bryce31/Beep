@@ -49,8 +49,7 @@ export default class RegisterScreen extends Component<Props, State> {
         }
     }
 
-    async handleRegister () {
-        //make button show loading state
+    async handleRegister() {
         this.setState({ isLoading: true });
 
         if (this.state.photo == null) {
@@ -58,7 +57,6 @@ export default class RegisterScreen extends Component<Props, State> {
             return this.setState({ isLoading: false });
         }
 
-        //remove any old tokens they were not able to have been removed
         removeOldToken();
 
         let expoPushToken;
@@ -67,53 +65,50 @@ export default class RegisterScreen extends Component<Props, State> {
             expoPushToken = await getPushToken();
         }
 
-        fetch(config.apiUrl + "/auth/signup", {
-            method: "POST",
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "first": this.state.first,
-                "last": this.state.last,
-                "email": this.state.email,
-                "phone": this.state.phone,
-                "venmo": this.state.venmo,
-                "username": this.state.username,
-                "password": this.state.password,
-                "expoPushToken": expoPushToken
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    //set user in global context
-                    this.context.setUser(data);
+        try {
+            const result = await fetch(config.apiUrl + "/auth/signup", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "first": this.state.first,
+                    "last": this.state.last,
+                    "email": this.state.email,
+                    "phone": this.state.phone,
+                    "venmo": this.state.venmo,
+                    "username": this.state.username,
+                    "password": this.state.password,
+                    "expoPushToken": expoPushToken
+                })
+            });
 
-                    //store user in storage so user can persist untill logout
-                    AsyncStorage.setItem("@user", JSON.stringify(data));
+            const data = await result.json();
 
-                    this.uploadPhoto();
+            if (data.status === "success") {
+                this.context.setUser(data);
 
-                    //Signup has been completed. We are ready to send user into main app.
-                    //Use our Navigation we defined earlier to RESET the navigation stack where Main is the root
-                    this.props.navigation.reset({
-                        index: 0,
-                        routes: [
-                            { name: 'Main' },
-                        ],
-                    })
+                this.uploadPhoto();
 
-                    socket.emit('getUser', this.context.user.token);
-                }
-                else {
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
-            })
-        })
-        .catch((error) => {
+                this.props.navigation.reset({
+                    index: 0,
+                    routes: [
+                        { name: 'Main' },
+                    ],
+                })
+
+                AsyncStorage.setItem("@user", JSON.stringify(data));
+
+                socket.emit('getUser', this.context.user.token);
+            }
+            else {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch (error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
    async handlePhoto() {
@@ -128,65 +123,60 @@ export default class RegisterScreen extends Component<Props, State> {
     }
 
     async uploadPhoto() {
-       let form = new FormData();
+        let form = new FormData();
 
-       if (Platform.OS !== "ios" && Platform.OS !== "android") {
-           console.log("Running as if this is a web device");
-           await fetch(result.uri)
-               .then(res => res.blob())
-               .then(blob => {
-                   const fileType = blob.type.split("/")[1];
-                   const file = new File([blob], "photo." + fileType);
-                   form.append('photo', file)
-               });
-       }
-       else {
-           console.log("Runing as mobile device");
-           console.log(result);
-           const fileType = result.uri.substr(result.uri.lastIndexOf("."), result.uri.length);
-           console.log(fileType);
-           this.setState({photo: result.uri});
-
-           const photo = {
-               uri: result.uri,
-               type: 'image/jpeg',
-               name: 'photo' + fileType,
-           };
-
-           if (!result.cancelled) {
-               form.append("photo", photo);
-           }
-           else {
-               this.setState({ isLoading: false });
-           }
-       }
-
-       fetch(config.apiUrl + "/files/upload", {
-           method: "POST",
-           headers: {
-               //'Content-Type': `multipart/form-data`,
-               "Authorization": "Bearer " + this.context.user.token
-           },
-           body: form
-       })
-        .then(response => {
-            response.json().then(data => {
-                //make a copy of the current user
-                let tempUser = this.context.user;
-
-                //update the tempUser with the new data
-                tempUser.photoUrl = data.url;
-
-                //update the context
-                this.context.setUser(tempUser);
-
-                //put the tempUser back into storage
-                AsyncStorage.setItem('@user', JSON.stringify(tempUser));
+        if (Platform.OS !== "ios" && Platform.OS !== "android") {
+            await fetch(result.uri)
+            .then(res => res.blob())
+            .then(blob => {
+                const fileType = blob.type.split("/")[1];
+                const file = new File([blob], "photo." + fileType);
+                form.append('photo', file)
             });
-        })
-        .catch((error) => {
-            console.error(error);
-        });
+        }
+        else {
+            const fileType = result.uri.substr(result.uri.lastIndexOf("."), result.uri.length);
+            this.setState({photo: result.uri});
+
+            const photo = {
+                uri: result.uri,
+                type: 'image/jpeg',
+                name: 'photo' + fileType,
+            };
+
+            if (!result.cancelled) {
+                form.append("photo", photo);
+            }
+            else {
+                this.setState({ isLoading: false });
+            }
+        }
+        try {
+            const result = await fetch(config.apiUrl + "/files/upload", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + this.context.user.token
+                },
+                body: form
+            });
+
+            const data = await result.json();
+
+            //make a copy of the current user
+            let tempUser = this.context.user;
+
+            //update the tempUser with the new data
+            tempUser.photoUrl = data.url;
+
+            //update the context
+            this.context.setUser(tempUser);
+
+            //put the tempUser back into storage
+            AsyncStorage.setItem('@user', JSON.stringify(tempUser));
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
 
     render () {
