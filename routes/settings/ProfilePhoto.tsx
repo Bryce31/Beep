@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Platform, Image, StyleSheet } from 'react-native';
 import { Text, Layout, Button, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { LoadingIndicator } from "../../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import userStore from '../../utils/stores';
 
 interface Props {
     navigation: any;
@@ -19,8 +19,6 @@ interface State {
 }
 
 export class ProfilePhotoScreen extends Component<Props, State> {
-    static contextType = UserContext;
-    
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -30,7 +28,6 @@ export class ProfilePhotoScreen extends Component<Props, State> {
     }
 
    async handleUpdate() {
-       //send button into loading state
        this.setState({ isLoading: true });
 
        let form = new FormData();
@@ -83,21 +80,19 @@ export class ProfilePhotoScreen extends Component<Props, State> {
        fetch(config.apiUrl + "/files/upload", {
            method: "POST",
            headers: {
-               "Authorization": "Bearer " + this.context.user.token
+               "Authorization": "Bearer " + userStore.user.token
            },
            body: form
        })
        .then(response => {
            response.json().then(data => {
                if (data.status === "success") {
+                   userStore.user.photoUrl = data.url;
                    //make a copy of the current user
                    let tempUser = this.context.user;
 
                    //update the tempUser with the new data
                    tempUser.photoUrl = data.url;
-
-                   //update the context
-                   this.context.setUser(tempUser);
 
                    //put the tempUser back into storage
                    AsyncStorage.setItem('@user', JSON.stringify(tempUser));

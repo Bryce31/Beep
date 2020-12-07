@@ -1,5 +1,9 @@
-import { store } from '@risingstack/react-easy-state';
+import { store  } from '@risingstack/react-easy-state';
 
-const userStore = store({});
+interface UserStore {
+   user: any; 
+}
+
+const userStore: UserStore = store({ user: null });
 
 export default userStore;

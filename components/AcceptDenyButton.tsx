@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { StyleSheet } from "react-native";
 import { Button } from "@ui-kitten/components";
-import { UserContext } from '../utils/UserContext';
+import userStore from '../utils/stores';
 import { config } from "../utils/config";
 import { AcceptIcon, DenyIcon, AcceptIndicator, DenyIndicator } from "../utils/Icons";
-import { handleFetchError, handleStatusCodeError } from "../utils/Errors";
+import { handleFetchError } from "../utils/Errors";
 
 interface Props {
     type: string;
@@ -16,7 +16,6 @@ interface State {
 }
 
 export default class AcceptDenyButton extends Component<Props, State> {
-    static contextType = UserContext;
 
     constructor(props: Props) {
         super(props);
@@ -36,7 +35,7 @@ export default class AcceptDenyButton extends Component<Props, State> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
+                "Authorization": "Bearer " + userStore.user.token
             },
             body: JSON.stringify({
                 "value": value,

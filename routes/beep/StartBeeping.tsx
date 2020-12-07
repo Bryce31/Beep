@@ -217,12 +217,13 @@ class StartBeepingScreen extends Component<Props, State> {
                     this.getQueue();
                 }
 
+                userStore.user.isBeeping = value;
+
                 let tempUser = userStore.user;
                 tempUser.isBeeping = value;
                 AsyncStorage.setItem('@user', JSON.stringify(tempUser));
 
                 //TODO: better way to update context
-                userStore.user = tempUser;
             }
             else {
                 //Use native popup to tell user why they could not change their status

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { StyleSheet, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { EditIcon, LoadingIndicator, BackIcon } from "../../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
+import userStore from '../../utils/stores';
 
 interface Props {
     navigation: any;
@@ -17,8 +17,6 @@ interface State {
 }
 
 export class ChangePasswordScreen extends Component<Props, State> {
-    static contextType = UserContext;
-
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -40,7 +38,7 @@ export class ChangePasswordScreen extends Component<Props, State> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
+                "Authorization": "Bearer " + userStore.user.token
             },
             body: JSON.stringify({
                 "password": this.state.password

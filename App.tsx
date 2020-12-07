@@ -98,7 +98,6 @@ export default class App extends Component<Props, State> {
             this.setState({
                 theme: sTheme
             });
-            console.log("found user:", tempUser);
             userStore.user = tempUser;
           }, (error) => {
             //AsyncStorage could not get data from storage

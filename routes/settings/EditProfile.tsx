@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { EditIcon, LoadingIndicator } from "../../utils/Icons";
 import { handleFetchError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
+import { view } from '@risingstack/react-easy-state';
+import userStore from '../../utils/stores';
 
 interface Props {
     navigation: any;
@@ -23,19 +24,17 @@ interface State {
     venmo: string;
 }
 
-export class EditProfileScreen extends Component<Props, State> {
-    static contextType = UserContext;
-    
-    constructor(props: Props, context: any) {
+class EditProfileScreen extends Component<Props, State> {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,
-            username: context.user.username,
-            first: context.user.first,
-            last: context.user.last,
-            email: context.user.email,
-            phone: context.user.phone,
-            venmo: context.user.venmo
+            username: userStore.user.username,
+            first: userStore.user.first,
+            last: userStore.user.last,
+            email: userStore.user.email,
+            phone: userStore.user.phone,
+            venmo: userStore.user.venmo
         };
     }
 
@@ -48,7 +47,7 @@ export class EditProfileScreen extends Component<Props, State> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
+                "Authorization": "Bearer " + userStore.user.token
             },
             body: JSON.stringify({
                 "first": this.state.first,
@@ -62,7 +61,7 @@ export class EditProfileScreen extends Component<Props, State> {
             response.json().then(data => {
                 if (data.status === "success") {
                     //make a copy of the current user
-                    let tempUser = this.context.user;
+                    let tempUser = userStore.user;
 
                     //update the tempUser with the new data
                     tempUser.first = this.state.first;
@@ -71,14 +70,14 @@ export class EditProfileScreen extends Component<Props, State> {
                     tempUser.phone = this.state.phone;
                     tempUser.venmo = this.state.venmo;
 
-                    if (this.state.email !== this.context.user.email) {
+                    if (this.state.email !== userStore.user.email) {
                         //email has changed for sure, set to not verified on client side
                         tempUser.isEmailVerified = false;
                         tempUser.isStudent = false;
                     }
 
                     //update the context
-                    this.context.setUser(tempUser);
+                    userStore.user = tempUser;
 
                     //put the tempUser back into storage
                     AsyncStorage.setItem('@user', JSON.stringify(tempUser));
@@ -89,12 +88,12 @@ export class EditProfileScreen extends Component<Props, State> {
                 else {
                     this.setState({
                         isLoading: false,
-                        username: this.context.user.username,
-                        first: this.context.user.first,
-                        last: this.context.user.last,
-                        email: this.context.user.email,
-                        phone: this.context.user.phone,
-                        venmo: this.context.user.venmo
+                        username: userStore.user.username,
+                        first: userStore.user.first,
+                        last: userStore.user.last,
+                        email: userStore.user.email,
+                        phone: userStore.user.phone,
+                        venmo: userStore.user.venmo
                     });
                     this.setState({ isLoading: handleFetchError(data.message) });
                 }
@@ -106,20 +105,20 @@ export class EditProfileScreen extends Component<Props, State> {
     }
 
     UNSAFE_componentWillReceiveProps() {
-        if (this.state.first != this.context.user.first) {
-            this.setState({ first: this.context.user.first });
+        if (this.state.first != userStore.user.first) {
+            this.setState({ first: userStore.user.first });
         }
-        if (this.state.last != this.context.user.last) {
-            this.setState({ last: this.context.user.last });
+        if (this.state.last != userStore.user.last) {
+            this.setState({ last: userStore.user.last });
         }
-        if (this.state.email != this.context.user.email) {
-            this.setState({ email: this.context.user.email });
+        if (this.state.email != userStore.user.email) {
+            this.setState({ email: userStore.user.email });
         }
-        if (this.state.phone != this.context.user.phone) {
-            this.setState({ phone: this.context.user.phone });
+        if (this.state.phone != userStore.user.phone) {
+            this.setState({ phone: userStore.user.phone });
         }
-        if (this.state.venmo != this.context.user.venmo) {
-            this.setState({ venmo: this.context.user.venmo });
+        if (this.state.venmo != userStore.user.venmo) {
+            this.setState({ venmo: userStore.user.venmo });
         }
     }
 
@@ -163,7 +162,7 @@ export class EditProfileScreen extends Component<Props, State> {
                             value={this.state.email}
                             textContentType="emailAddress"
                             placeholder="Email"
-                            caption={this.context.user.isEmailVerified ? (this.context.user.isStudent) ? "Your email is verified and you are a student": "Your email is verified" : "Your email is not verified"}
+                            caption={userStore.user.isEmailVerified ? (userStore.user.isStudent) ? "Your email is verified and you are a student": "Your email is verified" : "Your email is not verified"}
                             returnKeyType="next"
                             onChangeText={(text) => this.setState({email:text})}
                             ref={(input) => this.thirdTextInput = input}
@@ -222,3 +221,5 @@ const styles = StyleSheet.create({
         marginTop: 20,
     }
 });
+
+export default view(EditProfileScreen);

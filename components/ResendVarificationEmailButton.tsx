@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { config } from "../utils/config";
 import { handleFetchError } from "../utils/Errors";
-import { UserContext } from '../utils/UserContext';
 import { Button } from '@ui-kitten/components';
 import { EmailIcon, LoadingIndicator } from '../utils/Icons';
+import userStore from '../utils/stores';
 
 interface props {
 
@@ -14,8 +14,6 @@ interface state {
 }
 
 export default class ResendButton extends Component<props, state> {
-    static contextType = UserContext;
-
     constructor(props: props) {
         super(props);
         this.state = {
@@ -30,7 +28,7 @@ export default class ResendButton extends Component<props, state> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
+                "Authorization": "Bearer " + userStore.user.token
             }
         })
         .then(response => {
