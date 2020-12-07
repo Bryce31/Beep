@@ -3,9 +3,9 @@ import { Platform, StyleSheet, Keyboard, TouchableWithoutFeedback } from "react-
 import { Input, Button, Layout, TopNavigation, TopNavigationAction } from "@ui-kitten/components";
 import { BackIcon } from "../../utils/Icons";
 import { config } from "../../utils/config";
-import { UserContext } from '../../utils/UserContext';
 import { LoadingIndicator, ReportIcon } from "../../utils/Icons";
 import { handleFetchError, parseError } from "../../utils/Errors";
+import userStore from "../../utils/stores";
 
 interface Props {
     route: any;
@@ -18,8 +18,6 @@ interface State {
 }
 
 export class ReportScreen extends Component<Props, State> {
-    static contextType = UserContext;
-
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -35,7 +33,7 @@ export class ReportScreen extends Component<Props, State> {
             const result = await fetch(config.apiUrl + "/user/report", {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer " + this.context.user.token,
+                    "Authorization": "Bearer " + userStore.user.token,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({

@@ -3,7 +3,7 @@ import { Layout, Text, Divider, List, ListItem, Spinner } from '@ui-kitten/compo
 import { StyleSheet } from 'react-native';
 import { config } from "../../utils/config";
 import { handleFetchError } from "../../utils/Errors";
-import { UserContext } from '../../utils/UserContext';
+import userStore from '../../utils/stores';
 
 interface Props {
     navigation: any;
@@ -15,8 +15,6 @@ interface State {
 }
 
 export class BeeperRideLogScreen extends Component<Props, State> {
-    static contextType = UserContext;
-
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -31,7 +29,7 @@ export class BeeperRideLogScreen extends Component<Props, State> {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + userStore.user.token
                 }
             });
 

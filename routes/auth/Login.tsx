@@ -3,7 +3,6 @@ import { Platform, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-
 import AsyncStorage from '@react-native-community/async-storage';
 import { Layout, Text, Button, Input } from '@ui-kitten/components';
 import * as SplashScreen from 'expo-splash-screen';
-import { UserContext } from '../../utils/UserContext';
 import { removeOldToken } from '../../utils/OfflineToken';
 import { getPushToken } from '../../utils/Notifications';
 import { config } from '../../utils/config';
@@ -11,6 +10,7 @@ import { LoginIcon, SignUpIcon, QuestionIcon, LoadingIndicator } from '../../uti
 import { handleFetchError } from "../../utils/Errors";
 import { Icon } from '@ui-kitten/components';
 import socket from "../../utils/Socket";
+import userStore from "../../utils/stores";
 
 interface Props {
     navigation: any;
@@ -24,8 +24,6 @@ interface State {
 }
 
 export default class LoginScreen extends Component<Props, State> {
-    static contextType = UserContext;
-
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -82,7 +80,7 @@ export default class LoginScreen extends Component<Props, State> {
             const data = await result.json();
 
             if (data.status === "success") {
-                this.context.setUser(data);
+                userStore.user = data;
 
                 this.props.navigation.reset({
                     index: 0,
@@ -93,7 +91,7 @@ export default class LoginScreen extends Component<Props, State> {
 
                 AsyncStorage.setItem("@user", JSON.stringify(data));
 
-                socket.emit('getUser', this.context.user.token);
+                socket.emit('getUser', data.token);
             }
             else {
                 this.setState({ isLoading: handleFetchError(data.message) });

@@ -110,6 +110,13 @@ export default class App extends Component<Props, State> {
                 console.log("[~] Updating Context!");
                 AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
                 userStore.user = updatedUser;
+                if (userStore.user.isBeeping) {
+                    console.log("subbing to get queue");
+                    socket.emit('getQueue', userStore.user.id);
+                }
+                else {
+                    socket.emit('stopGetQueue');
+                }
             }
         });
     }

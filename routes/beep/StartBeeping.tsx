@@ -20,7 +20,7 @@ interface Props {
 }
 
 interface State {
-    isBeeping: boolean; 
+    //isBeeping: boolean; 
     masksRequired: boolean;
     capacity: undefined | string;
     singlesRate: undefined | string;
@@ -30,12 +30,11 @@ interface State {
 }
 
 class StartBeepingScreen extends Component<Props, State> {
-    
     constructor(props: Props) {
         super(props);
         this.state = {
             currentIndex: 0,
-            isBeeping: userStore.user.isBeeping,
+            //isBeeping: userStore.user.isBeeping,
             masksRequired: userStore.user.masksRequired,
             capacity: String(userStore.user.capacity),
             singlesRate: String(userStore.user.singlesRate),
@@ -51,8 +50,8 @@ class StartBeepingScreen extends Component<Props, State> {
             const data = await result.json();
 
             if (data.status == "success") {
-                if (this.state.isBeeping !== data.user.isBeeping) {
-                    this.setState({ isBeeping: data.isBeeping });
+                if (userStore.user.isBeeping !== data.user.isBeeping) {
+                    userStore.user.isBeeping = data.isBeeping;
                 }
 
                 if(data.user.isBeeping) {
@@ -64,7 +63,7 @@ class StartBeepingScreen extends Component<Props, State> {
                     if (status !== 'granted') {
                         //if we have no location access, dont let the user beep
                         //TODO we only disable beeping client side, should we push false to server also?
-                        this.setState({ isBeeping: false });
+                        userStore.user.isBeeping = false;
                         this.disableGetQueue();
                         //TODO better error handling
                         alert("You must allow location to beep!");
@@ -92,9 +91,10 @@ class StartBeepingScreen extends Component<Props, State> {
     }
 
     /*
-    async UNSAFE_componentWillReceiveProps() {
-        if (this.state.isBeeping != this.context.user.isBeeping) {
-            if (this.context.user.isBeeping) {
+    async componentDidUpdate() {
+        console.log("checking to resub");
+        if (this.state.isBeeping != userStore.user.isBeeping) {
+            if (userStore.user.isBeeping) {
                 //if we are turning on isBeeping, ensure we have location permission
                 let { status } = await Location.requestPermissionsAsync();
 
@@ -110,7 +110,7 @@ class StartBeepingScreen extends Component<Props, State> {
                 //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
                 this.disableGetQueue();
             }
-            this.setState({ isBeeping: this.context.user.isBeeping });
+            this.setState({ isBeeping: userStore.user.isBeeping });
         }
     }
      */
@@ -120,7 +120,7 @@ class StartBeepingScreen extends Component<Props, State> {
     }
 
     handleAppStateChange(nextAppState: string) {
-        if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
+        if (nextAppState === "active" && !socket.connected && userStore.user.isBeeping) {
             console.log("socket is not connected but user is beeping! We need to resubscribe and get our queue.");
             this.enableGetQueue();
             this.getQueue();
@@ -175,14 +175,14 @@ class StartBeepingScreen extends Component<Props, State> {
 
     async toggleSwitch (value: boolean) {
         //Update the toggle switch's value into a isBeeping state
-        this.setState({ isBeeping: value });
+        userStore.user.isBeeping = value;
 
         if (value) {
             //if we are turning on isBeeping, ensure we have location permission
             let { status } = await Location.requestPermissionsAsync();
 
             if (status !== 'granted') {
-                this.setState({ isBeeping: false });
+                userStore.user.isBeeping = false;
                 return alert("You must allow location to beep!");
             }
             //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
@@ -229,9 +229,9 @@ class StartBeepingScreen extends Component<Props, State> {
                 //Use native popup to tell user why they could not change their status
                 //Unupdate the toggle switch because something failed
                 //We redo our actions so the client does not have to wait on server to update the switch
-                this.setState({ isBeeping: !this.state.isBeeping });
+                userStore.user.isBeeping = !userStore.user.isBeeping;
                 //we also need to resubscribe to the socket
-                if (this.state.isBeeping) {
+                if (userStore.user.isBeeping) {
                     this.enableGetQueue();
                 }
                 else {
@@ -306,11 +306,11 @@ class StartBeepingScreen extends Component<Props, State> {
 
     render () {
         console.log("[StartBeeping.js] Rendering Start Beeping Screen");
-        if(!this.state.isBeeping) {
+        if(!userStore.user.isBeeping) {
             return (
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!(Platform.OS == "ios" || Platform.OS == "android")} >
                 <Layout style={styles.container}>
-                    <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
+                    <Toggle isBeepingState={userStore.user.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
                     <Layout style={{marginTop: 6, width: "85%"}}>
                         <Text style={{marginBottom: 10}} category="h4">Beeping Options</Text>
                         <Input
@@ -358,7 +358,7 @@ class StartBeepingScreen extends Component<Props, State> {
             if (this.state.queue && this.state.queue.length != 0) {
                 return (
                     <Layout style={styles.container}>
-                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
+                        <Toggle isBeepingState={userStore.user.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
                         <List
                             style={styles.list}
                             data={this.state.queue}
@@ -495,7 +495,7 @@ class StartBeepingScreen extends Component<Props, State> {
             else {
                 return (
                     <Layout style={styles.container}>
-                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
+                        <Toggle isBeepingState={userStore.user.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
                         <Layout style={styles.empty}>
                             <Text category='h5'>Your queue is empty</Text>
                             <Text appearance='hint'>If someone wants you to beep them, it will appear here. If your app is closed, you will recieve a push notification.</Text>

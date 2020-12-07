@@ -1,4 +1,4 @@
-import { store  } from '@risingstack/react-easy-state';
+import { store } from '@risingstack/react-easy-state';
 
 interface UserStore {
    user: any; 

@@ -107,7 +107,7 @@ class MainFindBeepScreen extends Component<Props, State> {
                 }
 
                 if (isInitial) {
-                    this.enableGetRiderStatus();
+                    this.enableGetRiderStatus(data.beeper.id);
                 }
             }
             else {
@@ -166,7 +166,7 @@ class MainFindBeepScreen extends Component<Props, State> {
                     isLoading: false
                 });
 
-                this.enableGetRiderStatus();
+                this.enableGetRiderStatus(data.beeper.id);
             }
             else {
                 this.setState({ isLoading: handleFetchError(data.message) });
@@ -265,9 +265,9 @@ class MainFindBeepScreen extends Component<Props, State> {
         }
     }
 
-    enableGetRiderStatus() {
+    enableGetRiderStatus(beepersId: string) {
         console.log("Subscribing to Socket.io for Rider Status");
-        socket.emit('getRiderStatus', this.state.beeper.id);
+        socket.emit('getRiderStatus', beepersId);
     }
 
     disableGetRiderStatus() {

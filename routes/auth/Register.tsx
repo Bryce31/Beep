@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Image, StyleSheet, Platform } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Text, Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext } from '../../utils/UserContext';
 import { removeOldToken } from '../../utils/OfflineToken';
 import { config } from "../../utils/config";
 import { PhotoIcon, BackIcon, SignUpIcon, LoadingIndicator } from "../../utils/Icons";
@@ -12,6 +11,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import * as Linking from 'expo-linking';
 import socket from "../../utils/Socket";
 import * as ImagePicker from 'expo-image-picker';
+import userStore from '../../utils/stores';
 
 interface Props {
     navigation: any;
@@ -32,8 +32,6 @@ interface State {
 let result: any; 
 
 export default class RegisterScreen extends Component<Props, State> {
-    static contextType = UserContext;
-
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -87,7 +85,7 @@ export default class RegisterScreen extends Component<Props, State> {
             const data = await result.json();
 
             if (data.status === "success") {
-                this.context.setUser(data);
+                userStore.user = data;
 
                 this.uploadPhoto();
 
@@ -100,7 +98,7 @@ export default class RegisterScreen extends Component<Props, State> {
 
                 AsyncStorage.setItem("@user", JSON.stringify(data));
 
-                socket.emit('getUser', this.context.user.token);
+                socket.emit('getUser', data.token);
             }
             else {
                 this.setState({ isLoading: handleFetchError(data.message) });
@@ -155,21 +153,20 @@ export default class RegisterScreen extends Component<Props, State> {
             const result = await fetch(config.apiUrl + "/files/upload", {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + userStore.user.token
                 },
                 body: form
             });
 
             const data = await result.json();
 
+            userStore.user.photoUrl = data.url;
+
             //make a copy of the current user
-            let tempUser = this.context.user;
+            let tempUser = userStore.user;
 
             //update the tempUser with the new data
             tempUser.photoUrl = data.url;
-
-            //update the context
-            this.context.setUser(tempUser);
 
             //put the tempUser back into storage
             AsyncStorage.setItem('@user', JSON.stringify(tempUser));
