@@ -2,17 +2,17 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../../utils/ThemeContext';
-import { UserContext } from '../../utils/UserContext';
 import socket from '../../utils/Socket';
 import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon } from '../../utils/Icons';
 import { config } from "../../utils/config";
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
 import ResendButton from '../../components/ResendVarificationEmailButton';
+import { view } from '@risingstack/react-easy-state';
+import userStore from '../../utils/stores';
 
-export function MainSettingsScreen({ navigation }: any) {
+export default view(function MainSettingsScreen({ navigation }: any) {
     const themeContext: any = React.useContext(ThemeContext);
-    const userContext: any = React.useContext(UserContext);
 
     async function logout() {
         try {
@@ -20,7 +20,7 @@ export function MainSettingsScreen({ navigation }: any) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + userContext.user.token
+                    "Authorization": "Bearer " + userStore.user.token
                 },
                 body: JSON.stringify({
                     "isApp": true
@@ -41,7 +41,7 @@ export function MainSettingsScreen({ navigation }: any) {
         }
         catch (error) {
             //Probably no internet. Save tokenid so we can call the token revoker upon the next signin or signup
-            AsyncStorage.setItem("@tokenid", userContext.user.tokenid);
+            AsyncStorage.setItem("@tokenid", userStore.user.tokenid);
             AsyncStorage.removeItem("@user", (error) => {
                 console.log("Removed all except tokenid and expoPushToken from storage.", error);
             });
@@ -54,16 +54,16 @@ export function MainSettingsScreen({ navigation }: any) {
                 { name: 'Login' },
             ],
             key: null
-        }, () => userContext.setUser(null));
+        }, () => userStore.setUser(null));
     }
 
     function UserHeader(props: any) {
         return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
-            {userContext.user.photoUrl &&
+            {userStore.user.photoUrl &&
             <ProfilePicture
                 style={{marginHorizontal: 8}}
                 size={50}
-                url={userContext.user.photoUrl}
+                url={userStore.user.photoUrl}
             />
             }
             <Layout>
@@ -79,18 +79,20 @@ export function MainSettingsScreen({ navigation }: any) {
         </Layout>
     }
 
+    console.log("Rendering Settings");
+
     return (
         <Layout style={styles.wrapper}>
             <Layout style={styles.container}>
-                <Card style={{width: "80%", marginBottom: 20}} onPress={() => navigation.navigate("Profile", { id: userContext.user.id })} >
-                    <UserHeader user={userContext.user} />
+                <Card style={{width: "80%", marginBottom: 20}} onPress={() => navigation.navigate("Profile", { id: userStore.user.id })} >
+                    <UserHeader user={userStore.user} />
                 </Card>
-                {!userContext.user.isEmailVerified &&
+                {!userStore.user.isEmailVerified &&
                     <Card status="danger" style={{maxWidth: 400, marginBottom: 6}}>
                         <Text category="h6">Your email is not verified!</Text>
                     </Card>
                 }
-                {!userContext.user.isEmailVerified && <ResendButton />}
+                {!userStore.user.isEmailVerified && <ResendButton />}
                 <Button
                     onPress={themeContext.toggleTheme}
                     accessoryLeft={ThemeIcon}
@@ -146,7 +148,7 @@ export function MainSettingsScreen({ navigation }: any) {
             </Layout>
         </Layout>
     );
-}
+});
 
 const styles = StyleSheet.create({
     row: {

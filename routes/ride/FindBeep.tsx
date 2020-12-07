@@ -4,11 +4,12 @@ import { Icon, Layout, Text, Button, Input, CheckBox } from '@ui-kitten/componen
 import * as Location from 'expo-location';
 import socket from '../../utils/Socket'
 import * as SplashScreen from 'expo-splash-screen';
-import { UserContext } from '../../utils/UserContext';
 import { config } from '../../utils/config';
 import { handleFetchError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
+import { view } from '@risingstack/react-easy-state';
+import userStore from '../../utils/stores';
 
 interface Props {
     navigation: any;
@@ -27,8 +28,7 @@ interface State {
     ridersQueuePosition: number;
 }
 
-export class MainFindBeepScreen extends Component<Props, State> {
-    static contextType = UserContext;
+class MainFindBeepScreen extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
@@ -74,7 +74,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + userStore.user.token
                 }
             });
 
@@ -147,7 +147,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + userStore.user.token
                 },
                 body: JSON.stringify({
                     "origin": this.state.startLocation,
@@ -192,7 +192,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + userStore.user.token
                 }
             });
 
@@ -247,7 +247,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + userStore.user.token
                 },
                 body: JSON.stringify({
                     "beepersID": this.state.beeper.id
@@ -303,7 +303,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             </TouchableWithoutFeedback>
         );
 
-        if (this.context.user.isBeeping) {
+        if (userStore.user.isBeeping) {
             return(
                 <Layout style={styles.container}>
                     <Text category="h5">You are beeping!</Text>
@@ -678,3 +678,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
 });
+
+export default view(MainFindBeepScreen);

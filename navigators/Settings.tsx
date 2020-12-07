@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { MainSettingsScreen } from '../routes/settings/Settings'
+import MainSettingsScreen from '../routes/settings/Settings'
 import { EditProfileScreen } from '../routes/settings/EditProfile'
 import { ProfilePhotoScreen } from '../routes/settings/ProfilePhoto'
 import { ChangePasswordScreen } from '../routes/settings/ChangePassword'

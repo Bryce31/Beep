@@ -14,12 +14,12 @@ import { ApplicationProvider, IconRegistry, Layout } from '@ui-kitten/components
 import { default as beepTheme } from './utils/theme.json';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
 import { ThemeContext } from './utils/ThemeContext';
-import { UserContext } from './utils/UserContext';
 import * as SplashScreen from 'expo-splash-screen';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { updatePushToken } from "./utils/Notifications";
 import socket, { getUpdatedUser } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
+import userStore from "./utils/stores";
 
 const Stack = createStackNavigator();
 
@@ -29,17 +29,11 @@ SplashScreen.preventAutoHideAsync()
 
 let initialScreen: string;
 
-interface User {
-    token?: string;
-    isBeeping?: boolean;
-}
-
 interface Props {
     
 }
 
 interface State {
-    user: User;
     theme: string;
 }
 
@@ -48,7 +42,6 @@ export default class App extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            user: {},
             theme: "light"
         };
     }
@@ -59,13 +52,9 @@ export default class App extends Component<Props, State> {
         AsyncStorage.setItem('@theme', nextempTheme);
     }
 
-    setUser = (user: User) => {
-        this.setState({ user: user });
-    }
-
     handleAppStateChange = (nextAppState: string) => {
-        if (nextAppState === "active" && !socket.connected && this.state.user) {
-            socket.emit('getUser', this.state.user.token);
+        if (nextAppState === "active" && !socket.connected && userStore) {
+            socket.emit('getUser', userStore.user.token);
         }
     }
     
@@ -107,20 +96,21 @@ export default class App extends Component<Props, State> {
             
             //finaly setState once we know what data we have to minimize renders
             this.setState({
-                user: tempUser,
                 theme: sTheme
             });
+            console.log("found user:", tempUser);
+            userStore.user = tempUser;
           }, (error) => {
             //AsyncStorage could not get data from storage
             console.log("[App.js] [AsyncStorage] ", error);
         });
 
         socket.on('updateUser', (data: unknown) => {
-            const updatedUser = getUpdatedUser(this.state.user, data);
+            const updatedUser = getUpdatedUser(userStore.user, data);
             if (updatedUser != null) {
                 console.log("[~] Updating Context!");
                 AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
-                this.setState({ user: updatedUser });
+                userStore.user = updatedUser;
             }
         });
     }
@@ -130,36 +120,32 @@ export default class App extends Component<Props, State> {
             return null;
         }
 
-        const user = this.state.user;
-        const setUser = this.setUser;
         const theme = this.state.theme;
         const toggleTheme = this.toggleTheme;
 
         return (
-            <UserContext.Provider value={{user, setUser}}>
-                <ThemeContext.Provider value={{theme, toggleTheme}}>
-                    <IconRegistry icons={EvaIconsPack} />
-                    <ApplicationProvider {...eva} theme={{ ...eva[this.state.theme], ...beepTheme }}>
-                        <Layout style={styles.statusbar}>
-                            {Platform.OS == "ios" ?
-                                <StatusBar barStyle={(this.state.theme === 'light' ? 'dark' : 'light') + "-content"} />
-                                :
-                                <StatusBar translucent barStyle={(this.state.theme === 'light' ? 'dark' : 'light') + "-content"} backgroundColor={(this.state.theme === "dark") ? "#222b45" : "#ffffff"} />
-                            }
-                        </Layout>
-                        <NavigationContainer>
-                            <Stack.Navigator initialRouteName={initialScreen} screenOptions={{ headerShown: false }} >
-                                <Stack.Screen name="Login" component={LoginScreen} />
-                                <Stack.Screen name="Register" component={RegisterScreen} />
-                                <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-                                <Stack.Screen name="Main" component={MainTabs} />
-                                <Stack.Screen name='Profile' component={ProfileScreen} />
-                                <Stack.Screen name='Report' component={ReportScreen} />
-                            </Stack.Navigator>
-                        </NavigationContainer>
-                    </ApplicationProvider>
-                </ThemeContext.Provider>
-            </UserContext.Provider>
+            <ThemeContext.Provider value={{theme, toggleTheme}}>
+                <IconRegistry icons={EvaIconsPack} />
+                <ApplicationProvider {...eva} theme={{ ...eva[this.state.theme], ...beepTheme }}>
+                    <Layout style={styles.statusbar}>
+                        {Platform.OS == "ios" ?
+                            <StatusBar barStyle={(this.state.theme === 'light' ? 'dark' : 'light') + "-content"} />
+                            :
+                            <StatusBar translucent barStyle={(this.state.theme === 'light' ? 'dark' : 'light') + "-content"} backgroundColor={(this.state.theme === "dark") ? "#222b45" : "#ffffff"} />
+                        }
+                    </Layout>
+                    <NavigationContainer>
+                        <Stack.Navigator initialRouteName={initialScreen} screenOptions={{ headerShown: false }} >
+                            <Stack.Screen name="Login" component={LoginScreen} />
+                            <Stack.Screen name="Register" component={RegisterScreen} />
+                            <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+                            <Stack.Screen name="Main" component={MainTabs} />
+                            <Stack.Screen name='Profile' component={ProfileScreen} />
+                            <Stack.Screen name='Report' component={ReportScreen} />
+                        </Stack.Navigator>
+                    </NavigationContainer>
+                </ApplicationProvider>
+            </ThemeContext.Provider>
         );
     }
 }

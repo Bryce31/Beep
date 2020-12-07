@@ -3,7 +3,6 @@ import * as Location from 'expo-location';
 import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
-import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import * as Notifications from 'expo-notifications';
 import ActionButton from "../../components/ActionButton";
@@ -13,6 +12,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons';
 import ProfilePicture from '../../components/ProfilePicture';
 import Toggle from "./components/Toggle";
+import { view } from '@risingstack/react-easy-state';
+import userStore from '../../utils/stores';
 
 interface Props {
     navigation: any;
@@ -28,25 +29,24 @@ interface State {
     currentIndex: number;
 }
 
-export class StartBeepingScreen extends Component<Props, State> {
-    static contextType = UserContext;
+class StartBeepingScreen extends Component<Props, State> {
     
-    constructor(props: Props, context: any) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             currentIndex: 0,
-            isBeeping: context.user.isBeeping,
-            masksRequired: context.user.masksRequired,
-            capacity: String(context.user.capacity),
-            singlesRate: String(context.user.singlesRate),
-            groupRate: String(context.user.groupRate),
+            isBeeping: userStore.user.isBeeping,
+            masksRequired: userStore.user.masksRequired,
+            capacity: String(userStore.user.capacity),
+            singlesRate: String(userStore.user.singlesRate),
+            groupRate: String(userStore.user.groupRate),
             queue: []
         };
     }
 
     async retrieveData() {
         try {
-            const result = await fetch(config.apiUrl + '/user/' + this.context.user.id);
+            const result = await fetch(config.apiUrl + '/user/' + userStore.user.id);
 
             const data = await result.json();
 
@@ -133,7 +133,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + userStore.user.token
                 }
             });
 
@@ -198,7 +198,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + userStore.user.token
                 },
                 body: JSON.stringify({
                     "isBeeping": value,
@@ -217,12 +217,12 @@ export class StartBeepingScreen extends Component<Props, State> {
                     this.getQueue();
                 }
 
-                let tempUser = this.context.user;
+                let tempUser = userStore.user;
                 tempUser.isBeeping = value;
                 AsyncStorage.setItem('@user', JSON.stringify(tempUser));
 
                 //TODO: better way to update context
-                this.context.setUser(tempUser);
+                userStore.user = tempUser;
             }
             else {
                 //Use native popup to tell user why they could not change their status
@@ -247,7 +247,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
     enableGetQueue(): void {
         console.log("Subscribing to Socket.io for Beeper's Queue");
-        socket.emit('getQueue', this.context.user.id);
+        socket.emit('getQueue', userStore.user.id);
     }
 
     disableGetQueue(): void {
@@ -258,7 +258,7 @@ export class StartBeepingScreen extends Component<Props, State> {
     updateSingles (value: undefined | string) {
         this.setState({ singlesRate: value });
 
-        let tempUser = this.context.user;
+        let tempUser = userStore.user;
 
         tempUser.singlesRate = value;
 
@@ -268,7 +268,7 @@ export class StartBeepingScreen extends Component<Props, State> {
     updateGroup(value: undefined | string): void {
         this.setState({groupRate: value});
 
-        let tempUser = this.context.user;
+        let tempUser = userStore.user;
 
         tempUser.groupRate = value;
 
@@ -278,7 +278,7 @@ export class StartBeepingScreen extends Component<Props, State> {
     updateCapacity(value: undefined | string): void {
         this.setState({capacity: value});
 
-        let tempUser = this.context.user;
+        let tempUser = userStore.user;
 
         tempUser.capacity = value;
 
@@ -555,3 +555,5 @@ const styles = StyleSheet.create({
         width: "98%"
     }
 });
+
+export default view(StartBeepingScreen);
