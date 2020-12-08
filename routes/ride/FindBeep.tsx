@@ -171,6 +171,7 @@ class MainFindBeepScreen extends Component<Props, State> {
             else {
                 this.setState({ isLoading: handleFetchError(data.message) });
             }
+            console.log(this.state.beeper);
         }
         catch (error) {
             this.setState({ isLoading: handleFetchError(error) });
