@@ -130,7 +130,7 @@ export class StartBeepingScreen extends Component<Props, State> {
     async getQueue() {
         try {
             const result = await fetch(config.apiUrl + "/beeper/queue", {
-                method: "POST",
+                method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + this.context.user.token
@@ -195,7 +195,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         
         try {
             const result = await fetch(config.apiUrl + "/beeper/status", {
-                method: "POST",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + this.context.user.token

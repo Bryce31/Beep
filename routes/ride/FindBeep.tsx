@@ -71,7 +71,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
     async getRiderStatus(isInitial?: boolean) {
         try {
             const result = await fetch(config.apiUrl + "/rider/status", {
-                method: "POST",
+                method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + this.context.user.token
@@ -144,7 +144,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
         try {
             const result = await fetch(config.apiUrl + "/rider/choose", {
-                method: "POST",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + this.context.user.token
@@ -189,7 +189,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
         try {
             const result = await fetch(config.apiUrl + "/rider/find", {
-                method: "POST",
+                method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + this.context.user.token
@@ -244,7 +244,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
         try {
             const result = await fetch(config.apiUrl + "/rider/leave", {
-                method: "POST",
+                method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + this.context.user.token
