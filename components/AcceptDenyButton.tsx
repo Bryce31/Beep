@@ -33,7 +33,7 @@ export default class AcceptDenyButton extends Component<Props, State> {
         this.setState({ isLoading: true });
 
         fetch(config.apiUrl + "/beeper/queue/status", {
-            method: "POST",
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + this.context.user.token
