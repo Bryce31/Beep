@@ -32,7 +32,8 @@
     "react-native-status-bar-height": "^2.5.0",
     "react-native-svg": "12.1.0",
     "react-native-web": "~0.13.12",
-    "socket.io-client": "^3.0.3"
+    "socket.io-client": "^3.0.3",
+    "expo-updates": "~0.4.1"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",

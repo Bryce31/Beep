@@ -20,6 +20,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { updatePushToken } from "./utils/Notifications";
 import socket, { getUpdatedUser } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
+import * as Updates from 'expo-updates';
 
 const Stack = createStackNavigator();
 
@@ -68,8 +69,18 @@ export default class App extends Component<Props, State> {
             socket.emit('getUser', this.state.user.token);
         }
     }
+
+    async handleUpdateCheck() {
+        const result = await Updates.checkForUpdateAsync();
+        console.log(result);
+        if (result.isAvailable) {
+            alert("An OTA update is avalible for the Beep App. Installing...");
+            Updates.reloadAsync();
+        }
+    }
     
     async componentDidMount() {
+        this.handleUpdateCheck();
         //listen for App State chnages ;)
         AppState.addEventListener("change", this.handleAppStateChange);
 
