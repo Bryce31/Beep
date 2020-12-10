@@ -61,7 +61,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
         AppState.removeEventListener("change", this.handleAppStateChange);
     }
 
-    handleAppStateChange(nextAppState: string) {
+    handleAppStateChange = (nextAppState: string) => {
         if(nextAppState === "active" && !socket.connected && this.state.beeper.id) {
             this.getRiderStatus(true);
             console.log("Socket.io is not conntected! We need to reconnect to continue to get updates");

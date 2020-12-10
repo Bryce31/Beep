@@ -119,7 +119,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         AppState.removeEventListener("change", this.handleAppStateChange);
     }
 
-    handleAppStateChange(nextAppState: string) {
+    handleAppStateChange = (nextAppState: string) => {
         if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
             console.log("socket is not connected but user is beeping! We need to resubscribe and get our queue.");
             this.enableGetQueue();
