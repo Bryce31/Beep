@@ -91,7 +91,6 @@ export class StartBeepingScreen extends Component<Props, State> {
         });
     }
 
-    /*
     async UNSAFE_componentWillReceiveProps() {
         if (this.state.isBeeping != this.context.user.isBeeping) {
             if (this.context.user.isBeeping) {
@@ -113,7 +112,6 @@ export class StartBeepingScreen extends Component<Props, State> {
             this.setState({ isBeeping: this.context.user.isBeeping });
         }
     }
-     */
 
     componentWillUnmount() {
         AppState.removeEventListener("change", this.handleAppStateChange);

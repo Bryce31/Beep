@@ -71,11 +71,13 @@ export default class App extends Component<Props, State> {
     }
 
     async handleUpdateCheck() {
-        const result = await Updates.checkForUpdateAsync();
-        console.log(result);
-        if (result.isAvailable) {
-            alert("An OTA update is avalible for the Beep App. Installing...");
-            Updates.reloadAsync();
+        if (!__DEV__) {
+            const result = await Updates.checkForUpdateAsync();
+            console.log(result);
+            if (result.isAvailable) {
+                alert("An OTA update is avalible for the Beep App. Installing...");
+                Updates.reloadAsync();
+            }
         }
     }
     
