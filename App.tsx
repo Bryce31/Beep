@@ -115,12 +115,12 @@ export default class App extends Component<Props, State> {
             console.log("[App.js] [AsyncStorage] ", error);
         });
 
-        socket.on('updateUser', (data: unknown) => {
+        socket.on('updateUser', async (data: unknown) => {
             const updatedUser = getUpdatedUser(this.state.user, data);
             if (updatedUser != null) {
                 console.log("[~] Updating Context!");
-                AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
                 this.setState({ user: updatedUser });
+                AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
             }
         });
     }

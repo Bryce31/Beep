@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent, Component } from 'react';
 import * as Location from 'expo-location';
 import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
@@ -28,7 +28,7 @@ interface State {
     currentIndex: number;
 }
 
-export class StartBeepingScreen extends Component<Props, State> {
+export class StartBeepingScreen extends PureComponent<Props, State> {
     static contextType = UserContext;
     
     constructor(props: Props, context: any) {
@@ -91,7 +91,6 @@ export class StartBeepingScreen extends Component<Props, State> {
         });
     }
 
-    /*
     async UNSAFE_componentWillReceiveProps() {
         if (this.state.isBeeping != this.context.user.isBeeping) {
             if (this.context.user.isBeeping) {
@@ -113,7 +112,6 @@ export class StartBeepingScreen extends Component<Props, State> {
             this.setState({ isBeeping: this.context.user.isBeeping });
         }
     }
-     */
 
     componentWillUnmount() {
         AppState.removeEventListener("change", this.handleAppStateChange);
