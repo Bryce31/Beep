@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as Location from 'expo-location';
+import * as TaskManager from 'expo-task-manager';
 import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
@@ -27,6 +28,8 @@ interface State {
     queue: any[];
     currentIndex: number;
 }
+
+const LOCATION_TRACKING = 'location-tracking';
 
 export class StartBeepingScreen extends Component<Props, State> {
     static contextType = UserContext;
@@ -58,6 +61,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                 if(data.user.isBeeping) {
                     this.getQueue();
                     this.enableGetQueue();
+                    this.startLocationTracking();
 
                     let { status } = await Location.requestPermissionsAsync();
 
@@ -66,6 +70,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                         //TODO we only disable beeping client side, should we push false to server also?
                         this.setState({ isBeeping: false });
                         this.disableGetQueue();
+                        this.stopLocationTracking();
                         //TODO better error handling
                         alert("You must allow location to beep!");
                     }
@@ -77,6 +82,26 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
         catch (error) {
             handleFetchError(error);
+        }
+    }
+
+    async startLocationTracking(): Promise<void> {
+        if (!__DEV__) {
+            await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
+                accuracy: Location.Accuracy.Highest,
+                timeInterval: 5000,
+                distanceInterval: 0,
+            });
+            const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+                LOCATION_TRACKING
+            );
+            console.log('tracking started?', hasStarted);
+        }
+    } 
+
+    async stopLocationTracking(): Promise<void> {
+        if (!__DEV__) {
+            Location.stopLocationUpdatesAsync(LOCATION_TRACKING);
         }
     }
 
@@ -104,10 +129,13 @@ export class StartBeepingScreen extends Component<Props, State> {
 
                 //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
                 this.enableGetQueue();
+                this.getQueue();
+                this.startLocationTracking();
             }
             else {
                 //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
                 this.disableGetQueue();
+                this.stopLocationTracking();
             }
             this.setState({ isBeeping: this.context.user.isBeeping });
         }
@@ -185,10 +213,12 @@ export class StartBeepingScreen extends Component<Props, State> {
             }
             //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
             this.enableGetQueue();
+            this.startLocationTracking();
         }
         else {
             //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
             this.disableGetQueue();
+            this.stopLocationTracking();
         }
         
         try {
@@ -215,11 +245,9 @@ export class StartBeepingScreen extends Component<Props, State> {
                     this.getQueue();
                 }
 
-                let tempUser = this.context.user;
+                const tempUser = JSON.parse(JSON.stringify(this.context.user));
                 tempUser.isBeeping = value;
                 AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-
-                //TODO: better way to update context
                 this.context.setUser(tempUser);
             }
             else {
@@ -230,9 +258,11 @@ export class StartBeepingScreen extends Component<Props, State> {
                 //we also need to resubscribe to the socket
                 if (this.state.isBeeping) {
                     this.enableGetQueue();
+                    this.startLocationTracking();
                 }
                 else {
                     this.disableGetQueue();
+                    this.stopLocationTracking();
                 }
 
                 handleFetchError(data.message);
@@ -504,6 +534,21 @@ export class StartBeepingScreen extends Component<Props, State> {
     }
 }
 
+TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
+    if (error) {
+        console.log('LOCATION_TRACKING task ERROR:', error);
+        return;
+    }
+    if (data) {
+        const { locations } = data;
+        const lat = locations[0].coords.latitude;
+        const long = locations[0].coords.longitude;
+
+        console.log(
+            `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
+        );
+    }
+});
 
 const styles = StyleSheet.create({
     container: {
