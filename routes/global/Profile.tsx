@@ -28,7 +28,7 @@ export class ProfileScreen extends Component<Props, State> {
 
     async getUser() {
         try {
-            const result = await fetch(config.apiUrl + "/user/" + this.props.route.params.id, {
+            const result = await fetch(config.apiUrl + "/users/" + this.props.route.params.id, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
