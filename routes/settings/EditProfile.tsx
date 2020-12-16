@@ -44,8 +44,8 @@ export class EditProfileScreen extends Component<Props, State> {
         this.setState({ isLoading: true });
 
         //POST to our edit profile API
-        fetch(config.apiUrl + "/account/edit", {
-            method: "POST",
+        fetch(config.apiUrl + "/account", {
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + this.context.user.token
