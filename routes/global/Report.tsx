@@ -32,7 +32,7 @@ export class ReportScreen extends Component<Props, State> {
         this.setState({ isLoading: true });
         
         try {
-            const result = await fetch(config.apiUrl + "/user/report", {
+            const result = await fetch(config.apiUrl + "/report", {
                 method: "POST",
                 headers: {
                     "Authorization": "Bearer " + this.context.user.token,
