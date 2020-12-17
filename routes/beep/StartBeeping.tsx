@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons';
 import ProfilePicture from '../../components/ProfilePicture';
 import Toggle from "./components/Toggle";
+import * as Permissions from 'expo-permissions';
 
 interface Props {
     navigation: any;
@@ -63,7 +64,8 @@ export class StartBeepingScreen extends Component<Props, State> {
                     this.enableGetQueue();
                     this.startLocationTracking();
 
-                    let { status } = await Location.requestPermissionsAsync();
+                    const { status } = await Permissions.askAsync(Permissions.LOCATION);
+
 
                     if (status !== 'granted') {
                         //if we have no location access, dont let the user beep
@@ -120,7 +122,9 @@ export class StartBeepingScreen extends Component<Props, State> {
         if (this.state.isBeeping != this.context.user.isBeeping) {
             if (this.context.user.isBeeping) {
                 //if we are turning on isBeeping, ensure we have location permission
-                let { status } = await Location.requestPermissionsAsync();
+                const { status } = await Permissions.askAsync(Permissions.LOCATION);
+
+
 
                 if (status !== 'granted') {
                     this.setState({ isBeeping: false });
@@ -205,7 +209,8 @@ export class StartBeepingScreen extends Component<Props, State> {
 
         if (value) {
             //if we are turning on isBeeping, ensure we have location permission
-            let { status } = await Location.requestPermissionsAsync();
+            const { status } = await Permissions.askAsync(Permissions.LOCATION);
+
 
             if (status !== 'granted') {
                 this.setState({ isBeeping: false });
