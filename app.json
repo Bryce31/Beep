@@ -5,7 +5,7 @@
     "name": "Beep",
     "slug": "Beep",
     "owner": "bnussman",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "githubUrl": "https://github.com/bnussman/Beep",
     "primaryColor": "#ecc94b",
     "icon": "./assets/icon.png",
