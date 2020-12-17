@@ -49,7 +49,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
     async retrieveData() {
         try {
-            const result = await fetch(config.apiUrl + '/user/' + this.context.user.id);
+            const result = await fetch(config.apiUrl + '/users/' + this.context.user.id);
 
             const data = await result.json();
 
