@@ -130,7 +130,7 @@ export default class App extends Component<Props, State> {
 
         socket.on('updateUser', (data: unknown) => {
             const updatedUser = getUpdatedUser(this.state.user, data);
-            if (updatedUser != null && JSON.stringify(updatedUser) !== JSON.stringify(this.state.user)) {
+            if (updatedUser != null) {
                 console.log("[~] Updating Context!");
                 AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
                 this.setState({ user: updatedUser });
