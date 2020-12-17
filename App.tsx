@@ -75,7 +75,7 @@ export default class App extends Component<Props, State> {
             const result = await Updates.checkForUpdateAsync();
             console.log(result);
             if (result.isAvailable) {
-                alert("An OTA update is avalible for the Beep App. Installing...");
+                console.log("running Expo OTA update");
                 Updates.reloadAsync();
             }
         }
