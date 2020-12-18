@@ -545,9 +545,23 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
         return;
     }
     if (data) {
+        console.log(data);
         const { locations } = data;
         const lat = locations[0].coords.latitude;
         const long = locations[0].coords.longitude;
+        const altitude = locations[0].coords.altitude;
+        const accuracy = locations[0].coords.accuracy;
+        const altitudeAccuracy = locations[0].coords.altitudeAccuracy;
+        const heading = locations[0].coords.heading;
+        const speed = locations[0].coords.speed;
+
+        const user = await AsyncStorage.getItem('@user')
+
+        if (!user) return;
+
+        const userObj = JSON.parse(user);
+
+        socket.emit('updateUsersLocation', userObj.token, lat, long, altitude, accuracy, altitudeAccuracy, heading, speed);
 
         console.log(
             `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
