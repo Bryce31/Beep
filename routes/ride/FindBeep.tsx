@@ -9,6 +9,7 @@ import { config } from '../../utils/config';
 import { handleFetchError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
+import BeepersLocation from "../../components/BeepersLocation";
 
 interface Props {
     navigation: any;
@@ -94,7 +95,9 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         state: data.state,
                         beeper: data.beeper,
                         groupSize: data.groupSize,
-                        isLoading: false
+                        isLoading: false,
+                        startLocation: data.origin,
+                        destination: data.destination
                     });
                 }
                 else {
@@ -102,7 +105,9 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         foundBeep: true,
                         isAccepted: data.isAccepted,
                         groupSize: data.groupSize,
-                        beeper: data.beeper
+                        beeper: data.beeper,
+                        startLocation: data.origin,
+                        destination: data.destination
                     });
                 }
 
@@ -480,6 +485,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
                             <Text>{this.state.beeper.first} requires a mask 😷</Text>
                         </Layout>
                         }
+
+                        <BeepersLocation origin={this.state.startLocation}/>
 
                         {(this.state.ridersQueuePosition == 0) ?
                             <Layout style={styles.group}>

@@ -91,8 +91,8 @@ export class StartBeepingScreen extends Component<Props, State> {
         if (!__DEV__) {
             await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
                 accuracy: Location.Accuracy.Highest,
-                timeInterval: 5000,
-                distanceInterval: 0,
+                timeInterval: 60000,
+                distanceInterval: 5,
             });
             const hasStarted = await Location.hasStartedLocationUpdatesAsync(
                 LOCATION_TRACKING
