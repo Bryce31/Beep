@@ -24,34 +24,6 @@ export default class BeepersLocation extends Component<Props, State> {
         };
     }
 
-    //routes[0].legs[0].duration.text
-    async updateETA(lat: number, long: number): Promise<void> {
-        console.log("Props", this.props);
-        if (!this.props.origin) {
-            console.log("NO ORIGIN!!!!!!!!!!!");
-            return;
-        }
-        
-        /*
-        Location.setGoogleApiKey("AIzaSyBgabJrpu7-ELWiUIKJlpBz2mL6GYjwCVI");
-        const endCords = await Location.geocodeAsync(this.props.origin);
-        const b = endCords[0].latitude + "," + endCords[0].longitude;
-         */
-
-        const a = lat + "," + long;
-        const s = config.apiUrl + '/directions/' + a + '/' + this.props.origin;
-
-        const result = await fetch(s);
-
-        try {
-            const data = await result.json();
-            console.log(data);
-            this.setState({ eta: data.eta });
-        }
-        catch (error) {
-            console.log(error);
-        }
-    }
 
     componentDidMount(): void {
         socket.on('hereIsBeepersLocation', (data: any) => {
@@ -59,6 +31,10 @@ export default class BeepersLocation extends Component<Props, State> {
             this.updateETA(data.latitude, data.longitude);
             this.setState({ data: data });
         });
+    }
+
+    componentWillUnmount(): void {
+        socket.off('hereIsBeepersLocation');
     }
 
     render(): ReactNode {

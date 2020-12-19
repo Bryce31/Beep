@@ -124,8 +124,6 @@ export class StartBeepingScreen extends Component<Props, State> {
                 //if we are turning on isBeeping, ensure we have location permission
                 const { status } = await Permissions.askAsync(Permissions.LOCATION);
 
-
-
                 if (status !== 'granted') {
                     this.setState({ isBeeping: false });
                     return alert("You must allow location to beep!");

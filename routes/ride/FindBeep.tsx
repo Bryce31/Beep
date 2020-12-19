@@ -26,6 +26,7 @@ interface State {
     beeper: any;
     state: number;
     ridersQueuePosition: number;
+    eta: string;
 }
 
 export class MainFindBeepScreen extends Component<Props, State> {
@@ -43,7 +44,29 @@ export class MainFindBeepScreen extends Component<Props, State> {
             pickBeeper: true,
             beeper: {},
             state: 0,
-            ridersQueuePosition: 0
+            ridersQueuePosition: 0,
+            eta: 'N/A'
+        }
+    }
+
+    async updateETA(lat: number, long: number): Promise<void> {
+        if (!this.state.startLocation) {
+            console.log("NO ORIGIN!!!!!!!!!!!");
+            return;
+        }
+
+        const a = lat + "," + long;
+        const s = config.apiUrl + '/directions/' + a + '/' + this.state.startLocation;
+
+        const result = await fetch(s);
+
+        try {
+            const data = await result.json();
+            console.log(data);
+            this.setState({ eta: data.eta });
+        }
+        catch (error) {
+            console.log(error);
         }
     }
 
@@ -55,6 +78,12 @@ export class MainFindBeepScreen extends Component<Props, State> {
         socket.on('updateRiderStatus', () => {
             console.log("[FindBeep.js] [Socket.io] Socket.io told us to update rider status.");
             this.getRiderStatus(false);
+        });
+
+        socket.on('hereIsBeepersLocation', (data: any) => {
+            console.log(data);
+            this.updateETA(data.latitude, data.longitude);
+            this.setState({ data: data });
         });
     }
 
@@ -486,8 +515,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         </Layout>
                         }
 
-                        <BeepersLocation origin={this.state.startLocation}/>
-
                         {(this.state.ridersQueuePosition == 0) ?
                             <Layout style={styles.group}>
                                 <Text category='h6'>Current Status</Text>
@@ -499,9 +526,12 @@ export class MainFindBeepScreen extends Component<Props, State> {
                                     null
                                 }
                                 {this.state.state == 1 ?
+                                    <>
+                                    <Text style={{marginBottom: 20}}>{this.state.eta}</Text>
                                     <Text appearance='hint'>
                                         Beeper is on their way to get you.
                                     </Text>
+                                    </>
                                     :
                                     null
                                 }
