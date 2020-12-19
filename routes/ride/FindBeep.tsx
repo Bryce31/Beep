@@ -9,7 +9,6 @@ import { config } from '../../utils/config';
 import { handleFetchError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
-import BeepersLocation from "../../components/BeepersLocation";
 
 interface Props {
     navigation: any;
@@ -26,7 +25,7 @@ interface State {
     beeper: any;
     state: number;
     ridersQueuePosition: number;
-    eta: string;
+    eta: string | null;
 }
 
 export class MainFindBeepScreen extends Component<Props, State> {
@@ -45,7 +44,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             beeper: {},
             state: 0,
             ridersQueuePosition: 0,
-            eta: 'N/A'
+            eta: null
         }
     }
 
@@ -58,7 +57,13 @@ export class MainFindBeepScreen extends Component<Props, State> {
         const a = lat + "," + long;
         const s = config.apiUrl + '/directions/' + a + '/' + this.state.startLocation;
 
-        const result = await fetch(s);
+        const result = await fetch(s, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + this.context.user.token
+            }
+        });
 
         try {
             const data = await result.json();
@@ -527,10 +532,16 @@ export class MainFindBeepScreen extends Component<Props, State> {
                                 }
                                 {this.state.state == 1 ?
                                     <>
-                                    <Text style={{marginBottom: 20}}>{this.state.eta}</Text>
-                                    <Text appearance='hint'>
-                                        Beeper is on their way to get you.
-                                    </Text>
+                                        <Text appearance='hint'>
+                                            Beeper is on their way to get you.
+                                        </Text>
+                                        {this.state.eta &&
+                                        <>
+                                            <Text>Your beeper is</Text>
+                                            <Text>{this.state.eta}</Text>
+                                            <Text>away</Text>
+                                        </>
+                                        }
                                     </>
                                     :
                                     null

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, ReactNode } from 'react';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
@@ -48,7 +48,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         };
     }
 
-    async retrieveData() {
+    async retrieveData(): Promise<void> {
         try {
             const result = await fetch(config.apiUrl + '/users/' + this.context.user.id);
 
@@ -107,7 +107,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
-    componentDidMount () {
+    componentDidMount(): void {
         this.retrieveData();
 
         AppState.addEventListener("change", this.handleAppStateChange);
@@ -118,7 +118,8 @@ export class StartBeepingScreen extends Component<Props, State> {
         });
     }
 
-    async UNSAFE_componentWillReceiveProps() {
+    /*
+    async UNSAFE_componentWillReceiveProps(): Promise<void> {
         if (this.state.isBeeping != this.context.user.isBeeping) {
             if (this.context.user.isBeeping) {
                 //if we are turning on isBeeping, ensure we have location permission
@@ -142,12 +143,13 @@ export class StartBeepingScreen extends Component<Props, State> {
             this.setState({ isBeeping: this.context.user.isBeeping });
         }
     }
+     */
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         AppState.removeEventListener("change", this.handleAppStateChange);
     }
 
-    handleAppStateChange = (nextAppState: string) => {
+    handleAppStateChange = (nextAppState: string): void => {
         if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
             console.log("socket is not connected but user is beeping! We need to resubscribe and get our queue.");
             this.enableGetQueue();
@@ -155,7 +157,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
-    async getQueue() {
+    async getQueue(): Promise<void> {
         try {
             const result = await fetch(config.apiUrl + "/beeper/queue", {
                 method: "GET",
@@ -201,7 +203,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
-    async toggleSwitch (value: boolean) {
+    async toggleSwitch(value: boolean): Promise<void> {
         //Update the toggle switch's value into a isBeeping state
         this.setState({ isBeeping: value });
 
@@ -286,10 +288,10 @@ export class StartBeepingScreen extends Component<Props, State> {
         socket.emit('stopGetQueue');
     }
 
-    updateSingles (value: undefined | string) {
+    updateSingles(value: undefined | string): void {
         this.setState({ singlesRate: value });
 
-        let tempUser = this.context.user;
+        const tempUser = this.context.user;
 
         tempUser.singlesRate = value;
 
@@ -299,7 +301,7 @@ export class StartBeepingScreen extends Component<Props, State> {
     updateGroup(value: undefined | string): void {
         this.setState({groupRate: value});
 
-        let tempUser = this.context.user;
+        const tempUser = this.context.user;
 
         tempUser.groupRate = value;
 
@@ -309,7 +311,7 @@ export class StartBeepingScreen extends Component<Props, State> {
     updateCapacity(value: undefined | string): void {
         this.setState({capacity: value});
 
-        let tempUser = this.context.user;
+        const tempUser = this.context.user;
 
         tempUser.capacity = value;
 
@@ -334,7 +336,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
-    render () {
+    render(): ReactNode {
         console.log("[StartBeeping.js] Rendering Start Beeping Screen");
         if(!this.state.isBeeping) {
             return (
