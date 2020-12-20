@@ -58,7 +58,7 @@ export class RiderRideLogScreen extends Component<Props, State> {
             <ListItem
                 onPress={() => this.props.navigation.push("Profile", { id: item.beeper.id })}
                 title={`${item.beeper.first} ${item.beeper.last} beeped you`}
-                description={`Group size: ${item.groupSize}\nOrigin: ${item.origin}\nDestination: ${item.destination}\nDate: ${new Date(item.timeEnteredQueue)}`}
+                description={`Group size: ${item.beep.groupSize}\nOrigin: ${item.beep.origin}\nDestination: ${item.beep.destination}\nDate: ${new Date(item.beep.timeEnteredQueue)}`}
             />
         );
         
