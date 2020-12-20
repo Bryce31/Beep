@@ -19,7 +19,7 @@ interface State {
     foundBeep: boolean;
     isAccepted: boolean;
     groupSize: number | string;
-    startLocation: string;
+    origin: string;
     destination: string;
     pickBeeper: boolean;
     beeper: any;
@@ -38,7 +38,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             foundBeep: false,
             isAccepted: false,
             groupSize: 1,
-            startLocation: '',
+            origin: '',
             destination: '',
             pickBeeper: true,
             beeper: {},
@@ -49,13 +49,13 @@ export class MainFindBeepScreen extends Component<Props, State> {
     }
 
     async updateETA(lat: number, long: number): Promise<void> {
-        if (!this.state.startLocation) {
+        if (!this.state.origin) {
             console.log("NO ORIGIN!!!!!!!!!!!");
             return;
         }
 
         const a = lat + "," + long;
-        const s = config.apiUrl + '/directions/' + a + '/' + this.state.startLocation;
+        const s = config.apiUrl + '/directions/' + a + '/' + this.state.origin;
 
         const result = await fetch(s, {
             method: "GET",
@@ -80,9 +80,19 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
         AppState.addEventListener("change", this.handleAppStateChange);
 
-        socket.on('updateRiderStatus', () => {
+        socket.on('updateRiderStatus', (updatedRiderStatus) => {
+            /*
             console.log("[FindBeep.js] [Socket.io] Socket.io told us to update rider status.");
             this.getRiderStatus(false);
+            */
+            console.log("Rider Status Update:", updatedRiderStatus);
+            if (updatedRiderStatus == null) {
+                this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0 });
+                this.disableGetRiderStatus();
+            }
+            else {
+                this.setState({ ...updatedRiderStatus });
+            }
         });
 
         socket.on('hereIsBeepersLocation', (data: any) => {
@@ -130,7 +140,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         beeper: data.beeper,
                         groupSize: data.groupSize,
                         isLoading: false,
-                        startLocation: data.origin,
+                        origin: data.origin,
                         destination: data.destination
                     });
                 }
@@ -140,7 +150,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         isAccepted: data.isAccepted,
                         groupSize: data.groupSize,
                         beeper: data.beeper,
-                        startLocation: data.origin,
+                        origin: data.origin,
                         destination: data.destination
                     });
                 }
@@ -175,7 +185,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
     }
 
     async chooseBeep (id: string) {
-        if(this.state.startLocation == "Loading Location...") {
+        if(this.state.origin == "Loading Location...") {
             return alert("Please let your current location finish loading or manualy enter your pickup location");
         }
 
@@ -189,7 +199,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     "Authorization": "Bearer " + this.context.user.token
                 },
                 body: JSON.stringify({
-                    "origin": this.state.startLocation,
+                    "origin": this.state.origin,
                     "destination": this.state.destination,
                     "groupSize": Number(this.state.groupSize),
                     "beepersID": id
@@ -253,7 +263,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
     }
 
     async useCurrentLocation() {
-        this.setState({ startLocation: "Loading Location..." });
+        this.setState({ origin: "Loading Location..." });
        
         Location.setGoogleApiKey("AIzaSyBgabJrpu7-ELWiUIKJlpBz2mL6GYjwCVI");
 
@@ -275,7 +285,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             string = location[0].name + " " + location[0].street + " " + location[0].city + ", " + location[0].region + " " + location[0].postalCode;  
         }
 
-        this.setState({ startLocation: string });
+        this.setState({ origin: string });
     }
 
     async leaveQueue() {
@@ -306,7 +316,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
     enableGetRiderStatus() {
         console.log("Subscribing to Socket.io for Rider Status");
-        socket.emit('getRiderStatus', this.state.beeper.id);
+        socket.emit('getRiderStatus', this.state.beeper.id, this.context.user.id);
     }
 
     disableGetRiderStatus() {
@@ -448,8 +458,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
                             style={styles.buttons}
                             placeholder='Pickup Location'
                             accessoryRight={CurrentLocationIcon}
-                            value={this.state.startLocation}
-                            onChangeText={value => this.setState({startLocation: value})}
+                            value={this.state.origin}
+                            onChangeText={value => this.setState({origin: value})}
                         />
                         <Input
                             label='Destination Location'
