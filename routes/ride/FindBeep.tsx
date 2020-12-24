@@ -9,6 +9,7 @@ import { config } from '../../utils/config';
 import { handleFetchError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
+import * as Sentry from 'sentry-expo';
 
 interface Props {
     navigation: any;
@@ -214,6 +215,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     foundBeep: true,
                     isLoading: false
                 });
+
+                Sentry.Native.captureMessage("User got a beep!");
 
                 this.enableGetRiderStatus();
             }
