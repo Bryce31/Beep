@@ -27,7 +27,7 @@ export class BeeperRideLogScreen extends Component<Props, State> {
 
     async getBeeperList() {
         try {
-            const result = await fetch(config.apiUrl + "/account/history/beeper", {
+            const result = await fetch(config.apiUrl + "/users/" + this.context.user.id + "/history/beeper", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
