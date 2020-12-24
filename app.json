@@ -20,6 +20,19 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "url": "https://sentry.nussman.us/",
+          "config": {
+            "organization": "beep",
+            "project": "beep-app",
+            "authToken": "d709299058674807ae8c0d730cdd89379830246b75fd405a8e1362a556f44cbf"
+          }
+        }
+      ]
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.ridebeep.App",
