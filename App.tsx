@@ -115,6 +115,8 @@ export default class App extends Component<Props, State> {
                 if (tempUser.token) {
                     socket.emit('getUser', tempUser.token);
                 }
+
+                Sentry.Native.setUser({ ...tempUser });
             }
             else {
                 //This mean no one is logged in, send them to login page initally
