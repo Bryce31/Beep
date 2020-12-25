@@ -5,6 +5,7 @@ import { BackIcon, ReportIcon } from "../../utils/Icons";
 import { config } from "../../utils/config";
 import ProfilePicture from "../../components/ProfilePicture";
 import { handleFetchError } from "../../utils/Errors";
+import { UserContext } from '../../utils/UserContext';
 
 interface Props {
     route: any; 
@@ -17,6 +18,7 @@ interface State {
 }
 
 export class ProfileScreen extends Component<Props, State> {
+    static contextType = UserContext;
 
     constructor(props: Props) {
         super(props);
@@ -131,7 +133,9 @@ export class ProfileScreen extends Component<Props, State> {
                                 <Text>${user.groupRate}</Text>
                             </Layout>
                         </Layout>
-                        <Button onPress={() => this.handleReport()} accessoryRight={ReportIcon} style={styles.button}>Report User</Button>
+                        {(this.props.route.params.id != this.context.user.id) &&
+                            <Button onPress={() => this.handleReport()} accessoryRight={ReportIcon} style={styles.button}>Report User</Button>
+                        }
                     </Layout>
                 </>
             );

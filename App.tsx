@@ -69,8 +69,13 @@ export default class App extends Component<Props, State> {
     }
 
     setUser = (user: User): void => {
-        Sentry.Native.setUser({ ...user });
         this.setState({ user: user });
+        if ((Platform.OS == "ios" || Platform.OS == "android")) {
+            Sentry.Native.setUser({ ...user });
+        }
+        else {
+            Sentry.Browser.setUser({ ...user });
+        }
     }
 
     handleAppStateChange = (nextAppState: string) => {
@@ -116,7 +121,13 @@ export default class App extends Component<Props, State> {
                     socket.emit('getUser', tempUser.token);
                 }
 
-                Sentry.Native.setUser({ ...tempUser });
+                if ((Platform.OS == "ios" || Platform.OS == "android")) {
+                    Sentry.Native.setUser({ ...tempUser });
+                }
+                else {
+                    Sentry.Browser.setUser({ ...tempUser });
+                }
+
             }
             else {
                 //This mean no one is logged in, send them to login page initally

@@ -104,11 +104,11 @@ export class PickBeepScreen extends Component<Props, State> {
                 return (
                     <>
                         <TopNavigation title='Beeper List' 
-                        alignment='center' 
-                        subtitle= {(this.state.beeperList.length == 1) ? `${this.state.beeperList.length} person is beeping` : `${this.state.beeperList.length} people are beeping`}
-                        accessoryLeft={BackAction} 
-                        accessoryRight={RefreshAction}/>
-
+                            alignment='center' 
+                            subtitle={(this.state.beeperList.length == 1) ? `${this.state.beeperList.length} person is beeping` : `${this.state.beeperList.length} people are beeping`}
+                            accessoryLeft={BackAction} 
+                            accessoryRight={RefreshAction}
+                        />
                         <List
                             data={this.state.beeperList}
                             ItemSeparatorComponent={Divider}
@@ -120,7 +120,13 @@ export class PickBeepScreen extends Component<Props, State> {
             else {
                 return (
                     <>
-                        <TopNavigation title='Beeper List' alignment='center' accessoryLeft={BackAction}/>
+                        <TopNavigation
+                            title='Beeper List'
+                            subtitle={(this.state.beeperList.length == 1) ? `${this.state.beeperList.length} person is beeping` : `${this.state.beeperList.length} people are beeping`}
+                            alignment='center'
+                            accessoryLeft={BackAction}
+                            accessoryRight={RefreshAction}
+                        />
                         <Layout style={styles.container}>
                             <Text category='h5'>Nobody is beeping!</Text>
                             <Text appearance='hint'>Nobody is giving rides right now. Check back later!</Text>
@@ -132,10 +138,16 @@ export class PickBeepScreen extends Component<Props, State> {
         else {
             return (
                 <>
-                <TopNavigation title='Beeper List' alignment='center' accessoryLeft={BackAction}/>
-                <Layout style={styles.container}>
-                    <Spinner size='large' />
-                </Layout>
+                    <TopNavigation
+                        title='Beeper List'
+                        subtitle={(this.state.beeperList.length == 1) ? `${this.state.beeperList.length} person is beeping` : `${this.state.beeperList.length} people are beeping`}
+                        alignment='center'
+                        accessoryLeft={BackAction}
+                        accessoryRight={RefreshAction}
+                    />
+                    <Layout style={styles.container}>
+                        <Spinner size='large' />
+                    </Layout>
                 </>
             );
         }

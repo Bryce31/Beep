@@ -344,7 +344,6 @@ export class StartBeepingScreen extends Component<Props, State> {
                 <Layout style={styles.container}>
                     <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
                     <Layout style={{marginTop: 6, width: "85%"}}>
-                        <Text style={{marginBottom: 10}} category="h4">Beeping Options</Text>
                         <Input
                             label='Max Capacity'
                             caption='The maximum number of people you can fit in your vehicle not including yourself.'
@@ -374,10 +373,10 @@ export class StartBeepingScreen extends Component<Props, State> {
                             accessoryLeft={DollarIcon}
                             onChangeText={(value) => this.updateGroup(value)}
                         />
-                            <Text category="h6" style={{marginBottom: 10, marginTop: 10}}>Additional Options</Text>
                         <CheckBox
                             checked={this.state.masksRequired}
                             onChange={(value) => this.setState({ masksRequired: value })}
+                            style={{marginTop: 5}}
                         >
                             Require riders to have a mask 😷
                         </CheckBox>

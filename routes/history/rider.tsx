@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import { config } from "../../utils/config";
 import { handleFetchError } from "../../utils/Errors";
 import { UserContext } from '../../utils/UserContext';
+import ProfilePicture from '../../components/ProfilePicture';
 
 interface Props {
     navigation: any;
@@ -56,6 +57,17 @@ export class RiderRideLogScreen extends Component<Props, State> {
     render() {
         const renderItem = ({ item }: any) => (
             <ListItem
+                accessoryLeft={() => {
+                    if (item.beeper.photoUrl) {
+                        return (
+                            <ProfilePicture
+                                size={50}
+                                url={item.beeper.photoUrl}
+                            />
+                        );
+                    }
+                    return null;
+                }}
                 onPress={() => this.props.navigation.push("Profile", { id: item.beeper.id })}
                 title={`${item.beeper.first} ${item.beeper.last} beeped you`}
                 description={`Group size: ${item.beep.groupSize}\nOrigin: ${item.beep.origin}\nDestination: ${item.beep.destination}\nDate: ${new Date(item.beep.timeEnteredQueue)}`}
@@ -97,7 +109,7 @@ export class RiderRideLogScreen extends Component<Props, State> {
 
 const styles = StyleSheet.create({
     container: {
-        height: '82%',
+        height: '100%',
         alignItems: "center",
         justifyContent: 'center'
     }
