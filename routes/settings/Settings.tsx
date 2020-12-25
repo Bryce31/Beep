@@ -97,7 +97,7 @@ export function MainSettingsScreen({ navigation }: any) {
                     style={styles.button}
                     appearance='ghost'
                 >
-                    Toggle Theme
+                    {(themeContext.theme == "light") ? "Dark Mode" : "Light Mode"}
                 </Button>
                 <Button
                     onPress={() => navigation.navigate("EditProfileScreen")}
