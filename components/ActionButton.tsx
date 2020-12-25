@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, Spinner } from "@ui-kitten/components";
 import { UserContext } from '../utils/UserContext';
@@ -29,11 +29,11 @@ export default class ActionButton extends Component<Props, State> {
         };
     }
 
-    UNSAFE_componentWillReceiveProps() {
+    UNSAFE_componentWillReceiveProps(): void {
         this.setState({ isLoading: false });
     }
 
-    updateStatus(queueID: string, riderID: string, value: string | boolean) {
+    updateStatus(queueID: string, riderID: string, value: string | boolean): void {
         this.setState({ isLoading: true });
 
         fetch(config.apiUrl + "/beeper/queue/status", {
@@ -60,7 +60,7 @@ export default class ActionButton extends Component<Props, State> {
         });
     }
 
-    getMessage() {
+    getMessage(): string {
         switch(this.props.item.state) {
             case 0:
                 return "I'm on the way";
@@ -75,17 +75,17 @@ export default class ActionButton extends Component<Props, State> {
         }
     }
 
-    render() {
+    render(): ReactNode {
         if (this.state.isLoading) {
             return (
-                <Button appearance='outline' accessoryLeft={LoadingIndicator}>
+                <Button size="giant" appearance='outline' accessoryLeft={LoadingIndicator}>
                     Loading
                 </Button>
             );
         }
 
         return (
-            <Button onPress={() => this.updateStatus(this.props.item.id, this.props.item.riderid, (this.props.item.state < 3) ? "next" : "complete")}>
+            <Button size="giant" onPress={() => this.updateStatus(this.props.item.id, this.props.item.riderid, (this.props.item.state < 3) ? "next" : "complete")}>
                 {this.getMessage()}
             </Button>
         ) 

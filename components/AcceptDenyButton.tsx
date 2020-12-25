@@ -1,10 +1,10 @@
-import React, { Component } from "react";
+import React, { Component, ReactNode } from "react";
 import { StyleSheet } from "react-native";
 import { Button } from "@ui-kitten/components";
 import { UserContext } from '../utils/UserContext';
 import { config } from "../utils/config";
 import { AcceptIcon, DenyIcon, AcceptIndicator, DenyIndicator } from "../utils/Icons";
-import { handleFetchError, handleStatusCodeError } from "../utils/Errors";
+import { handleFetchError } from "../utils/Errors";
 
 interface Props {
     type: string;
@@ -25,11 +25,11 @@ export default class AcceptDenyButton extends Component<Props, State> {
         };
     }
 
-    UNSAFE_componentWillReceiveProps() {
+    UNSAFE_componentWillReceiveProps(): void {
         this.setState({ isLoading: false });
     }
 
-    updateStatus(queueID: string, riderID: string, value: string | boolean) {
+    updateStatus(queueID: string, riderID: string, value: string | boolean): void {
         this.setState({ isLoading: true });
 
         fetch(config.apiUrl + "/beeper/queue/status", {
@@ -57,7 +57,7 @@ export default class AcceptDenyButton extends Component<Props, State> {
     }
     
 
-    render() {
+    render(): ReactNode {
         if (this.state.isLoading) {
             return(
                 <Button style={styles.button} appearance="outline" status={(this.props.type == "accept") ? "success" : "danger" } accessoryLeft={(this.props.type == "accept") ? AcceptIndicator : DenyIndicator }>

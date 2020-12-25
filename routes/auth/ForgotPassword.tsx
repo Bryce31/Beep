@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, ReactNode } from 'react';
 import { config } from "../../utils/config";
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { StyleSheet, Platform, Keyboard, TouchableWithoutFeedback } from "react-native";
@@ -24,7 +24,7 @@ export default class ForgotPassword extends Component<Props, State> {
         }
     }
 
-    async handleForgotPassword () {
+    async handleForgotPassword(): Promise<void> {
         this.setState({ isLoading: true });
 
         try {
@@ -54,7 +54,7 @@ export default class ForgotPassword extends Component<Props, State> {
         }
     }
 
-    render () {
+    render(): ReactNode {
         const BackAction = () => (
             <TopNavigationAction icon={BackIcon} onPress={() => this.props.navigation.goBack()}/>
         );
