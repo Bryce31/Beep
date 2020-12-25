@@ -420,7 +420,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                     </Layout>
                                     <Layout style={styles.row}>
                                         <Text category='h6'>Pick Up </Text>
-                                        <Text style={styles.rowText}>{item.origin}</Text>
+                                        <Text style={{ width: '80%' }}>{item.origin}</Text>
                                     </Layout>
                                     <Layout style={styles.row}>
                                         <Text category='h6'>Drop Off </Text>
