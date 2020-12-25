@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, { Component } from 'react';
+import React, { Component, ReactNode } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StyleSheet, StatusBar, Platform, AppState } from 'react-native';
@@ -62,7 +62,7 @@ export default class App extends Component<Props, State> {
         };
     }
 
-    toggleTheme = () => {
+    toggleTheme = (): void => {
         const nextempTheme = this.state.theme === 'light' ? 'dark' : 'light';
         this.setState({ theme: nextempTheme });
         AsyncStorage.setItem('@theme', nextempTheme);
@@ -78,13 +78,13 @@ export default class App extends Component<Props, State> {
         }
     }
 
-    handleAppStateChange = (nextAppState: string) => {
+    handleAppStateChange = (nextAppState: string): void => {
         if (nextAppState === "active" && !socket.connected && this.state.user) {
             socket.emit('getUser', this.state.user.token);
         }
     }
 
-    async handleUpdateCheck() {
+    async handleUpdateCheck(): Promise<void> {
         if (!__DEV__) {
             const result = await Updates.checkForUpdateAsync();
             console.log(result);
@@ -95,59 +95,47 @@ export default class App extends Component<Props, State> {
         }
     }
     
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         this.handleUpdateCheck();
-        //listen for App State chnages ;)
+
         AppState.addEventListener("change", this.handleAppStateChange);
 
-        //When App loads initially, get token from AsyncStorage
-        AsyncStorage.multiGet(['@user', '@theme']).then((result) => {
-            let tempUser = null;
-            let sTheme = this.state.theme;
+        let user;
+        let theme = this.state.theme;
 
-            //if a user is defined
-            if(result[0][1]) {
-                //Because user is logged in, send them to Main initially
-                initialScreen = "Main";
-                //Take user from AsyncStorage and put it in our context
-                tempUser = JSON.parse(result[0][1]);
-                //If user is on a mobile device and user object has a token, sub them to notifications
-                if ((Platform.OS == "ios" || Platform.OS == "android") && tempUser.token) {
-                    updatePushToken(tempUser.token);
-                }
+        const storageData = await AsyncStorage.multiGet(['@user', '@theme']);
 
-                //if user has a token, subscribe them to user updates
-                if (tempUser.token) {
-                    socket.emit('getUser', tempUser.token);
-                }
+        if (storageData[0][1]) {
+            initialScreen = "Main";
+            user = JSON.parse(storageData[0][1]);
+            //If user is on a mobile device and user object has a token, sub them to notifications
+            if ((Platform.OS == "ios" || Platform.OS == "android") && user.token) {
+                updatePushToken(user.token);
+            }
 
-                if ((Platform.OS == "ios" || Platform.OS == "android")) {
-                    Sentry.Native.setUser({ ...tempUser });
-                }
-                else {
-                    Sentry.Browser.setUser({ ...tempUser });
-                }
+            //if user has a token, subscribe them to user updates
+            if (user.token) {
+                socket.emit('getUser', user.token);
+            }
 
+            if ((Platform.OS == "ios" || Platform.OS == "android")) {
+                Sentry.Native.setUser({ ...user });
             }
             else {
-                //This mean no one is logged in, send them to login page initally
-                initialScreen = "Login";
+                Sentry.Browser.setUser({ ...user });
             }
+        }
+        else {
+            initialScreen = "Login";
+        }
 
-            if(result[1][1]) {
-                //re-render may happen, if a re-render happens, this code will not run agian because
-                //initialScreen has been defined. 
-                sTheme = result[1][1];
-            }
-            
-            //finaly setState once we know what data we have to minimize renders
-            this.setState({
-                user: tempUser,
-                theme: sTheme
-            });
-          }, (error) => {
-            //AsyncStorage could not get data from storage
-            console.log("[App.js] [AsyncStorage] ", error);
+        if (storageData[1][1]) {
+            theme = storageData[1][1];
+        }
+
+        this.setState({
+            user: user,
+            theme: theme
         });
 
         socket.on('updateUser', (data: unknown) => {
@@ -155,12 +143,12 @@ export default class App extends Component<Props, State> {
             if (updatedUser != null) {
                 console.log("[~] Updating Context!");
                 AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
-                this.setState({ user: updatedUser });
+                this.setUser(updatedUser);
             }
         });
     }
 
-    render () {
+    render(): ReactNode {
         if (!initialScreen) {
             return null;
         }
