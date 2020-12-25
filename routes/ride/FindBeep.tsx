@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
-import { Icon, Layout, Text, Button, Input, CheckBox } from '@ui-kitten/components';
+import { Icon, Layout, Text, Button, Input, CheckBox, Card } from '@ui-kitten/components';
 import * as Location from 'expo-location';
 import socket from '../../utils/Socket'
 import * as SplashScreen from 'expo-splash-screen';
@@ -532,6 +532,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
                         {(this.state.ridersQueuePosition == 0) ?
                             <Layout style={styles.group}>
+                                <Card>
                                 <Text category='h6'>Current Status</Text>
                                 {this.state.state == 0 ?
                                     <Text appearance='hint'>
@@ -545,13 +546,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
                                         <Text appearance='hint'>
                                             Beeper is on their way to get you.
                                         </Text>
-                                        {this.state.eta &&
-                                        <>
-                                            <Text>Your beeper is</Text>
-                                            <Text>{this.state.eta}</Text>
-                                            <Text>away</Text>
-                                        </>
-                                        }
                                     </>
                                     :
                                     null
@@ -570,18 +564,20 @@ export class MainFindBeepScreen extends Component<Props, State> {
                                     :
                                     null
                                 }
+                                </Card>
+                                {(this.state.state == 1 && this.state.eta) &&
+                                <Card style={{marginTop: 6}}>
+                                        <Text category='h6'>Arrival ETA</Text>
+                                        <Text appearance='hint'>Your beeper is {this.state.eta} away</Text>
+                                    </Card>
+                                }
                             </Layout>
                             :
                             null
                         }
 
                         <Layout style={styles.group}>
-                            {(this.state.ridersQueuePosition == 0) ?
-                                <>
-                                    <Text>You are at the top of {this.state.beeper.first}'s queue.</Text>
-                                    <Text appearance='hint'>{this.state.beeper.first} is currently serving you.</Text>
-                                </>
-                                :
+                            {(this.state.ridersQueuePosition != 0) && 
                                 <>
                                     <Text category='h6'>{this.state.ridersQueuePosition}</Text>
                                     <Text appearance='hint'>is your potition in {this.state.beeper.first}'s queue.</Text>
