@@ -99,7 +99,7 @@ export async function updatePushToken(token: string) {
             response.json().then(
                 function(data) {
                     if (data.status == "error") {
-                        handleFetchError(data.message);
+                        console.log(data.message);
                     }
                 }
             );
