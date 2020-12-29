@@ -163,7 +163,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 //TODO: our API should really not return a result with status: "error"
                 //we need to rewrite the API to NOT return error when rider is not in a queue
                 if (result.status !== 200) {
-                    return this.setState({ isLoading: handleFetchError(data.message) });
+                    this.setState({ isLoading: handleFetchError(data.message) });
                 }
 
                 if (!isInitial) {
