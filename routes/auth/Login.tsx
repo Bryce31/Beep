@@ -93,7 +93,7 @@ export default class LoginScreen extends Component<Props, State> {
 
                 AsyncStorage.setItem("@user", JSON.stringify(data));
 
-                socket.emit('getUser', this.context.user.token);
+                socket.emit('getUser', this.context.user.user.token);
             }
             else {
                 this.setState({ isLoading: handleFetchError(data.message) });

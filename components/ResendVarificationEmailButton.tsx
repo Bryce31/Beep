@@ -30,7 +30,7 @@ export default class ResendButton extends Component<props, state> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
+                "Authorization": "Bearer " + this.context.user.tokens.token
             }
         })
         .then(response => {

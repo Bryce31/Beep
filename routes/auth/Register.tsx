@@ -100,7 +100,7 @@ export default class RegisterScreen extends Component<Props, State> {
 
                 AsyncStorage.setItem("@user", JSON.stringify(data));
 
-                socket.emit('getUser', this.context.user.token);
+                socket.emit('getUser', this.context.user.user.token);
             }
             else {
                 this.setState({ isLoading: handleFetchError(data.message) });
@@ -155,7 +155,7 @@ export default class RegisterScreen extends Component<Props, State> {
             const result = await fetch(config.apiUrl + "/files/upload", {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + this.context.user.user.token
                 },
                 body: form
             });

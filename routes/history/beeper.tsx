@@ -32,7 +32,7 @@ export class BeeperRideLogScreen extends Component<Props, State> {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + this.context.user.user.token
                 }
             });
 

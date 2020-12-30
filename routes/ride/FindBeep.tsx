@@ -61,7 +61,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
+                "Authorization": "Bearer " + this.context.user.user.token
             }
         });
 
@@ -119,7 +119,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + this.context.user.tokens.token
                 }
             });
 
@@ -196,7 +196,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + this.context.user.user.token
                 },
                 body: JSON.stringify({
                     "origin": this.state.origin,
@@ -241,7 +241,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + this.context.user.user.token
                 }
             });
 
@@ -296,7 +296,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + this.context.user.user.token
                 },
                 body: JSON.stringify({
                     "beepersID": this.state.beeper.id

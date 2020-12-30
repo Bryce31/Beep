@@ -14,13 +14,15 @@ export function MainSettingsScreen({ navigation }: any) {
     const themeContext: any = React.useContext(ThemeContext);
     const userContext: any = React.useContext(UserContext);
 
+    console.log(userContext.user.user.isEmailVerified);
+
     async function logout() {
         try {
             fetch(config.apiUrl + "/auth/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + userContext.user.token
+                    "Authorization": "Bearer " + userContext.user.tokens.token
                 },
                 body: JSON.stringify({
                     "isApp": true
@@ -41,7 +43,7 @@ export function MainSettingsScreen({ navigation }: any) {
         }
         catch (error) {
             //Probably no internet. Save tokenid so we can call the token revoker upon the next signin or signup
-            AsyncStorage.setItem("@tokenid", userContext.user.tokenid);
+            AsyncStorage.setItem("@tokenid", userContext.user.tokens.tokenid);
             AsyncStorage.removeItem("@user", (error) => {
                 console.log("Removed all except tokenid and expoPushToken from storage.", error);
             });
@@ -59,11 +61,11 @@ export function MainSettingsScreen({ navigation }: any) {
 
     function UserHeader(props: any) {
         return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
-            {userContext.user.photoUrl &&
+            {props.user.photoUrl &&
             <ProfilePicture
                 style={{marginHorizontal: 8}}
                 size={50}
-                url={userContext.user.photoUrl}
+                url={props.user.photoUrl}
             />
             }
             <Layout>
@@ -82,8 +84,8 @@ export function MainSettingsScreen({ navigation }: any) {
     return (
         <Layout style={styles.wrapper}>
             <Layout style={styles.container}>
-                <Card style={{width: "80%", marginBottom: 20}} onPress={() => navigation.navigate("Profile", { id: userContext.user.id })} >
-                    <UserHeader user={userContext.user} />
+                <Card style={{width: "80%", marginBottom: 20}} onPress={() => navigation.navigate("Profile", { id: userContext.user.user.id })} >
+                    <UserHeader user={userContext.user.user} />
                 </Card>
                 {!userContext.user.isEmailVerified &&
                     <Card status="danger" style={{maxWidth: 400, marginBottom: 6}}>

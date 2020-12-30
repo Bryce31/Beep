@@ -39,18 +39,18 @@ export class StartBeepingScreen extends Component<Props, State> {
         super(props);
         this.state = {
             currentIndex: 0,
-            isBeeping: context.user.isBeeping,
-            masksRequired: context.user.masksRequired,
-            capacity: String(context.user.capacity),
-            singlesRate: String(context.user.singlesRate),
-            groupRate: String(context.user.groupRate),
+            isBeeping: context.user.user.isBeeping,
+            masksRequired: context.user.user.masksRequired,
+            capacity: String(context.user.user.capacity),
+            singlesRate: String(context.user.user.singlesRate),
+            groupRate: String(context.user.user.groupRate),
             queue: []
         };
     }
 
     async retrieveData(): Promise<void> {
         try {
-            const result = await fetch(config.apiUrl + '/users/' + this.context.user.id);
+            const result = await fetch(config.apiUrl + '/users/' + this.context.user.user.id);
 
             const data = await result.json();
 
@@ -163,7 +163,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + this.context.user.tokens.token
                 }
             });
 
@@ -231,7 +231,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    "Authorization": "Bearer " + this.context.user.tokens.token
                 },
                 body: JSON.stringify({
                     "isBeeping": value,

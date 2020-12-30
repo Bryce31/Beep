@@ -48,7 +48,7 @@ export class EditProfileScreen extends Component<Props, State> {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
+                "Authorization": "Bearer " + this.context.user.user.token
             },
             body: JSON.stringify({
                 "first": this.state.first,
