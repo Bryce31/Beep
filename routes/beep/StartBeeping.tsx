@@ -208,6 +208,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         this.setState({ isBeeping: value });
 
         if (value) {
+            alert("Ride Beep App collects location data to enable ETAs for riders even when the app is closed or not in use.");
             //if we are turning on isBeeping, ensure we have location permission
             const { status } = await Permissions.askAsync(Permissions.LOCATION);
 
