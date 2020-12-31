@@ -1,7 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
-import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
 import { UserContext } from '../../utils/UserContext';
@@ -203,12 +203,33 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
+    toggleSwitchWrapper(value: boolean): void {
+        if ((Platform.OS == "android" || Platform.OS == "ios") && value) {
+            Alert.alert(
+                "Background Location Notice",
+                "Ride Beep App collects location data to enable ETAs for riders when your are beeping and the app is closed or not in use",
+                [
+                    {
+                        text: "Cancel",
+                        onPress: () => console.log("Cancel Pressed"),
+                            style: "cancel"
+                    },
+                    //fuck buddy
+                    { text: "OK", onPress: () => this.toggleSwitch(value) }
+                ],
+                { cancelable: true }
+            );
+        }
+        else {
+            this.toggleSwitch(value);
+        }
+    }
+
     async toggleSwitch(value: boolean): Promise<void> {
         //Update the toggle switch's value into a isBeeping state
         this.setState({ isBeeping: value });
 
         if (value) {
-            alert("Ride Beep App collects location data to enable ETAs for riders even when the app is closed or not in use.");
             //if we are turning on isBeeping, ensure we have location permission
             const { status } = await Permissions.askAsync(Permissions.LOCATION);
 
@@ -343,7 +364,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             return (
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!(Platform.OS == "ios" || Platform.OS == "android")} >
                 <Layout style={styles.container}>
-                    <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
+                    <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitchWrapper(value)}/>
                     <Layout style={{marginTop: 6, width: "85%"}}>
                         <Input
                             label='Max Capacity'
@@ -390,7 +411,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             if (this.state.queue && this.state.queue.length != 0) {
                 return (
                     <Layout style={styles.container}>
-                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
+                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitchWrapper(value)}/>
                         <List
                             style={styles.list}
                             data={this.state.queue}
@@ -527,7 +548,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             else {
                 return (
                     <Layout style={styles.container}>
-                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
+                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitchWrapper(value)}/>
                         <Layout style={styles.empty}>
                             <Text category='h5'>Your queue is empty</Text>
                             <Text appearance='hint'>If someone wants you to beep them, it will appear here. If your app is closed, you will recieve a push notification.</Text>

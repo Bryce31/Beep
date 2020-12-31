@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 
 interface Props {
     isBeepingState: boolean;
-    onToggle: (value: boolean) => {}
+    onToggle: (value: boolean) => void
 }
 
 export default function Toggle(props: Props) {
