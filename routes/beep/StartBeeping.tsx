@@ -4,7 +4,7 @@ import * as TaskManager from 'expo-task-manager';
 import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
-import { UserContext } from '../../utils/UserContext';
+import { UserContext, UserContextData } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import * as Notifications from 'expo-notifications';
 import ActionButton from "../../components/ActionButton";
@@ -15,6 +15,8 @@ import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../util
 import ProfilePicture from '../../components/ProfilePicture';
 import Toggle from "./components/Toggle";
 import * as Permissions from 'expo-permissions';
+import Logger from '../../utils/Logger';
+import {BeepTableResult} from '../../types/Beep';
 
 interface Props {
     navigation: any;
@@ -26,7 +28,7 @@ interface State {
     capacity: undefined | string;
     singlesRate: undefined | string;
     groupRate: undefined | string;
-    queue: any[];
+    queue: BeepTableResult[];
     currentIndex: number;
 }
 
@@ -35,7 +37,7 @@ const LOCATION_TRACKING = 'location-tracking';
 export class StartBeepingScreen extends Component<Props, State> {
     static contextType = UserContext;
     
-    constructor(props: Props, context: any) {
+    constructor(props: Props, context: UserContextData) {
         super(props);
         this.state = {
             currentIndex: 0,
@@ -97,7 +99,6 @@ export class StartBeepingScreen extends Component<Props, State> {
             const hasStarted = await Location.hasStartedLocationUpdatesAsync(
                 LOCATION_TRACKING
             );
-            console.log('tracking started?', hasStarted);
         }
     } 
 
@@ -113,7 +114,6 @@ export class StartBeepingScreen extends Component<Props, State> {
         AppState.addEventListener("change", this.handleAppStateChange);
 
         socket.on("updateQueue", () => {
-            console.log("[StartBeeping.js] [Socket.io] Socktio.io told us to update queue!");
             this.getQueue();
         });
     }
@@ -151,7 +151,6 @@ export class StartBeepingScreen extends Component<Props, State> {
 
     handleAppStateChange = (nextAppState: string): void => {
         if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
-            console.log("socket is not connected but user is beeping! We need to resubscribe and get our queue.");
             this.enableGetQueue();
             this.getQueue();
         }
@@ -188,9 +187,6 @@ export class StartBeepingScreen extends Component<Props, State> {
 
                 //TODO is this a bad way to compare arrays
                 if (JSON.stringify(this.state.queue) !== JSON.stringify(data.queue)) {
-                    console.log("queue is not same, set state");
-                    console.log(this.state.queue);
-                    console.log(data.queue);
                     this.setState({ queue: data.queue, currentIndex: currentIndex });
                 }
             }
@@ -301,12 +297,10 @@ export class StartBeepingScreen extends Component<Props, State> {
     }
 
     enableGetQueue(): void {
-        console.log("Subscribing to Socket.io for Beeper's Queue");
         socket.emit('getQueue', this.context.user.id);
     }
 
     disableGetQueue(): void {
-        console.log("Unsubscribing to Socket.io for Beeper's Queue");
         socket.emit('stopGetQueue');
     }
 
@@ -562,11 +556,11 @@ export class StartBeepingScreen extends Component<Props, State> {
 
 TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
     if (error) {
-        console.log('LOCATION_TRACKING task ERROR:', error);
+        Logger.error(error);
         return;
     }
+
     if (data) {
-        console.log(data);
         const { locations } = data;
         const lat = locations[0].coords.latitude;
         const long = locations[0].coords.longitude;
@@ -583,10 +577,6 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
         const userObj = JSON.parse(user);
 
         socket.emit('updateUsersLocation', userObj.token, lat, long, altitude, accuracy, altitudeAccuracy, heading, speed);
-
-        console.log(
-            `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
-        );
     }
 });
 

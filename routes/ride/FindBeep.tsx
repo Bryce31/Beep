@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, ReactNode } from 'react';
 import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { Icon, Layout, Text, Button, Input, CheckBox, Card } from '@ui-kitten/components';
 import * as Location from 'expo-location';
@@ -9,6 +9,7 @@ import { config } from '../../utils/config';
 import { handleFetchError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
+import Logger from '../../utils/Logger';
 
 interface Props {
     navigation: any;
@@ -50,7 +51,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
     async updateETA(lat: number, long: number): Promise<void> {
         if (!this.state.origin) {
-            console.log("NO ORIGIN!!!!!!!!!!!");
+            Logger.info("Origin was null!");
             return;
         }
 
@@ -67,24 +68,19 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
         try {
             const data = await result.json();
-            console.log(data);
             this.setState({ eta: data.eta });
         }
         catch (error) {
-            console.log(error);
+            this.setState({ eta: "ETA unavailable" });
         }
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         this.getRiderStatus(true);
 
         AppState.addEventListener("change", this.handleAppStateChange);
 
         socket.on('updateRiderStatus', (updatedRiderStatus) => {
-            /*
-            console.log("[FindBeep.js] [Socket.io] Socket.io told us to update rider status.");
-            this.getRiderStatus(false);
-            */
             console.log("Rider Status Update:", updatedRiderStatus);
             if (updatedRiderStatus == null) {
                 this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0 });
@@ -98,22 +94,23 @@ export class MainFindBeepScreen extends Component<Props, State> {
         socket.on('hereIsBeepersLocation', (data: any) => {
             console.log(data);
             this.updateETA(data.latitude, data.longitude);
-            this.setState({ data: data });
+            //What is this??????????
+            //this.setState({ data: data });
         });
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         AppState.removeEventListener("change", this.handleAppStateChange);
     }
 
-    handleAppStateChange = (nextAppState: string) => {
+    handleAppStateChange = (nextAppState: string): void => {
         if(nextAppState === "active" && !socket.connected && this.state.beeper.id) {
             this.getRiderStatus(true);
             console.log("Socket.io is not conntected! We need to reconnect to continue to get updates");
         }
     }
 
-    async getRiderStatus(isInitial?: boolean) {
+    async getRiderStatus(isInitial?: boolean): Promise<void> {
         try {
             const result = await fetch(config.apiUrl + "/rider/status", {
                 method: "GET",
@@ -185,7 +182,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
     }
 
-    async chooseBeep (id: string) {
+    async chooseBeep (id: string): Promise<void> {
         if(this.state.origin == "Loading Location...") {
             return alert("Please let your current location finish loading or manualy enter your pickup location");
         }
@@ -227,7 +224,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
     }
 
-    async findBeep () {
+    async findBeep (): Promise<void> {
         if (this.state.pickBeeper) {
             this.props.navigation.navigate('PickBeepScreen', {
                 handlePick: (id: string) => this.chooseBeep(id)
@@ -263,19 +260,19 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
     }
 
-    async useCurrentLocation() {
+    async useCurrentLocation(): Promise<void> {
         this.setState({ origin: "Loading Location..." });
        
         Location.setGoogleApiKey("AIzaSyBgabJrpu7-ELWiUIKJlpBz2mL6GYjwCVI");
 
-        let { status } = await Location.requestPermissionsAsync();
+        const { status } = await Location.requestPermissionsAsync();
 
         if (status !== 'granted') {
             return alert("You must enable location to use this feature.");
         }
 
-        let position = await Location.getCurrentPositionAsync({});
-        let location = await Location.reverseGeocodeAsync({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+        const position = await Location.getCurrentPositionAsync({});
+        const location = await Location.reverseGeocodeAsync({ latitude: position.coords.latitude, longitude: position.coords.longitude });
 
         let string;
 
@@ -289,7 +286,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
         this.setState({ origin: string });
     }
 
-    async leaveQueue() {
+    async leaveQueue(): Promise<void> {
         this.setState({ isLoading: true });
 
         try {
@@ -315,24 +312,22 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
     }
 
-    enableGetRiderStatus() {
-        console.log("Subscribing to Socket.io for Rider Status");
+    enableGetRiderStatus(): void {
         socket.emit('getRiderStatus', this.context.user.token, this.state.beeper.id);
     }
 
-    disableGetRiderStatus() {
-        console.log("Unsubscribing to Socket.io for Rider Status");
+    disableGetRiderStatus(): void {
         socket.emit('stopGetRiderStatus');
     }
 
-    getVenmoLink() {
+    getVenmoLink(): string {
         if (Number(this.state.groupSize) > 1) {
             return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper.venmo + '&amount=' + this.state.beeper.groupRate + '&note=Beep';
         }
         return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper.venmo + '&amount=' + this.state.beeper.singlesRate + '&note=Beep';
     }
 
-    shareVenmoInformation() {
+    shareVenmoInformation(): void {
         try {
             Share.share({
                 message: `Please Venmo ${this.state.beeper.venmo} $${this.state.beeper.groupRate} for the beep!`,
@@ -344,7 +339,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
     }            
 
-    render () {
+    render(): ReactNode {
         console.log("[MainFindBeep.js] Rendered");
 
         const CurrentLocationIcon = (props: Props) => (
