@@ -317,7 +317,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
     enableGetRiderStatus() {
         console.log("Subscribing to Socket.io for Rider Status");
-        socket.emit('getRiderStatus', this.state.beeper.id, this.context.user.id);
+        socket.emit('getRiderStatus', this.context.user.token, this.state.beeper.id);
     }
 
     disableGetRiderStatus() {
