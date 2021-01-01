@@ -33,31 +33,31 @@ export default class ActionButton extends Component<Props, State> {
         this.setState({ isLoading: false });
     }
 
-    updateStatus(queueID: string, riderID: string, value: string | boolean): void {
+    async updateStatus(queueID: string, riderID: string, value: string | boolean): Promise<void> {
         this.setState({ isLoading: true });
 
-        fetch(config.apiUrl + "/beeper/queue/status", {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            },
-            body: JSON.stringify({
-                "value": value,
-                "queueID": queueID,
-                "riderID": riderID
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "error") {
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
+        try {
+            const result = await fetch(config.apiUrl + "/beeper/queue/status", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + this.context.user.token
+                },
+                body: JSON.stringify({
+                    "value": value,
+                    "queueID": queueID,
+                    "riderID": riderID
+                })
             });
-        })
-        .catch((error) => {
+
+            const data = await result.json();
+            if (data.status === "error") {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch(error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
     getMessage(): string {
