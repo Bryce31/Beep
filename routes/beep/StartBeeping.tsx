@@ -16,7 +16,7 @@ import ProfilePicture from '../../components/ProfilePicture';
 import Toggle from "./components/Toggle";
 import * as Permissions from 'expo-permissions';
 import Logger from '../../utils/Logger';
-import {BeepTableResult} from '../../types/Beep';
+import { BeepTableResult } from '../../types/Beep';
 
 interface Props {
     navigation: any;
@@ -495,10 +495,13 @@ export class StartBeepingScreen extends Component<Props, State> {
                                         Get Directions for Beep
                                         </Button>
                                     }
-                                    <ActionButton ref={
-                                    //@ts-ignore
-                                        this.actionButtonElement
-                                    } item={item}/>
+
+                                    {this.state.currentIndex == index &&
+                                        <ActionButton ref={
+                                            //@ts-ignore
+                                            this.actionButtonElement
+                                        } item={item}/>
+                                    }
                                 </Card>
 
                                 :
