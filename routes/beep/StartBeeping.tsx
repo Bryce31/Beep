@@ -158,7 +158,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
     async getQueue(): Promise<void> {
         try {
-            const result = await fetch(config.apiUrl + "/beeper/queue", {
+            const result = await fetch(config.apiUrl + "/users/" + this.context.user.id + "/queue", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
