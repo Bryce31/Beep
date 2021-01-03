@@ -1,7 +1,5 @@
 import * as Sentry from 'sentry-expo';
-import { Platform } from 'react-native';
-
-const isMobile: boolean = (Platform.OS == "ios") || (Platform.OS == "android");
+import { isMobile } from './Sentry';
 
 class Logger {
     public info(data: any) {

@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React, { Component, ReactNode } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet, StatusBar, Platform, AppState } from 'react-native';
+import { StatusBar, Platform, AppState } from 'react-native';
 import RegisterScreen from './routes/auth/Register';
 import LoginScreen from './routes/auth/Login';
 import ForgotPassword from './routes/auth/ForgotPassword';
@@ -15,45 +15,32 @@ import { default as beepTheme } from './utils/theme.json';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
 import { ThemeContext } from './utils/ThemeContext';
 import { UserContext } from './utils/UserContext';
-import * as SplashScreen from 'expo-splash-screen';
-import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { updatePushToken } from "./utils/Notifications";
 import socket, { getUpdatedUser } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
-import * as Updates from 'expo-updates';
-import * as Sentry from 'sentry-expo';
-
-Sentry.init({
-    dsn: 'https://9bea69e2067f4e2a96e6c26627f97732@sentry.nussman.us/4',
-    enableInExpoDevelopment: true,
-    debug: true, // Sentry will try to print out useful debugging information if something goes wrong with sending an event. Set this to `false` in production.
-    enableAutoSessionTracking: true
-});
+import init from './utils/Init';
+import {setSentryUserContext} from './utils/Sentry';
+import {User} from './types/Beep';
+import {handleUpdateCheck} from './utils/Updates';
+import {styles} from './utils/Styles';
+import ThemedStatusBar from './utils/StatusBar';
+import ContextProviders from './utils/ContextProviders';
 
 const Stack = createStackNavigator();
-
-SplashScreen.preventAutoHideAsync()
-  .then(result => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
-  .catch(console.warn); // it's good to explicitly catch and inspect any error
-
 let initialScreen: string;
-
-interface User {
-    token?: string;
-    isBeeping?: boolean;
-}
+init();
 
 interface Props {
     
 }
 
 interface State {
-    user: User;
+    user: User | any;
     theme: string;
 }
 
 export default class App extends Component<Props, State> {
-
+    
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -70,33 +57,19 @@ export default class App extends Component<Props, State> {
 
     setUser = (user: User): void => {
         this.setState({ user: user });
-        if ((Platform.OS == "ios" || Platform.OS == "android")) {
-            Sentry.Native.setUser({ ...user });
-        }
-        else {
-            Sentry.Browser.setUser({ ...user });
-        }
+        setSentryUserContext(user);
     }
 
     handleAppStateChange = (nextAppState: string): void => {
+        handleUpdateCheck();
         if (nextAppState === "active" && !socket.connected && this.state.user) {
             socket.emit('getUser', this.state.user.token);
         }
     }
 
-    async handleUpdateCheck(): Promise<void> {
-        if (!__DEV__) {
-            const result = await Updates.checkForUpdateAsync();
-            console.log(result);
-            if (result.isAvailable) {
-                console.log("running Expo OTA update");
-                Updates.reloadAsync();
-            }
-        }
-    }
     
     async componentDidMount(): Promise<void> {
-        this.handleUpdateCheck();
+        handleUpdateCheck();
 
         AppState.addEventListener("change", this.handleAppStateChange);
 
@@ -118,12 +91,7 @@ export default class App extends Component<Props, State> {
                 socket.emit('getUser', user.token);
             }
 
-            if ((Platform.OS == "ios" || Platform.OS == "android")) {
-                Sentry.Native.setUser({ ...user });
-            }
-            else {
-                Sentry.Browser.setUser({ ...user });
-            }
+            setSentryUserContext(user);
         }
         else {
             initialScreen = "Login";
@@ -141,7 +109,6 @@ export default class App extends Component<Props, State> {
         socket.on('updateUser', (data: unknown) => {
             const updatedUser = getUpdatedUser(this.state.user, data);
             if (updatedUser != null) {
-                console.log("[~] Updating Context!");
                 AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
                 this.setUser(updatedUser);
             }
@@ -159,36 +126,24 @@ export default class App extends Component<Props, State> {
         const toggleTheme = this.toggleTheme;
 
         return (
-            <UserContext.Provider value={{user, setUser}}>
-                <ThemeContext.Provider value={{theme, toggleTheme}}>
-                    <IconRegistry icons={EvaIconsPack} />
-                    <ApplicationProvider {...eva} theme={{ ...eva[this.state.theme], ...beepTheme }}>
-                        <Layout style={styles.statusbar}>
-                            {Platform.OS == "ios" ?
-                                <StatusBar barStyle={(this.state.theme === 'light' ? 'dark' : 'light') + "-content"} />
-                                :
-                                <StatusBar translucent barStyle={(this.state.theme === 'light' ? 'dark' : 'light') + "-content"} backgroundColor={(this.state.theme === "dark") ? "#222b45" : "#ffffff"} />
-                            }
-                        </Layout>
-                        <NavigationContainer>
-                            <Stack.Navigator initialRouteName={initialScreen} screenOptions={{ headerShown: false }} >
-                                <Stack.Screen name="Login" component={LoginScreen} />
-                                <Stack.Screen name="Register" component={RegisterScreen} />
-                                <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-                                <Stack.Screen name="Main" component={MainTabs} />
-                                <Stack.Screen name='Profile' component={ProfileScreen} />
-                                <Stack.Screen name='Report' component={ReportScreen} />
-                            </Stack.Navigator>
-                        </NavigationContainer>
-                    </ApplicationProvider>
-                </ThemeContext.Provider>
-            </UserContext.Provider>
+            <ContextProviders>
+                <IconRegistry icons={EvaIconsPack} />
+                <ApplicationProvider {...eva} theme={{ ...eva[this.state.theme], ...beepTheme }}>
+                    <Layout style={styles.statusbar}>
+                        <ThemedStatusBar theme={theme}/>
+                    </Layout>
+                    <NavigationContainer>
+                        <Stack.Navigator initialRouteName={initialScreen} screenOptions={{ headerShown: false }} >
+                            <Stack.Screen name='Login' component={LoginScreen} />
+                            <Stack.Screen name='Register' component={RegisterScreen} />
+                            <Stack.Screen name='ForgotPassword' component={ForgotPassword} />
+                            <Stack.Screen name='Main' component={MainTabs} />
+                            <Stack.Screen name='Profile' component={ProfileScreen} />
+                            <Stack.Screen name='Report' component={ReportScreen} />
+                        </Stack.Navigator>
+                    </NavigationContainer>
+                </ApplicationProvider>
+            </ContextProviders>
         );
     }
 }
-
-const styles = StyleSheet.create({
-    statusbar: {
-        paddingTop: getStatusBarHeight()
-    }
-});

@@ -1,3 +1,8 @@
 import React from 'react';
 
-export const ThemeContext = React.createContext(null);
+interface ThemeContextData {
+    theme: string;
+    toggleTheme: () => void;
+}
+
+export const ThemeContext = React.createContext<ThemeContextData | null>(null);
