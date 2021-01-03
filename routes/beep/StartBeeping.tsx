@@ -334,12 +334,22 @@ export class StartBeepingScreen extends Component<Props, State> {
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
 
-    handleDirections(origin: string, dest: string): void {
-        if (Platform.OS == 'ios') {
-            Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
+    handleDirections(origin: string | null, dest: string): void {
+        if (origin) {
+            if (Platform.OS == 'ios') {
+                Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
+            }
+            else {
+                Linking.openURL('https://www.google.com/maps/dir/' + origin + '/' + dest + '/');
+            }
         }
         else {
-            Linking.openURL('https://www.google.com/maps/dir/' + origin + '/' + dest + '/');
+            if (Platform.OS == 'ios') {
+                Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
+            }
+            else {
+                Linking.openURL('https://www.google.com/maps?q=' + dest);
+            }
         }
     }
 
@@ -480,7 +490,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                             style={styles.paddingUnder}
                                             status='success'
                                             accessoryLeft={MapsIcon}
-                                            onPress={() => this.handleDirections("Current+Location", item.origin) }
+                                            onPress={() => this.handleDirections(null, item.origin) }
                                         >
                                         Get Directions to Rider
                                         </Button>
