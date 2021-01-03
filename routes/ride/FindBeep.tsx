@@ -71,7 +71,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             this.setState({ eta: data.eta });
         }
         catch (error) {
-            this.setState({ eta: "ETA unavailable" });
+            //this.setState({ eta: "ETA unavailable" });
         }
     }
 
@@ -565,6 +565,12 @@ export class MainFindBeepScreen extends Component<Props, State> {
                                 <Card style={{marginTop: 6}}>
                                         <Text category='h6'>Arrival ETA</Text>
                                         <Text appearance='hint'>Your beeper is {this.state.eta} away</Text>
+                                    </Card>
+                                }
+                                {(this.state.state == 1 && !this.state.eta) &&
+                                <Card style={{marginTop: 6}}>
+                                        <Text category='h6'>Arrival ETA</Text>
+                                        <Text appearance='hint'>Your ETA will update when your beeper begins to drive</Text>
                                     </Card>
                                 }
                             </Layout>
