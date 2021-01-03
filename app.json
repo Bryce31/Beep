@@ -51,7 +51,7 @@
       "versionCode": 24,
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi": true,
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION", "VIBRATE"]
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION", "FOREGROUND_SERVICE", "VIBRATE"]
     },
     "splash": {
       "image": "./assets/splash.png",
