@@ -154,6 +154,9 @@ export class StartBeepingScreen extends Component<Props, State> {
             this.enableGetQueue();
             this.getQueue();
         }
+        else if (nextAppState === "active") {
+            this.getQueue();
+        }
     }
 
     async getQueue(): Promise<void> {

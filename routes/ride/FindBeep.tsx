@@ -99,6 +99,9 @@ export class MainFindBeepScreen extends Component<Props, State> {
             this.getRiderStatus(true);
             console.log("Socket.io is not conntected! We need to reconnect to continue to get updates");
         }
+        else if (nextAppState === "active") {
+            this.getRiderStatus(false);
+        }
     }
 
     async getRiderStatus(isInitial?: boolean): Promise<void> {
@@ -184,10 +187,18 @@ export class MainFindBeepScreen extends Component<Props, State> {
             const data = await result.json();
 
             if (data.status === "success") {
+                /*
                 this.setState({
                     beeper: data.beeper,
                     foundBeep: true,
                     isLoading: false
+                });
+                */
+
+                this.setState({
+                    foundBeep: true,
+                    isLoading: false,
+                    ...data
                 });
 
                 this.enableGetRiderStatus();
@@ -539,15 +550,9 @@ export class MainFindBeepScreen extends Component<Props, State> {
                                 }
                                 </Card>
                                 {(this.state.state == 1 && this.state.eta) &&
-                                <Card style={{marginTop: 6}}>
+                                <Card style={{marginTop: 10}}>
                                         <Text category='h6'>Arrival ETA</Text>
                                         <Text appearance='hint'>Your beeper is {this.state.eta} away</Text>
-                                    </Card>
-                                }
-                                {(this.state.state == 1 && !this.state.eta) &&
-                                <Card style={{marginTop: 6}}>
-                                        <Text category='h6'>Arrival ETA</Text>
-                                        <Text appearance='hint'>Your ETA will update when your beeper begins to drive</Text>
                                     </Card>
                                 }
                             </Layout>
@@ -689,7 +694,7 @@ const styles = StyleSheet.create({
     },
     group: {
         alignItems: "center",
-        marginBottom: 16,
+        marginBottom: 12,
         width: '100%'
     },
     groupConatiner: {
