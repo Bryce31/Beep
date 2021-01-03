@@ -81,7 +81,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
         AppState.addEventListener("change", this.handleAppStateChange);
 
         socket.on('updateRiderStatus', (updatedRiderStatus) => {
-            console.log("Rider Status Update:", updatedRiderStatus);
             if (updatedRiderStatus == null) {
                 this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0 });
                 this.disableGetRiderStatus();
@@ -89,13 +88,12 @@ export class MainFindBeepScreen extends Component<Props, State> {
             else {
                 this.setState({ ...updatedRiderStatus });
             }
+            this.getRiderStatus(false);
         });
 
         socket.on('hereIsBeepersLocation', (data: any) => {
             console.log(data);
             this.updateETA(data.latitude, data.longitude);
-            //What is this??????????
-            //this.setState({ data: data });
         });
     }
 
