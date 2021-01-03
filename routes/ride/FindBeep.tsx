@@ -119,32 +119,14 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     //TODO do something to emphesise beep state change
                 }
 
-                if (data.isAccepted) {
-                    this.setState({
-                        foundBeep: true,
-                        isAccepted: data.isAccepted,
-                        ridersQueuePosition: data.ridersQueuePosition,
-                        state: data.state,
-                        beeper: data.beeper,
-                        groupSize: data.groupSize,
-                        isLoading: false,
-                        origin: data.origin,
-                        destination: data.destination
-                    });
-                }
-                else {
-                    this.setState({
-                        foundBeep: true,
-                        isAccepted: data.isAccepted,
-                        groupSize: data.groupSize,
-                        beeper: data.beeper,
-                        origin: data.origin,
-                        destination: data.destination
-                    });
-                }
+                this.setState({
+                    foundBeep: true,
+                    isLoading: false,
+                    ...data
+                });
 
-                if (data.beepersLocation) {
-                    this.updateETA(data.beepersLocation.latitude, data.beepersLocation.longitude);
+                if (data.beeper.location) {
+                    this.updateETA(data.beeper.location.latitude, data.beeper.location.longitude);
                 }
 
                 if (isInitial) {
@@ -160,7 +142,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                 }
 
                 if (!isInitial) {
-                    this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0 });
+                    this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0, ridersQueuePosition: 0 });
                     this.disableGetRiderStatus();
                 }
             }
@@ -192,10 +174,10 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     "Authorization": "Bearer " + this.context.user.token
                 },
                 body: JSON.stringify({
-                    "origin": this.state.origin,
-                    "destination": this.state.destination,
-                    "groupSize": Number(this.state.groupSize),
-                    "beepersID": id
+                    origin: this.state.origin,
+                    destination: this.state.destination,
+                    groupSize: Number(this.state.groupSize),
+                    beepersID: id
                 })
             });
 
