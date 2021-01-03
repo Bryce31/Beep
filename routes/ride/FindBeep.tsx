@@ -143,6 +143,10 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     });
                 }
 
+                if (data.beepersLocation) {
+                    this.updateETA(data.beepersLocation.latitude, data.beepersLocation.longitude);
+                }
+
                 if (isInitial) {
                     this.enableGetRiderStatus();
                 }
@@ -396,7 +400,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         </Layout>
 
                         <Layout style={styles.group}>
-                            <Text appearance='hint'>{this.state.beeper.first}'s total queue size is</Text>
+                            <Text appearance='hint'>{this.state.beeper.first}'s total queue length is</Text>
                             <Text category='h6'>{this.state.beeper.queueSize}</Text>
                         </Layout>
                         {!this.state.isLoading ?
@@ -663,8 +667,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         </Layout>
 
                         <Layout style={styles.group}>
-                        <Text appearance='hint'>{this.state.beeper.first}'s total queue size is</Text>
                         <Text category='h6'>{this.state.beeper.queueSize}</Text>
+                        <Text appearance='hint'>people are ahead of you in {this.state.beeper.first}'s queue</Text>
                         </Layout>
 
                         {!this.state.isLoading ?
