@@ -80,14 +80,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
         AppState.addEventListener("change", this.handleAppStateChange);
 
-        socket.on('updateRiderStatus', (updatedRiderStatus) => {
-            if (updatedRiderStatus == null) {
-                this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0 });
-                this.disableGetRiderStatus();
-            }
-            else {
-                this.setState({ ...updatedRiderStatus });
-            }
+        socket.on('updateRiderStatus', () => {
             this.getRiderStatus(false);
         });
 
