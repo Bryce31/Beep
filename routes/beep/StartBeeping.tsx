@@ -95,6 +95,11 @@ export class StartBeepingScreen extends Component<Props, State> {
                 accuracy: Location.Accuracy.Highest,
                 timeInterval: 15000,
                 distanceInterval: 6,
+                foregroundService: {
+                    notificationTitle: "Ride Beep App",
+                    notificationBody: "You are currently beeping!",
+                    notificationColor: "#e8c848"
+                }
             });
             const hasStarted = await Location.hasStartedLocationUpdatesAsync(
                 LOCATION_TRACKING
