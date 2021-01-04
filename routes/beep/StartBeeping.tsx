@@ -120,7 +120,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
         socket.on("updateQueue", () => {
             this.getQueue();
-            alert("Socket Triggered an Update");
+            //alert("Socket Triggered an Update");
         });
 
         socket.on("connect", () => {

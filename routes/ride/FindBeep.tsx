@@ -82,7 +82,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
         socket.on('updateRiderStatus', () => {
             this.getRiderStatus(false);
-            alert("Socket Triggered an Update");
+            //alert("Socket Triggered an Update");
         });
 
         socket.on('hereIsBeepersLocation', (data: any) => {
