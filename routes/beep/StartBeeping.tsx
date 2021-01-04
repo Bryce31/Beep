@@ -380,7 +380,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                     <Layout style={{marginTop: 6, width: "85%"}}>
                         <Input
                             label='Max Capacity'
-                            caption='The maximum number of people you can fit in your vehicle not including yourself.'
+                            caption='The maximum number of people your vehicle is designed to fit not including yourself.'
                             placeholder='Max Capcity'
                             keyboardType='numeric'
                             style={styles.inputs}
