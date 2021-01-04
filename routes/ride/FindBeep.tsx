@@ -564,7 +564,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                             {(this.state.ridersQueuePosition != 0) && 
                                 <>
                                     <Text category='h6'>{this.state.ridersQueuePosition}</Text>
-                                    <Text appearance='hint'>people are ahead of you in {this.state.beeper.first}'s queue.</Text>
+                                    <Text appearance='hint'>{(this.state.ridersQueuePosition == 1) ? "person is" : "people are"} ahead of you in {this.state.beeper.first}'s queue.</Text>
                                 </>
                             }
                         </Layout>
@@ -655,7 +655,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
                         <Layout style={styles.group}>
                         <Text category='h6'>{this.state.beeper.queueSize}</Text>
-                        <Text appearance='hint'>people are ahead of you in {this.state.beeper.first}'s queue</Text>
+                        <Text appearance='hint'>{(this.state.beeper.queueSize == 1) ? "person is" : "people are"} ahead of you in {this.state.beeper.first}'s queue</Text>
                         </Layout>
 
                         {!this.state.isLoading ?
