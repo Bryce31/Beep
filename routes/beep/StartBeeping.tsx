@@ -121,6 +121,14 @@ export class StartBeepingScreen extends Component<Props, State> {
         socket.on("updateQueue", () => {
             this.getQueue();
         });
+
+        socket.on("reconnect", () => {
+            if(this.state.isBeeping) {
+                Logger.info("reconnected to socket successfully and user is beeping, enabling getQueue");
+                this.getQueue();
+                this.enableGetQueue();
+            }
+        });
     }
 
     /*
