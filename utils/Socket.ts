@@ -1,7 +1,7 @@
 import { Manager } from "socket.io-client";
 import { config } from './config';
 
-const manager = new Manager(config.baseUrl, { transports: ['websocket'] });
+const manager = new Manager(config.baseUrl, { transports: ['websocket'], forceNew: true });
 const socket = manager.socket("/");
 
 export default socket
