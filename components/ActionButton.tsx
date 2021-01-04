@@ -25,7 +25,7 @@ export default class ActionButton extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            isLoading: false,
+            isLoading: false
         };
     }
 
@@ -44,9 +44,9 @@ export default class ActionButton extends Component<Props, State> {
                     "Authorization": "Bearer " + this.context.user.token
                 },
                 body: JSON.stringify({
-                    "value": value,
-                    "queueID": queueID,
-                    "riderID": riderID
+                    value: value,
+                    queueID: queueID,
+                    riderID: riderID
                 })
             });
 
