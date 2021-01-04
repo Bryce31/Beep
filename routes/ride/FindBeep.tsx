@@ -89,8 +89,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
             this.updateETA(data.latitude, data.longitude);
         });
 
-        socket.on("reconnect", () => {
-            if(this.state.foundBeep) {
+        socket.on("connect", () => {
+            if (this.state.foundBeep) {
                 Logger.info("reconnected to socket successfully and user is in a beep, enabling getRiderStatus");
                 this.getRiderStatus();
                 this.enableGetRiderStatus();
@@ -105,10 +105,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
     handleAppStateChange = (nextAppState: string): void => {
         if(nextAppState === "active" && !socket.connected && this.state.beeper.id) {
             this.getRiderStatus(true);
-            console.log("Socket.io is not conntected! We need to reconnect to continue to get updates");
-        }
-        else if (nextAppState === "active") {
-            this.getRiderStatus(false);
+            Logger.info("App came into foreground, socket was NOT connected, and rider had a beeper so we called getRiderStatus asif this was an initial load");
         }
     }
 
@@ -195,14 +192,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
             const data = await result.json();
 
             if (data.status === "success") {
-                /*
-                this.setState({
-                    beeper: data.beeper,
-                    foundBeep: true,
-                    isLoading: false
-                });
-                */
-
                 this.setState({
                     foundBeep: true,
                     isLoading: false,

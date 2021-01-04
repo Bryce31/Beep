@@ -122,7 +122,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             this.getQueue();
         });
 
-        socket.on("reconnect", () => {
+        socket.on("connect", () => {
             if(this.state.isBeeping) {
                 Logger.info("reconnected to socket successfully and user is beeping, enabling getQueue");
                 this.getQueue();
@@ -166,9 +166,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
             this.enableGetQueue();
             this.getQueue();
-        }
-        else if (nextAppState === "active") {
-            this.getQueue();
+            Logger.info("App was put into the foreground, socket was disconnected and user was beepinng, ask socket for new sub to queue");
         }
     }
 
