@@ -78,10 +78,11 @@ export class MainFindBeepScreen extends Component<Props, State> {
     componentDidMount(): void {
         this.getRiderStatus(true);
 
-        AppState.addEventListener("change", this.handleAppStateChange);
+        //AppState.addEventListener("change", this.handleAppStateChange);
 
         socket.on('updateRiderStatus', () => {
             this.getRiderStatus(false);
+            alert("Socket Triggered an Update");
         });
 
         socket.on('hereIsBeepersLocation', (data: any) => {
@@ -99,15 +100,17 @@ export class MainFindBeepScreen extends Component<Props, State> {
     }
 
     componentWillUnmount(): void {
-        AppState.removeEventListener("change", this.handleAppStateChange);
+        //AppState.removeEventListener("change", this.handleAppStateChange);
     }
 
+    /*
     handleAppStateChange = (nextAppState: string): void => {
         if(nextAppState === "active" && !socket.connected && this.state.beeper.id) {
             this.getRiderStatus(true);
             Logger.info("App came into foreground, socket was NOT connected, and rider had a beeper so we called getRiderStatus asif this was an initial load");
         }
     }
+     */
 
     async getRiderStatus(isInitial?: boolean): Promise<void> {
         try {

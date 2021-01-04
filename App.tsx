@@ -59,16 +59,23 @@ export default class App extends Component<Props, State> {
         setSentryUserContext(user);
     }
 
+    /*
     handleAppStateChange = (nextAppState: string): void => {
         if (nextAppState === "active" && !socket.connected && this.state.user) {
             socket.emit('getUser', this.state.user.token);
         }
     }
+     */
     
     async componentDidMount(): Promise<void> {
         handleUpdateCheck();
 
-        AppState.addEventListener("change", this.handleAppStateChange);
+        //AppState.addEventListener("change", this.handleAppStateChange);
+        socket.on("connect", () => {
+            if (this.state.user) {
+                socket.emit('getUser', this.state.user.token);
+            }
+        });
 
         let user;
         let theme = this.state.theme;

@@ -116,10 +116,11 @@ export class StartBeepingScreen extends Component<Props, State> {
     componentDidMount(): void {
         this.retrieveData();
 
-        AppState.addEventListener("change", this.handleAppStateChange);
+        //AppState.addEventListener("change", this.handleAppStateChange);
 
         socket.on("updateQueue", () => {
             this.getQueue();
+            alert("Socket Triggered an Update");
         });
 
         socket.on("connect", () => {
@@ -159,9 +160,10 @@ export class StartBeepingScreen extends Component<Props, State> {
      */
 
     componentWillUnmount(): void {
-        AppState.removeEventListener("change", this.handleAppStateChange);
+        //AppState.removeEventListener("change", this.handleAppStateChange);
     }
-
+    
+    /*
     handleAppStateChange = (nextAppState: string): void => {
         if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
             this.enableGetQueue();
@@ -169,6 +171,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             Logger.info("App was put into the foreground, socket was disconnected and user was beepinng, ask socket for new sub to queue");
         }
     }
+    */
 
     async getQueue(): Promise<void> {
         try {
