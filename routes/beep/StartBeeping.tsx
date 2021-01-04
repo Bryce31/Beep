@@ -353,7 +353,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
         else {
             if (Platform.OS == 'ios') {
-                Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
+                Linking.openURL('http://maps.apple.com/?saddr=My+Location&daddr=' + dest);
             }
             else {
                 Linking.openURL('https://www.google.com/maps?q=' + dest);
