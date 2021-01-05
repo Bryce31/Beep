@@ -79,8 +79,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
     componentDidMount(): void {
         this.getRiderStatus(true);
 
-        //AppState.addEventListener("change", this.handleAppStateChange);
-
         socket.on('updateRiderStatus', () => {
             this.getRiderStatus(false);
             //alert("Socket Triggered an Update");
@@ -92,29 +90,13 @@ export class MainFindBeepScreen extends Component<Props, State> {
         });
 
         socket.on("connect", async () => {
+            await this.getRiderStatus();
             if (this.state.foundBeep) {
-                Logger.info("reconnected to socket successfully and user is in a beep, enabling getRiderStatus");
-                await this.getRiderStatus();
-                //TODO: check this logic
-                if (this.state.foundBeep) {
-                    this.enableGetRiderStatus();
-                }
+                Logger.info("[getRiderStatus] reconnected to socket successfully");
+                this.enableGetRiderStatus();
             }
         });
     }
-
-    componentWillUnmount(): void {
-        //AppState.removeEventListener("change", this.handleAppStateChange);
-    }
-
-    /*
-    handleAppStateChange = (nextAppState: string): void => {
-        if(nextAppState === "active" && !socket.connected && this.state.beeper.id) {
-            this.getRiderStatus(true);
-            Logger.info("App came into foreground, socket was NOT connected, and rider had a beeper so we called getRiderStatus asif this was an initial load");
-        }
-    }
-     */
 
     async getRiderStatus(isInitial?: boolean): Promise<void> {
         try {

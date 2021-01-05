@@ -5,7 +5,7 @@ import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyb
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
 import { UserContext, UserContextData } from '../../utils/UserContext';
-import { config } from "../../utils/config";
+import { config, isMobile } from "../../utils/config";
 import * as Notifications from 'expo-notifications';
 import ActionButton from "../../components/ActionButton";
 import AcceptDenyButton from "../../components/AcceptDenyButton";
@@ -116,16 +116,15 @@ export class StartBeepingScreen extends Component<Props, State> {
     componentDidMount(): void {
         this.retrieveData();
 
-        //AppState.addEventListener("change", this.handleAppStateChange);
-
         socket.on("updateQueue", () => {
             this.getQueue();
             //alert("Socket Triggered an Update");
         });
 
-        socket.on("connect", () => {
-            if(this.state.isBeeping) {
-                Logger.info("reconnected to socket successfully and user is beeping, enabling getQueue");
+        socket.on("connect", async () => {
+            await this.retrieveData();
+            if (this.state.isBeeping) {
+                Logger.info("[getQueue] reconnected to socket successfully");
                 this.getQueue();
                 this.enableGetQueue();
             }
@@ -159,20 +158,6 @@ export class StartBeepingScreen extends Component<Props, State> {
     }
      */
 
-    componentWillUnmount(): void {
-        //AppState.removeEventListener("change", this.handleAppStateChange);
-    }
-    
-    /*
-    handleAppStateChange = (nextAppState: string): void => {
-        if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
-            this.enableGetQueue();
-            this.getQueue();
-            Logger.info("App was put into the foreground, socket was disconnected and user was beepinng, ask socket for new sub to queue");
-        }
-    }
-    */
-
     async getQueue(): Promise<void> {
         try {
             const result = await fetch(config.apiUrl + "/users/" + this.context.user.id + "/queue", {
@@ -202,10 +187,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                     }
                 }
 
-                //TODO is this a bad way to compare arrays
-                if (JSON.stringify(this.state.queue) !== JSON.stringify(data.queue)) {
-                    this.setState({ queue: data.queue, currentIndex: currentIndex });
-                }
+                this.setState({ queue: data.queue, currentIndex: currentIndex });
             }
             else {
                 handleFetchError(data.message);
@@ -217,7 +199,7 @@ export class StartBeepingScreen extends Component<Props, State> {
     }
 
     toggleSwitchWrapper(value: boolean): void {
-        if ((Platform.OS == "android" || Platform.OS == "ios") && value) {
+        if (isMobile && value) {
             Alert.alert(
                 "Background Location Notice",
                 "Ride Beep App collects location data to enable ETAs for riders when your are beeping and the app is closed or not in use",
@@ -269,11 +251,11 @@ export class StartBeepingScreen extends Component<Props, State> {
                     "Authorization": "Bearer " + this.context.user.token
                 },
                 body: JSON.stringify({
-                    "isBeeping": value,
-                    "singlesRate": this.state.singlesRate,
-                    "groupRate": this.state.groupRate,
-                    "capacity": this.state.capacity,
-                    "masksRequired": this.state.masksRequired
+                    isBeeping: value,
+                    singlesRate: this.state.singlesRate,
+                    groupRate: this.state.groupRate,
+                    capacity: this.state.capacity,
+                    masksRequired: this.state.masksRequired
                 })
             });
 
