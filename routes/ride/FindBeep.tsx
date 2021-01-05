@@ -10,6 +10,7 @@ import { handleFetchError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
 import Logger from '../../utils/Logger';
+import LeaveButton from './LeaveButton';
 
 interface Props {
     navigation: any;
@@ -272,32 +273,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
 
         this.setState({ origin: string });
-    }
-
-    async leaveQueue(): Promise<void> {
-        this.setState({ isLoading: true });
-
-        try {
-            const result = await fetch(config.apiUrl + "/rider/leave", {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
-                },
-                body: JSON.stringify({
-                    "beepersID": this.state.beeper.id
-                })
-            });
-
-            const data = await result.json();
-
-            if (data.status === "error") {
-                this.setState({ isLoading: handleFetchError(data.message) });
-            }
-        }
-        catch (error) {
-            this.setState({ isLoading: handleFetchError(error) });
-        }
     }
 
     enableGetRiderStatus(): void {
@@ -606,6 +581,9 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         </Button>
                         
                         : null}
+                        {(this.state.ridersQueuePosition >= 1) && 
+                            <LeaveButton beepersId={this.state.beeper.id} />
+                        }
                     </Layout>
                 );
             }
@@ -657,19 +635,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         <Text category='h6'>{this.state.beeper.queueSize}</Text>
                         <Text appearance='hint'>{(this.state.beeper.queueSize == 1) ? "person is" : "people are"} ahead of you in {this.state.beeper.first}'s queue</Text>
                         </Layout>
-
-                        {!this.state.isLoading ?
-                            <Button
-                                accessoryRight={LeaveIcon}
-                                onPress={() => this.leaveQueue()}
-                            >
-                            Leave Queue
-                            </Button>
-                            :
-                            <Button appearance='outline' accessoryRight={LoadingIndicator}>
-                                Loading
-                            </Button>
-                        }
+                        <LeaveButton beepersId={this.state.beeper.id} />
                     </Layout>
                 );
             }
