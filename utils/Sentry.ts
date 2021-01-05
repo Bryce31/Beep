@@ -1,8 +1,6 @@
 import * as Sentry from 'sentry-expo';
-import { Platform } from 'react-native';
 import { User } from '../types/Beep';
-
-export const isMobile: boolean = (Platform.OS == "ios") || (Platform.OS == "android");
+import { isMobile } from './config';
 
 export function setSentryUserContext(user: User): void {
     if (isMobile) {
@@ -11,4 +9,14 @@ export function setSentryUserContext(user: User): void {
     else {
         Sentry.Browser.setUser({ ...user });
     }
+}
+
+export function initializeSentry(): void {
+    Sentry.init({
+        dsn: 'https://9bea69e2067f4e2a96e6c26627f97732@sentry.nussman.us/4',
+        enableInExpoDevelopment: true,
+        enableAutoSessionTracking: true,
+        environment: __DEV__ ? "development" : "production",
+        debug: false
+    });
 }

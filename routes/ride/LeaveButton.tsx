@@ -5,7 +5,7 @@ import { handleFetchError } from '../../utils/Errors';
 import { LeaveIcon } from '../../utils/Icons';
 import { Button } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext';
-import { isMobile } from '../../utils/Sentry';
+import { isMobile } from '../../utils/config';
 
 interface Props {
     beepersId: string; 

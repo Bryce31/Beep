@@ -2,7 +2,6 @@ import 'react-native-gesture-handler';
 import React, { Component, ReactNode } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { AppState } from 'react-native';
 import RegisterScreen from './routes/auth/Register';
 import LoginScreen from './routes/auth/Login';
 import ForgotPassword from './routes/auth/ForgotPassword';
@@ -22,8 +21,9 @@ import ThemedStatusBar from './utils/StatusBar';
 import { styles } from './utils/Styles';
 import { handleUpdateCheck } from './utils/Updates';
 import init from './utils/Init';
-import { isMobile, setSentryUserContext } from './utils/Sentry';
+import { setSentryUserContext } from './utils/Sentry';
 import { User } from './types/Beep';
+import { isMobile } from './utils/config';
 
 const Stack = createStackNavigator();
 let initialScreen: string;
