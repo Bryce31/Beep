@@ -23,7 +23,7 @@ export function MainSettingsScreen({ navigation }: any) {
                     "Authorization": "Bearer " + userContext.user.token
                 },
                 body: JSON.stringify({
-                    "isApp": true
+                    isApp: true
                 })
             });
 

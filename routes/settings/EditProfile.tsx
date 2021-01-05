@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext } from '../../utils/UserContext';
+import { UserContext, UserContextData } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { EditIcon, LoadingIndicator } from "../../utils/Icons";
 import { handleFetchError } from "../../utils/Errors";
@@ -26,7 +26,7 @@ interface State {
 export class EditProfileScreen extends Component<Props, State> {
     static contextType = UserContext;
     
-    constructor(props: Props, context: any) {
+    constructor(props: Props, context: UserContextData) {
         super(props);
         this.state = {
             isLoading: false,
@@ -39,73 +39,72 @@ export class EditProfileScreen extends Component<Props, State> {
         };
     }
 
-    handleUpdate () {
-        //send button into loading state
+    async handleUpdate(): Promise<void> {
         this.setState({ isLoading: true });
 
-        //POST to our edit profile API
-        fetch(config.apiUrl + "/account", {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            },
-            body: JSON.stringify({
-                "first": this.state.first,
-                "last": this.state.last,
-                "email": this.state.email,
-                "phone": this.state.phone,
-                "venmo": this.state.venmo
+        try {
+            const result = await fetch(config.apiUrl + "/account", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + this.context.user.token
+                },
+                body: JSON.stringify({
+                    first: this.state.first,
+                    last: this.state.last,
+                    email: this.state.email,
+                    phone: this.state.phone,
+                    venmo: this.state.venmo
+                })
             })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    //make a copy of the current user
-                    let tempUser = this.context.user;
 
-                    //update the tempUser with the new data
-                    tempUser.first = this.state.first;
-                    tempUser.last = this.state.last;
-                    tempUser.email = this.state.email;
-                    tempUser.phone = this.state.phone;
-                    tempUser.venmo = this.state.venmo;
+            const data = await result.json();
 
-                    if (this.state.email !== this.context.user.email) {
-                        //email has changed for sure, set to not verified on client side
-                        tempUser.isEmailVerified = false;
-                        tempUser.isStudent = false;
-                    }
+            if (data.status === "success") {
+                //make a copy of the current user
+                const tempUser = this.context.user;
 
-                    //update the context
-                    this.context.setUser(tempUser);
+                //update the tempUser with the new data
+                tempUser.first = this.state.first;
+                tempUser.last = this.state.last;
+                tempUser.email = this.state.email;
+                tempUser.phone = this.state.phone;
+                tempUser.venmo = this.state.venmo;
 
-                    //put the tempUser back into storage
-                    AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-
-                    //on success, go back to settings page
-                    this.props.navigation.goBack();
+                if (this.state.email !== this.context.user.email) {
+                    //email has changed for sure, set to not verified on client side
+                    tempUser.isEmailVerified = false;
+                    tempUser.isStudent = false;
                 }
-                else {
-                    this.setState({
-                        isLoading: false,
-                        username: this.context.user.username,
-                        first: this.context.user.first,
-                        last: this.context.user.last,
-                        email: this.context.user.email,
-                        phone: this.context.user.phone,
-                        venmo: this.context.user.venmo
-                    });
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
-            });
-        })
-        .catch((error) => {
+
+                //update the context
+                this.context.setUser(tempUser);
+
+                //put the tempUser back into storage
+                AsyncStorage.setItem('@user', JSON.stringify(tempUser));
+
+                //on success, go back to settings page
+                this.props.navigation.goBack();
+            }
+            else {
+                this.setState({
+                    isLoading: false,
+                    username: this.context.user.username,
+                    first: this.context.user.first,
+                    last: this.context.user.last,
+                    email: this.context.user.email,
+                    phone: this.context.user.phone,
+                    venmo: this.context.user.venmo
+                });
+                handleFetchError(data.message);
+            }
+        }
+        catch(error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
-    UNSAFE_componentWillReceiveProps() {
+    UNSAFE_componentWillReceiveProps(): void {
         if (this.state.first != this.context.user.first) {
             this.setState({ first: this.context.user.first });
         }
@@ -123,7 +122,7 @@ export class EditProfileScreen extends Component<Props, State> {
         }
     }
 
-    render () {
+    render() {
         const BackAction = () => (
             <TopNavigationAction icon={BackIcon} onPress={() => this.props.navigation.goBack()}/>
         );

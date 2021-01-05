@@ -13,7 +13,7 @@ export async function removeOldToken(): Promise<void> {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ "tokenid": tokenid })
+                    body: JSON.stringify({ tokenid: tokenid })
                 });
 
                 const data = await result.json();

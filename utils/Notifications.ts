@@ -3,13 +3,12 @@ import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import { Vibration, Platform } from 'react-native';
 import { config } from '../utils/config';
-import { handleFetchError } from './Errors';
 
 /**
  * Checks for permssion for Notifications, asks expo for push token, sets up notification listeners, returns 
  * push token to be used
  */
-export async function getPushToken() {
+export async function getPushToken(): Promise<string | null> {
     const hasPermission = await getNotificationPermission();
 
     if(!hasPermission) {
@@ -27,7 +26,7 @@ export async function getPushToken() {
  * function to get existing or prompt for notification permission
  * @returns boolean true if client has location permissions
  */
-async function getNotificationPermission() {
+async function getNotificationPermission(): Promise<boolean> {
     if (!Constants.isDevice) {
         return false;
     }
@@ -57,15 +56,13 @@ async function getNotificationPermission() {
  * Set listiner function(s)
  */
 function setNotificationHandlers() {
-    const enteredBeeperQueueActions = [
+    const enteredBeeperQueueActions: Notifications.NotificationAction[] = [
         {
-            actionId: "accept",
-            identifiter: "accept",
+            identifier: "accept",
             buttonTitle: "Accept"
         },
         {
-            actionId: "deny",
-            identifiter: "deny",
+            identifier: "deny",
             buttonTitle: "Deny",
             options: {
                 isDestructive: true
@@ -73,9 +70,7 @@ function setNotificationHandlers() {
         }
 
     ];
-    //@ts-ignore
     Notifications.setNotificationCategoryAsync("enteredBeeperQueue", enteredBeeperQueueActions);
-    //@ts-ignore
     Notifications.addNotificationReceivedListener(handleNotification);
 }
 
@@ -83,35 +78,31 @@ function setNotificationHandlers() {
  * call getPushToken and send to backend
  * @param token a user's auth token
  */
-export async function updatePushToken(token: string) {
-    fetch(config.apiUrl + "/account/pushtoken", {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({
-            "expoPushToken": await getPushToken()
-        })
-    })
-    .then(
-        function(response) {
-            response.json().then(
-                function(data) {
-                    if (data.status == "error") {
-                        console.log(data.message);
-                    }
-                }
-            );
-        }
-    )
-    .catch((error) => {
-        console.log("[Login.js] [API] Error fetching from the Beep (Login) API: ", error);
-    });
+export async function updatePushToken(token: string): Promise<void> {
+    try {
+        const result = await fetch(config.apiUrl + "/account/pushtoken", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({
+                expoPushToken: await getPushToken()
+            })
+        });
 
+        const data = await result.json();
+
+        if (data.status == "error") {
+            console.log(data.message);
+        }
+    }
+    catch(error) {
+        console.log("[Login.js] [API] Error fetching from the Beep (Login) API: ", error);
+    }
 }
 
-async function handleNotification(notification: Notification) {
+async function handleNotification(notification: Notifications.Notification) {
     //Vibrate when we recieve a notification
     Vibration.vibrate();
     //Log the entire notification to the console

@@ -73,14 +73,14 @@ export default class RegisterScreen extends Component<Props, State> {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    "first": this.state.first,
-                    "last": this.state.last,
-                    "email": this.state.email,
-                    "phone": this.state.phone,
-                    "venmo": this.state.venmo,
-                    "username": this.state.username,
-                    "password": this.state.password,
-                    "expoPushToken": expoPushToken
+                    first: this.state.first,
+                    last: this.state.last,
+                    email: this.state.email,
+                    phone: this.state.phone,
+                    venmo: this.state.venmo,
+                    username: this.state.username,
+                    password: this.state.password,
+                    expoPushToken: expoPushToken
                 })
             });
 

@@ -43,7 +43,7 @@ export class ChangePasswordScreen extends Component<Props, State> {
                 "Authorization": "Bearer " + this.context.user.token
             },
             body: JSON.stringify({
-                "password": this.state.password
+                password: this.state.password
             })
         })
         .then(response => {

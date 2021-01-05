@@ -40,9 +40,9 @@ export default class AcceptDenyButton extends Component<Props, State> {
                     "Authorization": "Bearer " + this.context.user.token
                 },
                 body: JSON.stringify({
-                    "value": value,
-                    "queueID": queueID,
-                    "riderID": riderID
+                    value: value,
+                    queueID: queueID,
+                    riderID: riderID
                 })
             });
 

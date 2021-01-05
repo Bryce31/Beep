@@ -34,7 +34,7 @@ export default class ForgotPassword extends Component<Props, State> {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ "email": this.state.email })
+                body: JSON.stringify({ email: this.state.email })
             });
 
             const data = await result.json();
