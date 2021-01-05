@@ -621,7 +621,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         }
 
                         <Layout style={styles.group}>
-                            <Text category='h6'>{this.state.beeper.first}'s Rates</Text>
+                            <Text category='h6'>{this.state.beeper.first}'{(this.state.beeper.first.charAt(this.state.beeper.first.length - 1) != 's') && "s"} Rates</Text>
+                            <Text appearance='hint' style={{marginBottom: 6}}>per person</Text>
                             <Layout style={styles.rateGroup}>
                                 <Layout style={styles.rateLayout}>
                                     <Text appearance='hint'>Single</Text>
