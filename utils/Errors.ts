@@ -28,7 +28,6 @@ export function parseError(validatorError: string | any): string {
  * @returns false so I can throw this is the isLoading setState
  */
 export function handleFetchError(error: any): boolean {
-    Logger.info(error);
     alert(parseError(error));
     return false;
 }

@@ -91,11 +91,14 @@ export class MainFindBeepScreen extends Component<Props, State> {
             this.updateETA(data.latitude, data.longitude);
         });
 
-        socket.on("connect", () => {
+        socket.on("connect", async () => {
             if (this.state.foundBeep) {
                 Logger.info("reconnected to socket successfully and user is in a beep, enabling getRiderStatus");
-                this.getRiderStatus();
-                this.enableGetRiderStatus();
+                await this.getRiderStatus();
+                //TODO: check this logic
+                if (this.state.foundBeep) {
+                    this.enableGetRiderStatus();
+                }
             }
         });
     }
