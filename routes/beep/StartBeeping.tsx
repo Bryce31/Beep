@@ -582,7 +582,7 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
         const heading = locations[0].coords.heading;
         const speed = locations[0].coords.speed;
 
-        const user = await AsyncStorage.getItem('@user')
+        const user = await AsyncStorage.getItem('@user');
 
         if (!user) return;
 

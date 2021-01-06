@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
-import { Vibration, Platform } from 'react-native';
+import { Vibration, Platform, AsyncStorage } from 'react-native';
 import { config } from '../utils/config';
 
 /**
@@ -59,19 +59,26 @@ function setNotificationHandlers() {
     const enteredBeeperQueueActions: Notifications.NotificationAction[] = [
         {
             identifier: "accept",
-            buttonTitle: "Accept"
+            buttonTitle: "Accept ✅",
+            options: {
+                //opensAppToForeground: false
+            }
         },
         {
             identifier: "deny",
-            buttonTitle: "Deny",
+            buttonTitle: "Deny ❌",
             options: {
-                isDestructive: true
+                isDestructive: true,
+                //opensAppToForeground: false
             }
         }
 
     ];
-    Notifications.setNotificationCategoryAsync("enteredBeeperQueue", enteredBeeperQueueActions);
+    Notifications.setNotificationCategoryAsync("enteredBeeperQueue", enteredBeeperQueueActions, {
+        allowAnnouncement: true
+    });
     Notifications.addNotificationReceivedListener(handleNotification);
+    Notifications.addNotificationResponseReceivedListener(handleNotificationResponse);
 }
 
 /**
@@ -107,4 +114,43 @@ async function handleNotification(notification: Notifications.Notification) {
     Vibration.vibrate();
     //Log the entire notification to the console
     console.log("Notification:", notification);
+}
+
+async function handleNotificationResponse(response: Notifications.NotificationResponse) {
+    console.log(response);
+    if (response.actionIdentifier == "accept" || response.actionIdentifier == "deny") {
+        updateQueueEntryStatus(response.notification.request.content.data.queueID as string, response.notification.request.content.data.riderID as string, response.actionIdentifier);        
+    }
+}
+
+async function updateQueueEntryStatus(queueID: string, riderID: string, value: string): Promise<void> {
+    const user = await AsyncStorage.getItem('@user');
+
+    if (!user) return;
+
+    const userObj = JSON.parse(user);
+
+    try {
+        const result = await fetch(config.apiUrl + "/beeper/queue/status", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + userObj.token
+            },
+            body: JSON.stringify({
+                value: value,
+                queueID: queueID,
+                riderID: riderID
+            })
+        });
+
+        const data = await result.json();
+
+        if (data.status === "error") {
+            console.log(data.message);
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
 }
