@@ -1,5 +1,5 @@
 import React, { Component, ReactNode } from 'react';
-import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, AppState, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { Icon, Layout, Text, Button, Input, CheckBox, Card } from '@ui-kitten/components';
 import * as Location from 'expo-location';
 import socket from '../../utils/Socket'
@@ -7,7 +7,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { UserContext } from '../../utils/UserContext';
 import { config } from '../../utils/config';
 import { handleFetchError } from "../../utils/Errors";
-import { PhoneIcon, TextIcon, VenmoIcon, LeaveIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
+import { PhoneIcon, TextIcon, VenmoIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
 import Logger from '../../utils/Logger';
 import LeaveButton from './LeaveButton';

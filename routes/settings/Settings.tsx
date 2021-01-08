@@ -38,6 +38,8 @@ export function MainSettingsScreen({ navigation }: any) {
             socket.emit('stopGetUser');
             socket.off('updateRiderStatus');
             socket.off('updateQueue');
+            socket.off('connect');
+            socket.off('hereIsBeepersLocation');
         }
         catch (error) {
             //Probably no internet. Save tokenid so we can call the token revoker upon the next signin or signup

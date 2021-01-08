@@ -1,7 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
-import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
+import { StyleSheet, Linking, Platform, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
 import { UserContext, UserContextData } from '../../utils/UserContext';
