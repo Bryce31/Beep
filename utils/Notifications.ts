@@ -1,8 +1,9 @@
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
-import { Vibration, Platform, AsyncStorage } from 'react-native';
+import { Vibration, Platform } from 'react-native';
 import { config } from '../utils/config';
+import AsyncStorage from '@react-native-community/async-storage';
 
 /**
  * Checks for permssion for Notifications, asks expo for push token, sets up notification listeners, returns 

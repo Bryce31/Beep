@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Layout, Text, Divider, List, ListItem, Button, TopNavigation, TopNavigationAction, Spinner } from '@ui-kitten/components';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { config } from "../../utils/config";
-import { BackIcon, RefreshIcon, StudentIcon } from '../../utils/Icons';
+import { BackIcon, ProfileIcon, RefreshIcon, StudentIcon } from '../../utils/Icons';
 import { handleFetchError } from "../../utils/Errors";
 import ProfilePicture from '../../components/ProfilePicture';
 
@@ -55,11 +55,7 @@ export class PickBeepScreen extends Component<Props, State> {
     }
 
     getDescription(item: any): string {
-        let output = `${item.queueSize} in ${item.first}'s queue\nRider Capacity: ${item.capacity}\nSingles: $${item.singlesRate}\nGroups: $${item.groupRate}`;
-        if (item.masksRequired) {
-            output += "\nMasks required 😷";
-        }
-        return output;
+        return `${item.queueSize} in ${item.first}'s queue\nCapacity: ${item.capacity} riders\nSingles: $${item.singlesRate}\nGroups: $${item.groupRate}`;
     }
 
     render() {
@@ -72,18 +68,18 @@ export class PickBeepScreen extends Component<Props, State> {
         );
 
         const renderItem = ({ item }: any) => (
-            //@ts-ignore
             <ListItem
                 onPress={() => this.goBack(item.id)}
                 title={`${item.first} ${item.last}`}
                 description={this.getDescription(item)}
                 accessoryRight={() => {
-                    if (item.isStudent) {
-                        return (
-                            <Button appearance="outline" status="basic" size='tiny' accessoryRight={StudentIcon}>Student</Button>
-                        );
-                    }
-                    return null;
+                    return (
+                        <View style={styles.row}>
+                            {item.userLevel > 0 && <Button size='tiny' status='danger'>Founder</Button>}
+                            {item.isStudent && <Button status="basic" size='tiny' style={{marginRight: 4}}>Student</Button>}
+                            {item.masksRequired && <Button status="info" size='tiny' style={{marginRight: 4}}>Masks</Button>}
+                        </View>
+                    );
                 }}
                 accessoryLeft={() => {
                     if (item.photoUrl) {
@@ -159,5 +155,9 @@ const styles = StyleSheet.create({
         height: '100%',
         alignItems: "center",
         justifyContent: 'center'
+    },
+    row: {
+        flex: 1,
+        flexDirection: "row-reverse",
     }
 });
