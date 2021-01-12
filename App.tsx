@@ -29,21 +29,17 @@ const Stack = createStackNavigator();
 let initialScreen: string;
 init();
 
-interface Props {
-    
-}
-
 interface State {
-    user: User | any;
+    user: User | null;
     theme: string;
 }
 
-export default class App extends Component<Props, State> {
+export default class App extends Component<undefined, State> {
 
-    constructor(props: Props) {
-        super(props);
+    constructor() {
+        super(undefined);
         this.state = {
-            user: {},
+            user: null,
             theme: "light"
         };
     }
@@ -54,7 +50,7 @@ export default class App extends Component<Props, State> {
         AsyncStorage.setItem('@theme', nextempTheme);
     }
 
-    setUser = (user: User): void => {
+    setUser = (user: User | null): void => {
         this.setState({ user: user });
         setSentryUserContext(user);
     }

@@ -5,42 +5,38 @@ import { UserContext } from '../utils/UserContext';
 import { Button } from '@ui-kitten/components';
 import { EmailIcon, LoadingIndicator } from '../utils/Icons';
 
-interface props {
-
-}
-
-interface state {
+interface State {
     isLoading: boolean;
 }
 
-export default class ResendButton extends Component<props, state> {
+export default class ResendButton extends Component<undefined, State> {
     static contextType = UserContext;
 
-    constructor(props: props) {
-        super(props);
+    constructor() {
+        super(undefined);
         this.state = {
             isLoading: false
         };
     }
 
-    resendEmailVerification() {
+    async resendEmailVerification(): Promise<void> {
         this.setState({ isLoading: true });
+        try {
+            const result = await fetch(config.apiUrl + "/account/verify/resend", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${this.context.user.token}`
+                }
+            });
 
-        fetch(config.apiUrl + "/account/verify/resend", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            }
-        })
-        .then(response => {
-            response.json().then(data => {
-                    console.log("[Settings.js] [API] Get Email Status Responce: ", data);
-                    this.setState({ isLoading: false });
-                    alert(data.message);
-                });
-        })
-        .catch((error) => this.setState({ isLoading: handleFetchError(error) }));
+            const data = await result.json();
+            this.setState({ isLoading: false });
+            alert(data.message);
+        }
+        catch (error) {
+            this.setState({ isLoading: handleFetchError(error) });
+        }
     }
 
     render() {

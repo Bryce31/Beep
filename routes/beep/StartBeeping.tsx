@@ -17,9 +17,11 @@ import Toggle from "./components/Toggle";
 import * as Permissions from 'expo-permissions';
 import Logger from '../../utils/Logger';
 import { BeepTableResult } from '../../types/Beep';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainNavParamList} from '../../navigators/MainTabs';
 
 interface Props {
-    navigation: any;
+    navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
 interface State {
@@ -104,6 +106,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             const hasStarted = await Location.hasStartedLocationUpdatesAsync(
                 LOCATION_TRACKING
             );
+            console.log(hasStarted);
         }
     } 
 
@@ -506,10 +509,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                     }
 
                                     {this.state.currentIndex == index &&
-                                        <ActionButton ref={
-                                            //@ts-ignore
-                                            this.actionButtonElement
-                                        } item={item}/>
+                                        <ActionButton item={item}/>
                                     }
                                 </Card>
 

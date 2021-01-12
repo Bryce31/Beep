@@ -1,3 +1,4 @@
+import {Styles} from "@ui-kitten/components";
 import React, { Component } from "react";
 import { View, Image } from "react-native";
 import { LoadingIndicator } from "../utils/Icons";
@@ -5,7 +6,7 @@ import { LoadingIndicator } from "../utils/Icons";
 interface Props {
     url: string;
     size: number;
-    style?: any;
+    style?: Styles<unknown>;
 }
 
 interface State {

@@ -2,7 +2,7 @@ import * as Sentry from 'sentry-expo';
 import { User } from '../types/Beep';
 import { isMobile } from './config';
 
-export function setSentryUserContext(user: User): void {
+export function setSentryUserContext(user: User | null): void {
     if (isMobile) {
         Sentry.Native.setUser({ ...user });
     }

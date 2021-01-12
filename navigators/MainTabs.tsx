@@ -1,14 +1,33 @@
 import React, { Component } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomTabNavigationProp, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FindBeepScreen } from './FindBeep';
 import { SettingsScreen } from './Settings';
 import { StartBeepingScreen } from '../routes/beep/StartBeeping';
-import { BottomNavigation, BottomNavigationTab, Icon } from '@ui-kitten/components';
+import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
 import { CarIcon, MapIcon, SettingsIcon } from '../utils/Icons';
 
-const { Navigator, Screen } = createBottomTabNavigator();
+export type MainNavParamList = {
+    Ride: undefined;
+    Beep: undefined;
+    Settings: undefined;
+    MainFindBeepScreen: undefined;
+    PickBeepScreen: { handlePick: (id: string) => Promise<void> } | undefined;
+    Profile: { id: string | undefined} | undefined;
+    EditProfileScreen: undefined;
+    ProfilePhotoScreen: undefined;
+    ChangePasswordScreen: undefined;
+    RideLogScreen: undefined;
+}
 
-const BottomTabBar = ({ navigation, state }) => (
+interface NavState {
+    index: number;
+    routeNames: [];
+}
+
+const { Navigator, Screen } = createBottomTabNavigator<MainNavParamList>();
+
+
+const BottomTabBar = ({ navigation, state }: { navigation: BottomTabNavigationProp<MainNavParamList>, state: NavState}) => (
     <BottomNavigation
         selectedIndex={state.index}
         onSelect={index => navigation.navigate(state.routeNames[index])}
@@ -23,8 +42,8 @@ export class MainTabs extends Component {
     render() {
        return (
             <Navigator tabBar={props => <BottomTabBar {...props} />}>
-                <Screen name='Get a Beep' component={FindBeepScreen}/>
-                <Screen name='Start Beeping' component={StartBeepingScreen} />
+                <Screen name='Ride' component={FindBeepScreen}/>
+                <Screen name='Beep' component={StartBeepingScreen} />
                 <Screen name='Settings' component={SettingsScreen}/>
             </Navigator>
         );

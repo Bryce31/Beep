@@ -4,18 +4,20 @@ import { Text, Layout, Button, TopNavigation, TopNavigationAction } from '@ui-ki
 import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { LoadingIndicator } from "../../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
 import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { MainNavParamList } from '../../navigators/MainTabs';
 
 interface Props {
-    navigation: any;
+    navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
 interface State {
     isLoading: boolean;
-    photo: any;
+    photo: unknown;
 }
 
 export class ProfilePhotoScreen extends Component<Props, State> {
@@ -29,13 +31,13 @@ export class ProfilePhotoScreen extends Component<Props, State> {
         };
     }
 
-   async handleUpdate() {
+    async handleUpdate(): Promise<void> {
        //send button into loading state
        this.setState({ isLoading: true });
 
-       let form = new FormData();
+       const form = new FormData();
 
-       let result = await ImagePicker.launchImageLibraryAsync({
+       const result = await ImagePicker.launchImageLibraryAsync({
            mediaTypes: ImagePicker.MediaTypeOptions.Images,
            allowsMultipleSelection: false,
            allowsEditing: true,
@@ -91,7 +93,7 @@ export class ProfilePhotoScreen extends Component<Props, State> {
            response.json().then(data => {
                if (data.status === "success") {
                    //make a copy of the current user
-                   let tempUser = this.context.user;
+                   const tempUser = this.context.user;
 
                    //update the tempUser with the new data
                    tempUser.photoUrl = data.url;
@@ -113,7 +115,7 @@ export class ProfilePhotoScreen extends Component<Props, State> {
        .catch((error) => this.setState({ isLoading: handleFetchError(error) }));
     }
 
-    render () {
+    render() {
         const BackAction = () => (
             <TopNavigationAction icon={BackIcon} onPress={() => this.props.navigation.goBack()}/>
         );

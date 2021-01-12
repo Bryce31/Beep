@@ -6,7 +6,7 @@ import { config } from "../utils/config";
 import { handleFetchError } from "../utils/Errors";
 
 interface Props {
-    item: any;
+    item: { id: string, riderid: string, state: number };
 }
 
 interface State {
@@ -41,7 +41,7 @@ export default class ActionButton extends Component<Props, State> {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    Authorization: `Bearer ${this.context.user.token}`
                 },
                 body: JSON.stringify({
                     value: value,

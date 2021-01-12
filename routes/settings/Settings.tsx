@@ -1,26 +1,29 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Button, Card, Text } from '@ui-kitten/components';
-import { ThemeContext } from '../../utils/ThemeContext';
-import { UserContext } from '../../utils/UserContext';
+import { ThemeContext, ThemeContextData } from '../../utils/ThemeContext';
+import { UserContext, UserContextData } from '../../utils/UserContext';
 import socket from '../../utils/Socket';
 import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon } from '../../utils/Icons';
 import { config } from "../../utils/config";
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
 import ResendButton from '../../components/ResendVarificationEmailButton';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainNavParamList} from '../../navigators/MainTabs';
+import {User} from '../../types/Beep';
 
-export function MainSettingsScreen({ navigation }: any) {
-    const themeContext: any = React.useContext(ThemeContext);
-    const userContext: any = React.useContext(UserContext);
+export function MainSettingsScreen({ navigation }: { navigation: BottomTabNavigationProp<MainNavParamList> }): ReactNode {
+    const themeContext: ThemeContextData | null = React.useContext(ThemeContext);
+    const userContext: UserContextData | null = React.useContext(UserContext);
 
     async function logout() {
         try {
-            fetch(config.apiUrl + "/auth/logout", {
+            await fetch(config.apiUrl + "/auth/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + userContext.user.token
+                    Authorization: `Bearer ${userContext?.user?.token}`
                 },
                 body: JSON.stringify({
                     isApp: true
@@ -43,7 +46,7 @@ export function MainSettingsScreen({ navigation }: any) {
         }
         catch (error) {
             //Probably no internet. Save tokenid so we can call the token revoker upon the next signin or signup
-            AsyncStorage.setItem("@tokenid", userContext.user.tokenid);
+            if (userContext?.user?.tokenid) AsyncStorage.setItem("@tokenid", userContext?.user?.tokenid);
             AsyncStorage.removeItem("@user", (error) => {
                 console.log("Removed all except tokenid and expoPushToken from storage.", error);
             });
@@ -56,12 +59,12 @@ export function MainSettingsScreen({ navigation }: any) {
                 { name: 'Login' },
             ],
             key: null
-        }, () => userContext.setUser(null));
+        }, () => userContext?.setUser(null));
     }
 
-    function UserHeader(props: any) {
+    function UserHeader(props: { user: User | undefined }) {
         return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
-            {userContext.user.photoUrl &&
+            {userContext?.user?.photoUrl &&
             <ProfilePicture
                 style={{marginHorizontal: 8}}
                 size={50}
@@ -70,12 +73,12 @@ export function MainSettingsScreen({ navigation }: any) {
             }
             <Layout>
                 <Text category='h4'>
-                    {props.user.first + " " + props.user.last}
+                    {props.user?.first + " " + props.user?.last}
                 </Text>
                 <Text
                     appearance='hint'
                     category='s1'>
-                    {props.user.venmo}
+                    {props.user?.venmo}
                 </Text>
             </Layout>
         </Layout>
@@ -84,22 +87,22 @@ export function MainSettingsScreen({ navigation }: any) {
     return (
         <Layout style={styles.wrapper}>
             <Layout style={styles.container}>
-                <Card style={{width: "80%", marginBottom: 20}} onPress={() => navigation.navigate("Profile", { id: userContext.user.id })} >
-                    <UserHeader user={userContext.user} />
+                <Card style={{width: "80%", marginBottom: 20}} onPress={() => navigation.navigate("Profile", { id: userContext?.user?.id })} >
+                    <UserHeader user={userContext?.user} />
                 </Card>
-                {!userContext.user.isEmailVerified &&
+                {!userContext?.user?.isEmailVerified &&
                     <Card status="danger" style={{maxWidth: 400, marginBottom: 6}}>
                         <Text category="h6">Your email is not verified!</Text>
                     </Card>
                 }
-                {!userContext.user.isEmailVerified && <ResendButton />}
+                {!userContext?.user?.isEmailVerified && <ResendButton />}
                 <Button
-                    onPress={themeContext.toggleTheme}
+                    onPress={themeContext?.toggleTheme}
                     accessoryLeft={ThemeIcon}
                     style={styles.button}
                     appearance='ghost'
                 >
-                    {(themeContext.theme == "light") ? "Dark Mode" : "Light Mode"}
+                    {(themeContext?.theme == "light") ? "Dark Mode" : "Light Mode"}
                 </Button>
                 <Button
                     onPress={() => navigation.navigate("EditProfileScreen")}

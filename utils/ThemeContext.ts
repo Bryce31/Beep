@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface ThemeContextData {
+export interface ThemeContextData {
     theme: string;
     toggleTheme: () => void;
 }

@@ -2,18 +2,21 @@ import React, { Component } from 'react';
 import { Layout, Text, Divider, List, ListItem, Button, TopNavigation, TopNavigationAction, Spinner } from '@ui-kitten/components';
 import { StyleSheet, View } from 'react-native';
 import { config } from "../../utils/config";
-import { BackIcon, ProfileIcon, RefreshIcon, StudentIcon } from '../../utils/Icons';
+import { BackIcon, RefreshIcon } from '../../utils/Icons';
 import { handleFetchError } from "../../utils/Errors";
 import ProfilePicture from '../../components/ProfilePicture';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainNavParamList} from '../../navigators/MainTabs';
+import {User} from '../../types/Beep';
 
 interface Props {
-    navigation: any;
+    navigation: BottomTabNavigationProp<MainNavParamList>;
     route: any;
 }
 
 interface State {
     isLoading: boolean;
-    beeperList: any[];
+    beeperList: User[];
 }
 
 export class PickBeepScreen extends Component<Props, State> {

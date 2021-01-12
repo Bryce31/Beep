@@ -4,10 +4,12 @@ import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-k
 import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { EditIcon, LoadingIndicator, BackIcon } from "../../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { handleFetchError } from "../../utils/Errors";
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { MainNavParamList } from '../../navigators/MainTabs';
 
 interface Props {
-    navigation: any;
+    navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
 interface State {
@@ -28,7 +30,7 @@ export class ChangePasswordScreen extends Component<Props, State> {
         }
     }
 
-    async handleChangePassword () {
+    async handleChangePassword(): Promise<void> {
         this.setState({ isLoading: true });
 
         if (this.state.password !== this.state.password2) {
@@ -36,32 +38,33 @@ export class ChangePasswordScreen extends Component<Props, State> {
             return alert("Your passwords do not match");
         }
 
-        fetch(config.apiUrl + "/account/password", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.token
-            },
-            body: JSON.stringify({
-                password: this.state.password
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    this.props.navigation.goBack();
-                }
-                else {
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
+        try {
+            const result = await fetch(config.apiUrl + "/account/password", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${this.context.user.token}`
+                },
+                body: JSON.stringify({
+                    password: this.state.password
+                })
             });
-        })
-        .catch((error) => {
+
+            const data = await result.json();
+
+            if (data.status === "success") {
+                this.props.navigation.goBack();
+            }
+            else {
+                this.setState({ isLoading: handleFetchError(data.message) });
+            }
+        }
+        catch(error) {
             this.setState({ isLoading: handleFetchError(error) });
-        });
+        }
     }
 
-    render () {
+    render() {
         const BackAction = () => (
             <TopNavigationAction icon={BackIcon} onPress={() =>this.props.navigation.goBack()}/>
         );

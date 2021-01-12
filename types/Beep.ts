@@ -74,3 +74,15 @@ export interface BeepTableResult {
     state: number;
     timeEnteredQueue: number;
 }
+
+export interface LocationEntry {
+    id: string;
+    accuracy: number;
+    altitude: number;
+    altitudeAccuracy: number;
+    heading: number;
+    latitude: number;
+    longitude: number;
+    speed: number;
+    timestamp: number;
+}

@@ -5,14 +5,17 @@ import { config } from "../../utils/config";
 import { handleFetchError } from "../../utils/Errors";
 import { UserContext } from '../../utils/UserContext';
 import ProfilePicture from '../../components/ProfilePicture';
+import {User, UserPluckResult} from '../../types/Beep';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainNavParamList} from '../../navigators/MainTabs';
 
 interface Props {
-    navigation: any;
+    navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
 interface State {
     isLoading: boolean;
-    beeperList: any[];
+    beeperList: UserPluckResult[];
 }
 
 export class BeeperRideLogScreen extends Component<Props, State> {
@@ -26,13 +29,13 @@ export class BeeperRideLogScreen extends Component<Props, State> {
         }
     }
 
-    async getBeeperList() {
+    async getBeeperList(): Promise<void> {
         try {
             const result = await fetch(config.apiUrl + "/users/" + this.context.user.id + "/history/beeper", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    Authorization: `Bearer ${this.context.user.token}`
                 }
             });
 
@@ -50,12 +53,12 @@ export class BeeperRideLogScreen extends Component<Props, State> {
         }
     }
 
-    componentDidMount () {
+    componentDidMount(): void {
         this.getBeeperList();
     }
 
     render() {
-        const renderItem = ({ item }: any) => (
+        const renderItem = ({ item }: { item: { rider: User, beep: any }}) => (
             <ListItem
                 accessoryLeft={() => {
                     if (item.rider.photoUrl) {

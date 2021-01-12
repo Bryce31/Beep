@@ -8,7 +8,7 @@ import { handleFetchError } from "../utils/Errors";
 
 interface Props {
     type: string;
-    item: any;
+    item: { id: string, riderid: string };
 }
 
 interface State {
@@ -37,7 +37,7 @@ export default class AcceptDenyButton extends Component<Props, State> {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    Authorization: `Bearer ${this.context.user.token}`
                 },
                 body: JSON.stringify({
                     value: value,

@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext, UserContextData } from '../../utils/UserContext';
+import { AuthenticatedUserContextData, UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { EditIcon, LoadingIndicator } from "../../utils/Icons";
 import { handleFetchError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainNavParamList} from '../../navigators/MainTabs';
 
 interface Props {
-    navigation: any;
+    navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
 interface State {
@@ -26,7 +28,7 @@ interface State {
 export class EditProfileScreen extends Component<Props, State> {
     static contextType = UserContext;
     
-    constructor(props: Props, context: UserContextData) {
+    constructor(props: Props, context: AuthenticatedUserContextData) {
         super(props);
         this.state = {
             isLoading: false,
@@ -47,7 +49,7 @@ export class EditProfileScreen extends Component<Props, State> {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    Authorization: `Bearer ${this.context.user.token}`
                 },
                 body: JSON.stringify({
                     first: this.state.first,
