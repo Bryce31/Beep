@@ -5,14 +5,17 @@ import { config } from "../../utils/config";
 import { handleFetchError } from "../../utils/Errors";
 import { UserContext } from '../../utils/UserContext';
 import ProfilePicture from '../../components/ProfilePicture';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainNavParamList} from '../../navigators/MainTabs';
+import {UserPluckResult} from '../../types/Beep';
 
 interface Props {
-    navigation: any;
+    navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
 interface State {
     isLoading: boolean;
-    riderList: any[];
+    riderList: UserPluckResult[];
 }
 
 export class RiderRideLogScreen extends Component<Props, State> {
@@ -26,13 +29,13 @@ export class RiderRideLogScreen extends Component<Props, State> {
         }
     }
 
-    async getRiderList() {
+    async getRiderList(): Promise<void> {
         try {
             const result = await fetch(config.apiUrl + "/users/" + this.context.user.id + "/history/rider", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.token
+                    Authorization: `Bearer ${this.context.user.token}`
                 }
             });
 
@@ -50,7 +53,7 @@ export class RiderRideLogScreen extends Component<Props, State> {
         }
     }
 
-    componentDidMount () {
+    componentDidMount(): void {
         this.getRiderList();
     }
 
@@ -98,7 +101,7 @@ export class RiderRideLogScreen extends Component<Props, State> {
         }
         else {
             return (
-                <Layout>
+                <Layout style={styles.container}>
                     <Text category='h5'>Loading your history</Text>
                     <Spinner />
                 </Layout>
