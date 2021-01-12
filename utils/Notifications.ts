@@ -95,7 +95,7 @@ export async function updatePushToken(token: string): Promise<void> {
                 "Authorization": "Bearer " + token
             },
             body: JSON.stringify({
-                expoPushToken: await getPushToken()
+                pushToken: await getPushToken()
             })
         });
 
