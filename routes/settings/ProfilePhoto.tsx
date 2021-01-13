@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Platform, Image, StyleSheet } from 'react-native';
-import { Text, Layout, Button, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
+import { Layout, Button, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { LoadingIndicator } from "../../utils/Icons";
@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { MainNavParamList } from '../../navigators/MainTabs';
+import ProfilePicture from '../../components/ProfilePicture';
 
 interface Props {
     navigation: BottomTabNavigationProp<MainNavParamList>;
@@ -123,15 +124,23 @@ export class ProfilePhotoScreen extends Component<Props, State> {
             <>
                 <TopNavigation title='Profile Photo' alignment='center' accessoryLeft={BackAction}/>
                 <Layout style={styles.container}>
-                    <Text>Upload Profile Photo</Text>
-                    {this.state.photo && <Image source={{ uri: this.state.photo }} style={{ width: 200, height: 200, borderRadius: 200/ 2, marginTop: 10, marginBottom: 10 }} />}
-                    {!this.state.isLoading ?
-                    <Button onPress={() => this.handleUpdate()}>
-                        Choose Photo
-                    </Button>
-                    :
-                    <LoadingIndicator />
+                    {this.context.user.photoUrl && !this.state.photo &&
+                    <ProfilePicture
+                        style={{marginHorizontal: 8}}
+                        size={200}
+                        url={this.context.user.photoUrl}
+                    />
                     }
+                    {this.state.photo && <Image source={{ uri: this.state.photo }} style={{ width: 200, height: 200, borderRadius: 200/ 2, marginTop: 10, marginBottom: 10 }} />}
+                    <Layout style={{marginTop: 12}}>
+                        {!this.state.isLoading ?
+                        <Button onPress={() => this.handleUpdate()}>
+                            Update Profile Picture
+                        </Button>
+                        :
+                        <LoadingIndicator />
+                        }
+                    </Layout>
                 </Layout>
             </>
         );
