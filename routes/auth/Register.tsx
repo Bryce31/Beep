@@ -80,7 +80,7 @@ export default class RegisterScreen extends Component<Props, State> {
                     venmo: this.state.venmo,
                     username: this.state.username,
                     password: this.state.password,
-                    expoPushToken: expoPushToken
+                    pushToken: expoPushToken
                 })
             });
 

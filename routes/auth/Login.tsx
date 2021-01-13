@@ -75,7 +75,7 @@ export default class LoginScreen extends Component<Props, State> {
                 body: JSON.stringify({
                     username: this.state.username,
                     password: this.state.password,
-                    expoPushToken: expoPushToken
+                    pushToken: expoPushToken
                 })
             });
 
