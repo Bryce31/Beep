@@ -134,33 +134,6 @@ export class StartBeepingScreen extends Component<Props, State> {
         });
     }
 
-    /*
-    async UNSAFE_componentWillReceiveProps(): Promise<void> {
-        if (this.state.isBeeping != this.context.user.isBeeping) {
-            if (this.context.user.isBeeping) {
-                //if we are turning on isBeeping, ensure we have location permission
-                const { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-                if (status !== 'granted') {
-                    this.setState({ isBeeping: false });
-                    return alert("You must allow location to beep!");
-                }
-
-                //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
-                this.enableGetQueue();
-                this.getQueue();
-                this.startLocationTracking();
-            }
-            else {
-                //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
-                this.disableGetQueue();
-                this.stopLocationTracking();
-            }
-            this.setState({ isBeeping: this.context.user.isBeeping });
-        }
-    }
-     */
-
     async getQueue(): Promise<void> {
         try {
             const result = await fetch(config.apiUrl + "/users/" + this.context.user.id + "/queue", {
@@ -189,8 +162,10 @@ export class StartBeepingScreen extends Component<Props, State> {
                         break;
                     }
                 }
-
-                this.setState({ queue: data.queue, currentIndex: currentIndex });
+                
+                if (JSON.stringify(this.state.queue) !== JSON.stringify(data.queue)) {
+                    this.setState({ queue: data.queue, currentIndex: currentIndex });
+                }
             }
             else {
                 handleFetchError(data.message);
@@ -273,7 +248,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                 const tempUser = JSON.parse(JSON.stringify(this.context.user));
                 tempUser.isBeeping = value;
                 AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-                this.context.setUser(tempUser);
+                //this.context.setUser(tempUser);
             }
             else {
                 //Use native popup to tell user why they could not change their status
