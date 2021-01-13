@@ -31,7 +31,6 @@ interface State {
     singlesRate: undefined | string;
     groupRate: undefined | string;
     queue: BeepTableResult[];
-    currentIndex: number;
 }
 
 const LOCATION_TRACKING = 'location-tracking';
@@ -42,7 +41,6 @@ export class StartBeepingScreen extends Component<Props, State> {
     constructor(props: Props, context: UserContextData) {
         super(props);
         this.state = {
-            currentIndex: 0,
             isBeeping: context.user.isBeeping,
             masksRequired: context.user.masksRequired,
             capacity: String(context.user.capacity),
@@ -152,19 +150,8 @@ export class StartBeepingScreen extends Component<Props, State> {
                 //TODO revisit this
                 Notifications.setBadgeCountAsync(data.queue.length);
 
-                //We sucessfuly updated beeper status in database
-                //This will calculate the array index of your current beep
-                //TODO revisit this, I think the index will always be zero?
-                let currentIndex = 0;
-                for(let i = 0;  i < data.queue.length; i++) {
-                    if (data.queue[i].isAccepted) {
-                        currentIndex = i;
-                        break;
-                    }
-                }
-                
                 if (JSON.stringify(this.state.queue) !== JSON.stringify(data.queue)) {
-                    this.setState({ queue: data.queue, currentIndex: currentIndex });
+                    this.setState({ queue: data.queue });
                 }
             }
             else {
@@ -402,7 +389,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
                                 <Card
                                     style={styles.cards}
-                                    status={(this.state.currentIndex == index) ? "primary" : "basic"} 
+                                    status={(index == 0) ? "primary" : "basic"} 
                                     onPress={() => this.props.navigation.navigate("Profile", {id: item.riderid})}
                                 >
                                     <Layout
@@ -483,7 +470,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                         </Button>
                                     }
 
-                                    {this.state.currentIndex == index &&
+                                    {index == 0 &&
                                         <ActionButton item={item}/>
                                     }
                                 </Card>
