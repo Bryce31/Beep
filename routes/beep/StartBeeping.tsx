@@ -390,7 +390,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                 <Card
                                     style={styles.cards}
                                     status={(index == 0) ? "primary" : "basic"} 
-                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.riderid})}
+                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.riderid, beepEventId: item.id })}
                                 >
                                     <Layout
                                         style={{flex: 1, flexDirection: "row", alignItems: 'center'}}

@@ -50,7 +50,8 @@ export class ProfileScreen extends Component<Props, State> {
         this.props.navigation.navigate("Report", {
             id: this.props.route.params.id,
             first: this.state.user.first,
-            last: this.state.user.last
+            last: this.state.user.last,
+            beepEventId: this.props.route.params.beepEventId
         });
     }
     

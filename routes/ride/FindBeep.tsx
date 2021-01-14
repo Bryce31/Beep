@@ -328,7 +328,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             if (this.state.beeper?.id) {
                 return(
                     <Layout style={styles.container}>
-                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id })} >
+                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beepEventId: this.state.id })} >
                             <Layout style={{alignItems: "center", justifyContent: 'center'}}>
                                 {this.state.beeper.photoUrl &&
                                 <ProfilePicture
@@ -458,7 +458,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             if (this.state.isAccepted) {
                 return (
                     <Layout style={styles.container}>
-                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id })} >
+                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beepEventId: this.state.id })} >
                             <Layout style={{alignItems: "center", justifyContent: 'center'}}>
                                 {this.state.beeper?.photoUrl &&
                                 <ProfilePicture
@@ -539,7 +539,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             else {
                 return (
                     <Layout style={styles.container}>
-                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id })} >
+                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beepEventId: this.state.id })} >
                             <Layout style={{alignItems: "center", justifyContent: 'center'}}>
                                 {this.state.beeper?.photoUrl &&
                                 <ProfilePicture

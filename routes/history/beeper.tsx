@@ -9,6 +9,28 @@ import {User, UserPluckResult} from '../../types/Beep';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {MainNavParamList} from '../../navigators/MainTabs';
 
+export interface BeeperEventEntry {
+    beep: {
+        beepersid: string;
+        destination: string;
+        doneTime: string;
+        groupSize: string;
+        id: string;
+        isAccepted: boolean;
+        origin: string;
+        riderid: string;
+        state: number;
+        timeEnteredQueue: number;
+    };
+    rider: {
+        first: string;
+        id: string;
+        last: string;
+        photoUrl: string;
+        username: string;
+    };
+}
+
 interface Props {
     navigation: BottomTabNavigationProp<MainNavParamList>;
 }
@@ -58,7 +80,7 @@ export class BeeperRideLogScreen extends Component<Props, State> {
     }
 
     render() {
-        const renderItem = ({ item }: { item: { rider: User, beep: any }}) => (
+        const renderItem = ({ item }: { item: BeeperEventEntry }) => (
             <ListItem
                 accessoryLeft={() => {
                     if (item.rider.photoUrl) {
@@ -71,7 +93,7 @@ export class BeeperRideLogScreen extends Component<Props, State> {
                     }
                     return null;
                 }}
-                onPress={() => this.props.navigation.push("Profile", { id: item.rider.id })}
+                onPress={() => this.props.navigation.push("Profile", { id: item.rider.id, beepEventId: item.beep.id })}
                 title={`You beeped ${item.rider.first} ${item.rider.last}`}
                 description={`Group size: ${item.beep.groupSize}\nOrigin: ${item.beep.origin}\nDestination: ${item.beep.destination}\nDate: ${new Date(item.beep.timeEnteredQueue)}`}
             />
