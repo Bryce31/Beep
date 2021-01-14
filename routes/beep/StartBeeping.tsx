@@ -93,7 +93,7 @@ export class StartBeepingScreen extends Component<Props, State> {
         if (!__DEV__) {
             await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
                 accuracy: Location.Accuracy.Highest,
-                timeInterval: 15000,
+                timeInterval: (15 * 1000),
                 distanceInterval: 6,
                 foregroundService: {
                     notificationTitle: "Ride Beep App",
@@ -366,9 +366,9 @@ export class StartBeepingScreen extends Component<Props, State> {
                         <CheckBox
                             checked={this.state.masksRequired}
                             onChange={(value) => this.setState({ masksRequired: value })}
-                            style={{marginTop: 5}}
+                            style={{marginTop: 7}}
                         >
-                            Require riders to have a mask 😷
+                            Require riders to have a mask
                         </CheckBox>
                     </Layout>
                 </Layout>

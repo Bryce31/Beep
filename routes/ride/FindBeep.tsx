@@ -283,6 +283,21 @@ export class MainFindBeepScreen extends Component<Props, State> {
         }
     }            
 
+    getCurrentStatusMessage(): string {
+        switch(this.state.state) {
+            case 0:
+                return "Beeper is getting ready to come get you.";
+            case 1:
+                return "Beeper is on their way to get you.";
+            case 2:
+                return "Beeper is here to pick you up!";
+            case 3:
+                return "You are currenly in the car with your beeper.";
+            default: 
+                return "Unknown";
+        }
+    }
+
     render(): ReactNode {
         console.log("[MainFindBeep.js] Rendered");
 
@@ -290,6 +305,14 @@ export class MainFindBeepScreen extends Component<Props, State> {
             <TouchableWithoutFeedback onPress={() => this.useCurrentLocation()}>
                 <Icon {...props} name='pin'/>
             </TouchableWithoutFeedback>
+        );
+
+        const Tags = () => (
+            <Layout style={styles.tagRow}>
+                {this.state.beeper?.isStudent && <Button status="basic" size='tiny' style={styles.tag}>Student</Button>}
+                {this.state.beeper?.masksRequired && <Button status="info" size='tiny' style={styles.tag}>Masks Required</Button>}
+                {(this.state.beeper && this.state.beeper?.userLevel > 0) && <Button size='tiny' status='danger' style={styles.tag}>Founder</Button>}
+            </Layout>
         );
 
         if (this.context.user.isBeeping) {
@@ -320,11 +343,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
                                 </Layout>
                             </Layout>
                         </TouchableWithoutFeedback>
-                        <Layout style={styles.tagRow}>
-                            {this.state.beeper.isStudent && <Button status="basic" size='tiny' style={styles.tag}>Student</Button>}
-                            {this.state.beeper.masksRequired && <Button status="info" size='tiny' style={styles.tag}>Masks Required</Button>}
-                            {this.state.beeper.userLevel > 0 && <Button size='tiny' status='danger' style={styles.tag}>Founder</Button>}
-                        </Layout>
+                        <Tags/>
                         <Layout style={styles.group}>
                             <Text category='h6'>{this.state.beeper.first}{"'"}s Rates</Text>
                             <Layout style={styles.rateGroup}>
@@ -374,63 +393,63 @@ export class MainFindBeepScreen extends Component<Props, State> {
             else {
                 return (
                     <Layout style={{height:"100%"}}>
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS == "ios" ? "padding" : "height"}
-                        style={styles.container}
-                    >
-                    <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!(Platform.OS == "ios" || Platform.OS == "android")} >
-                    <Layout style={styles.container}>
-                        <Input
-                            keyboardType="number-pad"
-                            label='Group Size'
-                            style={styles.buttons}
-                            placeholder='Group Size'
-                            value={String(this.state.groupSize)}
-                            onChangeText={value => this.setState({groupSize: value})}
-                        />
-                        <Input
-                            label='Pick-up Location'
-                            style={styles.buttons}
-                            placeholder='Pickup Location'
-                            accessoryRight={CurrentLocationIcon}
-                            value={this.state.origin}
-                            onChangeText={value => this.setState({origin: value})}
-                        />
-                        <Input
-                            label='Destination Location'
-                            style={styles.buttons}
-                            placeholder='Destination'
-                            value={this.state.destination}
-                            onChangeText={value => this.setState({destination: value})}
-                        />
-                        <CheckBox
-                            checked={this.state.pickBeeper}
-                            onChange={(value) => this.setState({pickBeeper: value})}
+                        <KeyboardAvoidingView
+                            behavior={Platform.OS == "ios" ? "padding" : "height"}
+                            style={styles.container}
                         >
-                            Pick your own beeper
-                        </CheckBox>
-                        {!this.state.isLoading ?
-                            <Button
-                                accessoryRight={FindIcon}
-                                onPress={() => this.findBeep()}
-                                size='large'
-                                style={{marginTop:15}}
+                        <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!(Platform.OS == "ios" || Platform.OS == "android")} >
+                        <Layout style={styles.container}>
+                            <Input
+                                keyboardType="number-pad"
+                                label='Group Size'
+                                style={styles.buttons}
+                                placeholder='Group Size'
+                                value={String(this.state.groupSize)}
+                                onChangeText={value => this.setState({groupSize: value})}
+                            />
+                            <Input
+                                label='Pick-up Location'
+                                style={styles.buttons}
+                                placeholder='Pickup Location'
+                                accessoryRight={CurrentLocationIcon}
+                                value={this.state.origin}
+                                onChangeText={value => this.setState({origin: value})}
+                            />
+                            <Input
+                                label='Destination Location'
+                                style={styles.buttons}
+                                placeholder='Destination'
+                                value={this.state.destination}
+                                onChangeText={value => this.setState({destination: value})}
+                            />
+                            <CheckBox
+                                checked={this.state.pickBeeper}
+                                onChange={(value) => this.setState({pickBeeper: value})}
                             >
-                            Find a Beep
-                            </Button>
-                            :
-                            <Button
-                                size='large'
-                                style={{marginTop:15}}
-                                appearance='outline'
-                                accessoryRight={LoadingIndicator}
-                            >
-                                Loading
-                            </Button>
-                        }
-                    </Layout>
-                    </TouchableWithoutFeedback>
-                    </KeyboardAvoidingView>
+                                Pick your own beeper
+                            </CheckBox>
+                            {!this.state.isLoading ?
+                                <Button
+                                    accessoryRight={FindIcon}
+                                    onPress={() => this.findBeep()}
+                                    size='large'
+                                    style={{marginTop:15}}
+                                >
+                                Find a Beep
+                                </Button>
+                                :
+                                <Button
+                                    size='large'
+                                    style={{marginTop:15}}
+                                    appearance='outline'
+                                    accessoryRight={LoadingIndicator}
+                                >
+                                    Loading
+                                </Button>
+                            }
+                        </Layout>
+                        </TouchableWithoutFeedback>
+                        </KeyboardAvoidingView>
                     </Layout>
                 );
             }
@@ -454,67 +473,29 @@ export class MainFindBeepScreen extends Component<Props, State> {
                                 </Layout>
                             </Layout>
                         </TouchableWithoutFeedback>
-                        <Layout style={styles.tagRow}>
-                            {this.state.beeper?.isStudent && <Button status="basic" size='tiny' style={styles.tag}>Student</Button>}
-                            {this.state.beeper?.masksRequired && <Button status="info" size='tiny' style={styles.tag}>Masks Required</Button>}
-                            {(this.state.beeper && this.state.beeper?.userLevel > 0) && <Button size='tiny' status='danger' style={styles.tag}>Founder</Button>}
-                        </Layout>
-
-                        {(this.state.ridersQueuePosition == 0) ?
+                        <Tags/>
+                        {(this.state.ridersQueuePosition == 0) &&
                             <Layout style={styles.group}>
                                 <Card>
-                                <Text category='h6'>Current Status</Text>
-                                {this.state.state == 0 ?
+                                    <Text category='h6'>Current Status</Text>
                                     <Text appearance='hint'>
-                                        Beeper is getting ready to come get you.
+                                        {this.getCurrentStatusMessage()}
                                     </Text>
-                                    :
-                                    null
-                                }
-                                {this.state.state == 1 ?
-                                    <>
-                                        <Text appearance='hint'>
-                                            Beeper is on their way to get you.
-                                        </Text>
-                                    </>
-                                    :
-                                    null
-                                }
-                                {this.state.state == 2 ?
-                                    <Text appearance='hint'>
-                                        Beeper is here to pick you up!
-                                    </Text>
-                                    :
-                                    null
-                                }
-                                {this.state.state >= 3 ?
-                                    <Text appearance='hint'>
-                                        You are currenly in the car with your beeper.
-                                    </Text>
-                                    :
-                                    null
-                                }
                                 </Card>
                                 {(this.state.state == 1 && this.state.eta) &&
-                                <Card style={{marginTop: 10}}>
+                                    <Card style={{marginTop: 10}}>
                                         <Text category='h6'>Arrival ETA</Text>
                                         <Text appearance='hint'>Your beeper is {this.state.eta} away</Text>
                                     </Card>
                                 }
                             </Layout>
-                            :
-                            null
                         }
-
-                        <Layout style={styles.group}>
-                            {(this.state.ridersQueuePosition != 0) && 
-                                <>
-                                    <Text category='h6'>{this.state.ridersQueuePosition}</Text>
-                                    <Text appearance='hint'>{(this.state.ridersQueuePosition == 1) ? "person is" : "people are"} ahead of you in {this.state.beeper?.first || "User"}{"'"}s queue.</Text>
-                                </>
-                            }
-                        </Layout>
-
+                        {(this.state.ridersQueuePosition != 0) && 
+                            <Layout style={styles.group}>
+                                <Text category='h6'>{this.state.ridersQueuePosition}</Text>
+                                <Text appearance='hint'>{(this.state.ridersQueuePosition == 1) ? "person is" : "people are"} ahead of you in {this.state.beeper?.first || "User"}{"'"}s queue.</Text>
+                            </Layout>
+                        }
                         <Button
                             status='basic'
                             accessoryRight={PhoneIcon}
@@ -523,7 +504,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         >
                         Call Beeper
                         </Button>
-
                         <Button
                             status='basic'
                             accessoryRight={TextIcon}
@@ -540,18 +520,16 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         >
                         Pay Beeper with Venmo
                         </Button> 
-                        {(Number(this.state.groupSize) > 1) ?
-
-                        <Button
-                            status='basic'
-                            accessoryRight={ShareIcon}
-                            style={styles.buttons}
-                            onPress={() => this.shareVenmoInformation()}
-                        >
-                        Share Venmo Info with Your Friends
-                        </Button>
-                        
-                        : null}
+                        {(Number(this.state.groupSize) > 1) &&
+                            <Button
+                                status='basic'
+                                accessoryRight={ShareIcon}
+                                style={styles.buttons}
+                                onPress={() => this.shareVenmoInformation()}
+                            >
+                            Share Venmo Info with Your Friends
+                            </Button>
+                        }
                         {(this.state.ridersQueuePosition >= 1 && this.state.beeper) && 
                             <LeaveButton beepersId={this.state.beeper.id} />
                         }
@@ -577,15 +555,9 @@ export class MainFindBeepScreen extends Component<Props, State> {
                                 </Layout>
                             </Layout>
                         </TouchableWithoutFeedback>
-                        <Layout style={styles.tagRow}>
-                            {this.state.beeper?.isStudent && <Button status="basic" size='tiny' style={styles.tag}>Student</Button>}
-                            {this.state.beeper?.masksRequired && <Button status="info" size='tiny' style={styles.tag}>Masks Required</Button>}
-                            {(this.state.beeper && this.state.beeper?.userLevel > 0) && <Button size='tiny' status='danger' style={styles.tag}>Founder</Button>}
-                        </Layout>
+                        <Tags/>
                         <Layout style={styles.group}>
-                            {this.state.beeper &&
-                                <Text category='h6'>{this.state.beeper.first}{"'"}{(this.state.beeper.first.charAt(this.state.beeper.first.length - 1) != 's') && "s"} Rates</Text>
-                            }
+                            <Text category='h6'>{this.state.beeper?.first}{"'"}{(this.state.beeper?.first.charAt(this.state.beeper.first.length - 1) != 's') && "s"} Rates</Text>
                             <Text appearance='hint' style={{marginBottom: 6}}>per person</Text>
                             <Layout style={styles.rateGroup}>
                                 <Layout style={styles.rateLayout}>
@@ -600,8 +572,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
                         </Layout>
 
                         <Layout style={styles.group}>
-                        <Text category='h6'>{this.state.beeper?.queueSize}</Text>
-                        <Text appearance='hint'>{(this.state.beeper?.queueSize == 1) ? "person is" : "people are"} ahead of you in {this.state.beeper?.first}{"'"}s queue</Text>
+                            <Text category='h6'>{this.state.beeper?.queueSize}</Text>
+                            <Text appearance='hint'>{(this.state.beeper?.queueSize == 1) ? "person is" : "people are"} ahead of you in {this.state.beeper?.first}{"'"}s queue</Text>
                         </Layout>
                         {this.state.beeper && <LeaveButton beepersId={this.state.beeper.id} />}
                     </Layout>
