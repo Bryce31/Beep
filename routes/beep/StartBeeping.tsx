@@ -5,7 +5,7 @@ import { StyleSheet, Linking, Platform, TouchableWithoutFeedback, Keyboard, Aler
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
 import { UserContext, UserContextData } from '../../utils/UserContext';
-import { config, isMobile } from "../../utils/config";
+import { config, isAndroid } from "../../utils/config";
 import * as Notifications from 'expo-notifications';
 import ActionButton from "../../components/ActionButton";
 import AcceptDenyButton from "../../components/AcceptDenyButton";
@@ -164,7 +164,7 @@ export class StartBeepingScreen extends Component<Props, State> {
     }
 
     toggleSwitchWrapper(value: boolean): void {
-        if (isMobile && value) {
+        if (isAndroid && value) {
             Alert.alert(
                 "Background Location Notice",
                 "Ride Beep App collects location data to enable ETAs for riders when your are beeping and the app is closed or not in use",
