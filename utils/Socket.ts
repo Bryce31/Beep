@@ -5,6 +5,14 @@ import Logger from "./Logger";
 const manager = new Manager(config.baseUrl, { transports: ['websocket'], forceNew: true });
 const socket = manager.socket("/");
 
+setInterval(function() {
+    if (!socket.connected) {
+       Logger.info("Socket checker on timer reconnected the socket connection");
+       socket.connect();
+    }
+    console.log("tick");
+}, 5000);
+
 socket.on("connect_error", (reason: string) => {
    Logger.info("Connection Error: " + reason);
 });
