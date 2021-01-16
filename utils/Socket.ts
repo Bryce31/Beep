@@ -10,7 +10,6 @@ setInterval(function() {
        Logger.info("Socket checker on timer reconnected the socket connection");
        socket.connect();
     }
-    console.log("tick");
 }, 5000);
 
 socket.on("connect_error", (reason: string) => {
