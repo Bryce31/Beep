@@ -85,15 +85,12 @@ export class PickBeepScreen extends Component<Props, State> {
                     );
                 }}
                 accessoryLeft={() => {
-                    if (item.photoUrl) {
-                        return (
-                            <ProfilePicture
-                                size={50}
-                                url={item.photoUrl}
-                            />
-                        );
-                    }
-                    return null;
+                    return (
+                        <ProfilePicture
+                            size={50}
+                            url={item.photoUrl}
+                        />
+                    );
                 }}
             />
         );

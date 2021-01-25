@@ -83,15 +83,12 @@ export class RiderRideLogScreen extends Component<Props, State> {
         const renderItem = ({ item }: { item: RiderEventEntry }) => (
             <ListItem
                 accessoryLeft={() => {
-                    if (item.beeper.photoUrl) {
-                        return (
-                            <ProfilePicture
-                                size={50}
-                                url={item.beeper.photoUrl}
-                            />
-                        );
-                    }
-                    return null;
+                    return (
+                        <ProfilePicture
+                            size={50}
+                            url={item.beeper.photoUrl}
+                        />
+                    );
                 }}
                 onPress={() => this.props.navigation.push("Profile", { id: item.beeper.id, beepEventId: item.beep.id })}
                 title={`${item.beeper.first} ${item.beeper.last} beeped you`}

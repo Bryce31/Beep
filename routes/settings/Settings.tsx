@@ -64,13 +64,11 @@ export function MainSettingsScreen({ navigation }: { navigation: BottomTabNaviga
 
     function UserHeader(props: { user: User | undefined }) {
         return <Layout style={{flexDirection: 'row', marginHorizontal: -16}}>
-            {userContext?.user?.photoUrl &&
             <ProfilePicture
                 style={{marginHorizontal: 8}}
                 size={50}
-                url={userContext.user.photoUrl}
+                url={userContext?.user?.photoUrl || null}
             />
-            }
             <Layout>
                 <Text category='h4'>
                     {props.user?.first + " " + props.user?.last}

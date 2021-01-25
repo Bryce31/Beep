@@ -5,9 +5,9 @@ import { config } from "../../utils/config";
 import { handleFetchError } from "../../utils/Errors";
 import { UserContext } from '../../utils/UserContext';
 import ProfilePicture from '../../components/ProfilePicture';
-import {User, UserPluckResult} from '../../types/Beep';
-import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
-import {MainNavParamList} from '../../navigators/MainTabs';
+import { UserPluckResult } from '../../types/Beep';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { MainNavParamList } from '../../navigators/MainTabs';
 
 export interface BeeperEventEntry {
     beep: {
@@ -83,15 +83,12 @@ export class BeeperRideLogScreen extends Component<Props, State> {
         const renderItem = ({ item }: { item: BeeperEventEntry }) => (
             <ListItem
                 accessoryLeft={() => {
-                    if (item.rider.photoUrl) {
-                        return (
-                            <ProfilePicture
-                                size={50}
-                                url={item.rider.photoUrl}
-                            />
-                        );
-                    }
-                    return null;
+                    return (
+                        <ProfilePicture
+                            size={50}
+                            url={item.rider.photoUrl}
+                        />
+                    );
                 }}
                 onPress={() => this.props.navigation.push("Profile", { id: item.rider.id, beepEventId: item.beep.id })}
                 title={`You beeped ${item.rider.first} ${item.rider.last}`}
