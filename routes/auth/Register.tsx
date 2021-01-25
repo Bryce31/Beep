@@ -49,7 +49,7 @@ export default class RegisterScreen extends Component<Props, State> {
         }
     }
 
-    async handleRegister() {
+    async handleRegister(): Promise<void> {
         this.setState({ isLoading: true });
 
         if (this.state.photo == null) {
@@ -111,7 +111,7 @@ export default class RegisterScreen extends Component<Props, State> {
         }
     }
 
-   async handlePhoto() {
+    async handlePhoto(): Promise<void> {
        result = await ImagePicker.launchImageLibraryAsync({
            mediaTypes: ImagePicker.MediaTypeOptions.Images,
            allowsMultipleSelection: false,
@@ -119,11 +119,11 @@ export default class RegisterScreen extends Component<Props, State> {
            aspect: [4, 3],
            base64: false
        });
-       this.setState({photo: result.uri});
+       this.setState({ photo: result.uri });
     }
 
-    async uploadPhoto() {
-        let form = new FormData();
+    async uploadPhoto(): Promise<void> {
+        const form = new FormData();
 
         if (Platform.OS !== "ios" && Platform.OS !== "android") {
             await fetch(result.uri)
@@ -181,7 +181,7 @@ export default class RegisterScreen extends Component<Props, State> {
 
     render () {
         const BackAction = () => (
-            <TopNavigationAction icon={BackIcon} onPress={() =>this.props.navigation.goBack()}/>
+            <TopNavigationAction icon={BackIcon} onPress={() => this.props.navigation.goBack()}/>
         );
 
         return (
@@ -258,7 +258,7 @@ export default class RegisterScreen extends Component<Props, State> {
                                 style={{width: "60%"}}
                                 size="small"
                             >
-                                Choose Profile Photo
+                                Profile Photo
                             </Button>
                         </Layout>
                         {!this.state.isLoading ? 
