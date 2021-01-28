@@ -40,7 +40,7 @@ export class ChangePasswordScreen extends Component<Props, State> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.user.token
+                "Authorization": "Bearer " + this.context.user.tokens.token
             },
             body: JSON.stringify({
                 "password": this.state.password

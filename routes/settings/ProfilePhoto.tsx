@@ -83,7 +83,7 @@ export class ProfilePhotoScreen extends Component<Props, State> {
        fetch(config.apiUrl + "/files/upload", {
            method: "POST",
            headers: {
-               "Authorization": "Bearer " + this.context.user.user.token
+               "Authorization": "Bearer " + this.context.user.tokens.token
            },
            body: form
        })

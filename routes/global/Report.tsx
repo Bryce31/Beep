@@ -35,7 +35,7 @@ export class ReportScreen extends Component<Props, State> {
             const result = await fetch(config.apiUrl + "/reports", {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer " + this.context.user.user.token,
+                    "Authorization": "Bearer " + this.context.user.tokens.token,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({

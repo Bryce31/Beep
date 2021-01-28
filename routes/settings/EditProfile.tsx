@@ -30,12 +30,12 @@ export class EditProfileScreen extends Component<Props, State> {
         super(props);
         this.state = {
             isLoading: false,
-            username: context.user.username,
-            first: context.user.first,
-            last: context.user.last,
-            email: context.user.email,
-            phone: context.user.phone,
-            venmo: context.user.venmo
+            username: context.user.user.username,
+            first: context.user.user.first,
+            last: context.user.user.last,
+            email: context.user.user.email,
+            phone: context.user.user.phone,
+            venmo: context.user.user.venmo
         };
     }
 
@@ -48,7 +48,7 @@ export class EditProfileScreen extends Component<Props, State> {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.user.token
+                "Authorization": "Bearer " + this.context.user.tokens.token
             },
             body: JSON.stringify({
                 "first": this.state.first,
@@ -62,14 +62,14 @@ export class EditProfileScreen extends Component<Props, State> {
             response.json().then(data => {
                 if (data.status === "success") {
                     //make a copy of the current user
-                    let tempUser = this.context.user;
+                    const tempUser = this.context.user;
 
                     //update the tempUser with the new data
-                    tempUser.first = this.state.first;
-                    tempUser.last = this.state.last;
-                    tempUser.email = this.state.email;
-                    tempUser.phone = this.state.phone;
-                    tempUser.venmo = this.state.venmo;
+                    tempUser.user.first = this.state.first;
+                    tempUser.user.last = this.state.last;
+                    tempUser.user.email = this.state.email;
+                    tempUser.user.phone = this.state.phone;
+                    tempUser.user.venmo = this.state.venmo;
 
                     if (this.state.email !== this.context.user.email) {
                         //email has changed for sure, set to not verified on client side

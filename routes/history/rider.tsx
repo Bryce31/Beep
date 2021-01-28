@@ -32,7 +32,7 @@ export class RiderRideLogScreen extends Component<Props, State> {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.user.token
+                    "Authorization": "Bearer " + this.context.user.tokens.token
                 }
             });
 
