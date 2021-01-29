@@ -109,13 +109,13 @@ export default class App extends Component<Props, State> {
             initialScreen = "Main";
             user = JSON.parse(storageData[0][1]);
             //If user is on a mobile device and user object has a token, sub them to notifications
-            if ((Platform.OS == "ios" || Platform.OS == "android") && user.token) {
+            if ((Platform.OS == "ios" || Platform.OS == "android") && user.tokens.token) {
                 updatePushToken(user.token);
             }
 
             //if user has a token, subscribe them to user updates
-            if (user.token) {
-                socket.emit('getUser', user.token);
+            if (user.tokens.token) {
+                socket.emit('getUser', user.tokens.token);
             }
 
             if ((Platform.OS == "ios" || Platform.OS == "android")) {

@@ -14,8 +14,6 @@ export function MainSettingsScreen({ navigation }: any) {
     const themeContext: any = React.useContext(ThemeContext);
     const userContext: any = React.useContext(UserContext);
 
-    console.log(userContext.user.user.isEmailVerified);
-
     async function logout() {
         try {
             fetch(config.apiUrl + "/auth/logout", {

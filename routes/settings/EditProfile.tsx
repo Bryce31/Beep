@@ -73,8 +73,8 @@ export class EditProfileScreen extends Component<Props, State> {
 
                     if (this.state.email !== this.context.user.email) {
                         //email has changed for sure, set to not verified on client side
-                        tempUser.isEmailVerified = false;
-                        tempUser.isStudent = false;
+                        tempUser.user.isEmailVerified = false;
+                        tempUser.user.isStudent = false;
                     }
 
                     //update the context

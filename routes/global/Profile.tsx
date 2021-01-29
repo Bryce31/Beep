@@ -133,7 +133,7 @@ export class ProfileScreen extends Component<Props, State> {
                                 <Text>${user.groupRate}</Text>
                             </Layout>
                         </Layout>
-                        {(this.props.route.params.id != this.context.user.id) &&
+                        {(this.props.route.params.id != this.context.user.user.id) &&
                             <Button onPress={() => this.handleReport()} accessoryRight={ReportIcon} style={styles.button}>Report User</Button>
                         }
                     </Layout>

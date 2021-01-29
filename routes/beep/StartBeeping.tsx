@@ -159,7 +159,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
     async getQueue(): Promise<void> {
         try {
-            const result = await fetch(config.apiUrl + "/beeper/queue", {
+            const result = await fetch(config.apiUrl + "/users/" + this.context.user.user.id + "/queue", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -251,7 +251,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                 }
 
                 const tempUser = JSON.parse(JSON.stringify(this.context.user));
-                tempUser.isBeeping = value;
+                tempUser.user.isBeeping = value;
                 AsyncStorage.setItem('@user', JSON.stringify(tempUser));
                 this.context.setUser(tempUser);
             }
@@ -280,7 +280,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
     enableGetQueue(): void {
         console.log("Subscribing to Socket.io for Beeper's Queue");
-        socket.emit('getQueue', this.context.user.id);
+        socket.emit('getQueue', this.context.user.user.id);
     }
 
     disableGetQueue(): void {
@@ -400,19 +400,19 @@ export class StartBeepingScreen extends Component<Props, State> {
                                 <Card
                                     style={styles.cards}
                                     status={(this.state.currentIndex == index) ? "primary" : "basic"} 
-                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.riderid})}
+                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.rider.id})}
                                 >
                                     <Layout
                                         style={{flex: 1, flexDirection: "row", alignItems: 'center'}}
                                     >
-                                        {item.personalInfo.photoUrl &&
+                                        {item.rider.photoUrl &&
                                         <ProfilePicture
                                             size={50}
-                                            url={item.personalInfo.photoUrl}
+                                            url={item.rider.photoUrl}
                                         />
                                         }
-                                        <Text category="h6" style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
-                                        {item.personalInfo.isStudent && <Text>🎓</Text>}
+                                        <Text category="h6" style={styles.rowText}>{item.rider.first} {item.rider.last}</Text>
+                                        {item.rider.isStudent && <Text>🎓</Text>}
                                     </Layout>
                                     <Layout style={styles.row}>
                                         <Text category='h6'>Group Size</Text>
@@ -433,7 +433,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                                 style={styles.rowButton}
                                                 status='basic'
                                                 accessoryLeft={PhoneIcon}
-                                                onPress={() =>{ Linking.openURL('tel:' + item.personalInfo.phone); } }
+                                                onPress={() =>{ Linking.openURL('tel:' + item.rider.phone); } }
                                             >
                                             Call Rider
                                             </Button>
@@ -443,7 +443,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                                 size="small"
                                                 status='basic'
                                                 accessoryLeft={TextIcon}
-                                                onPress={() =>{ Linking.openURL('sms:' + item.personalInfo.phone); } }
+                                                onPress={() =>{ Linking.openURL('sms:' + item.rider.phone); } }
                                             >
                                             Text Rider
                                             </Button>
@@ -454,7 +454,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                         style={styles.paddingUnder}
                                         status='info'
                                         accessoryLeft={VenmoIcon}
-                                        onPress={() => this.handleVenmo(item.groupSize, item.personalInfo.venmo)}
+                                        onPress={() => this.handleVenmo(item.groupSize, item.rider.venmo)}
                                     >
                                     Request Money from Rider with Venmo
                                     </Button>
@@ -489,17 +489,17 @@ export class StartBeepingScreen extends Component<Props, State> {
 
                                 <Card
                                     style={styles.cards}
-                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.riderid})}
+                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.rider.id})}
                                 >
                                     <Layout style={{flex: 1, flexDirection: "row", alignItems: 'center'}}>
-                                        {item.personalInfo.photoUrl &&
+                                        {item.rider.photoUrl &&
                                         <ProfilePicture
                                             size={50}
-                                            url={item.personalInfo.photoUrl}
+                                            url={item.rider.photoUrl}
                                         />
                                         }
-                                        <Text category="h6" style={styles.rowText}>{item.personalInfo.first} {item.personalInfo.last}</Text>
-                                        {item.personalInfo.isStudent && <Text>🎓</Text>}
+                                        <Text category="h6" style={styles.rowText}>{item.rider.first} {item.rider.last}</Text>
+                                        {item.rider.isStudent && <Text>🎓</Text>}
                                     </Layout>
                                     <Layout style={styles.row}>
                                         <Text category='h6'>Entered Queue</Text>

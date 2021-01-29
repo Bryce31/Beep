@@ -67,7 +67,7 @@ export default class AcceptDenyButton extends Component<Props, State> {
         }
 
         return (
-            <Button style={styles.button} status={(this.props.type == "accept") ? "success" : "danger" } accessoryLeft={(this.props.type == "accept") ? AcceptIcon : DenyIcon } onPress={()=> this.updateStatus(this.props.item.id, this.props.item.riderid, this.props.type)}>
+            <Button style={styles.button} status={(this.props.type == "accept") ? "success" : "danger" } accessoryLeft={(this.props.type == "accept") ? AcceptIcon : DenyIcon } onPress={()=> this.updateStatus(this.props.item.id, this.props.item.rider.id, this.props.type)}>
                 {(this.props.type == "accept") ? "Accept" : "Deny" }
             </Button>
         );

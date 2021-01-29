@@ -80,19 +80,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
         AppState.addEventListener("change", this.handleAppStateChange);
 
-        socket.on('updateRiderStatus', (updatedRiderStatus) => {
-            /*
-            console.log("[FindBeep.js] [Socket.io] Socket.io told us to update rider status.");
+        socket.on('updateRiderStatus', () => {
             this.getRiderStatus(false);
-            */
-            console.log("Rider Status Update:", updatedRiderStatus);
-            if (updatedRiderStatus == null) {
-                this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: {}, state: 0 });
-                this.disableGetRiderStatus();
-            }
-            else {
-                this.setState({ ...updatedRiderStatus });
-            }
         });
 
         socket.on('hereIsBeepersLocation', (data: any) => {
@@ -316,7 +305,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
     enableGetRiderStatus() {
         console.log("Subscribing to Socket.io for Rider Status");
-        socket.emit('getRiderStatus', this.state.beeper.id, this.context.user.id);
+        socket.emit('getRiderStatus', this.context.user.tokens.token, this.state.beeper.id);
     }
 
     disableGetRiderStatus() {

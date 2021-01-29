@@ -28,7 +28,7 @@ export class RiderRideLogScreen extends Component<Props, State> {
 
     async getRiderList() {
         try {
-            const result = await fetch(config.apiUrl + "/users/" + this.context.user.id + "/history/rider", {
+            const result = await fetch(config.apiUrl + "/users/" + this.context.user.user.id + "/history/rider", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",

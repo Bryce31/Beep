@@ -85,7 +85,7 @@ export default class ActionButton extends Component<Props, State> {
         }
 
         return (
-            <Button size="giant" onPress={() => this.updateStatus(this.props.item.id, this.props.item.riderid, (this.props.item.state < 3) ? "next" : "complete")}>
+            <Button size="giant" onPress={() => this.updateStatus(this.props.item.id, this.props.item.rider.id, (this.props.item.state < 3) ? "next" : "complete")}>
                 {this.getMessage()}
             </Button>
         ) 
