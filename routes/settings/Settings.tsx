@@ -85,12 +85,12 @@ export function MainSettingsScreen({ navigation }: any) {
                 <Card style={{width: "80%", marginBottom: 20}} onPress={() => navigation.navigate("Profile", { id: userContext.user.user.id })} >
                     <UserHeader user={userContext.user.user} />
                 </Card>
-                {!userContext.user.isEmailVerified &&
+                {!userContext.user.user.isEmailVerified &&
                     <Card status="danger" style={{maxWidth: 400, marginBottom: 6}}>
                         <Text category="h6">Your email is not verified!</Text>
                     </Card>
                 }
-                {!userContext.user.isEmailVerified && <ResendButton />}
+                {!userContext.user.user.isEmailVerified && <ResendButton />}
                 <Button
                     onPress={themeContext.toggleTheme}
                     accessoryLeft={ThemeIcon}
