@@ -94,7 +94,7 @@ export class ProfilePhotoScreen extends Component<Props, State> {
                    let tempUser = this.context.user;
 
                    //update the tempUser with the new data
-                   tempUser.photoUrl = data.url;
+                   tempUser.user.photoUrl = data.url;
 
                    //update the context
                    this.context.setUser(tempUser);

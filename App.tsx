@@ -48,7 +48,7 @@ interface Props {
 }
 
 interface State {
-    user: User;
+    user: any;
     theme: string;
 }
 
@@ -110,7 +110,7 @@ export default class App extends Component<Props, State> {
             user = JSON.parse(storageData[0][1]);
             //If user is on a mobile device and user object has a token, sub them to notifications
             if ((Platform.OS == "ios" || Platform.OS == "android") && user.tokens.token) {
-                updatePushToken(user.token);
+                updatePushToken(user.tokens.token);
             }
 
             //if user has a token, subscribe them to user updates
@@ -139,11 +139,13 @@ export default class App extends Component<Props, State> {
         });
 
         socket.on('updateUser', (data: unknown) => {
-            const updatedUser = getUpdatedUser(this.state.user, data);
+            const updatedUser = getUpdatedUser(this.state.user.user, data);
             if (updatedUser != null) {
+                const a = this.state.user;
+                a['user'] = updatedUser;
                 console.log("[~] Updating Context!");
-                AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
-                this.setUser(updatedUser);
+                AsyncStorage.setItem('@user', JSON.stringify(a));
+                this.setUser(a);
             }
         });
     }

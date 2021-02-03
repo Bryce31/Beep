@@ -91,7 +91,7 @@ export async function updatePushToken(token: string) {
             "Authorization": "Bearer " + token
         },
         body: JSON.stringify({
-            "expoPushToken": await getPushToken()
+            expoPushToken: await getPushToken()
         })
     })
     .then(
