@@ -5,14 +5,30 @@ import { config } from "../../utils/config";
 import { handleFetchError } from "../../utils/Errors";
 import { UserContext } from '../../utils/UserContext';
 import ProfilePicture from '../../components/ProfilePicture';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainNavParamList} from '../../navigators/MainTabs';
+import {User} from '../../types/Beep';
+
+export interface RiderEventEntry {
+        beeper: User;
+        rider: User;
+        destination: string;
+        doneTime: string;
+        groupSize: string;
+        id: string;
+        isAccepted: boolean;
+        origin: string;
+        state: number;
+        timeEnteredQueue: number;
+};
 
 interface Props {
-    navigation: any;
+    navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
 interface State {
     isLoading: boolean;
-    riderList: any[];
+    riderList: User[];
 }
 
 export class RiderRideLogScreen extends Component<Props, State> {
@@ -26,13 +42,13 @@ export class RiderRideLogScreen extends Component<Props, State> {
         }
     }
 
-    async getRiderList() {
+    async getRiderList(): Promise<void> {
         try {
             const result = await fetch(config.apiUrl + "/users/" + this.context.user.user.id + "/history/rider", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.tokens.token
+                    Authorization: `Bearer ${this.context.user.tokens.token}`
                 }
             });
 
@@ -50,25 +66,22 @@ export class RiderRideLogScreen extends Component<Props, State> {
         }
     }
 
-    componentDidMount () {
+    componentDidMount(): void {
         this.getRiderList();
     }
 
     render() {
-        const renderItem = ({ item }: any) => (
+        const renderItem = ({ item }: { item: RiderEventEntry }) => (
             <ListItem
                 accessoryLeft={() => {
-                    if (item.beeper.photoUrl) {
-                        return (
-                            <ProfilePicture
-                                size={50}
-                                url={item.beeper.photoUrl}
-                            />
-                        );
-                    }
-                    return null;
+                    return (
+                        <ProfilePicture
+                            size={50}
+                            url={item.beeper.photoUrl}
+                        />
+                    );
                 }}
-                onPress={() => this.props.navigation.push("Profile", { id: item.beeper.id })}
+                onPress={() => this.props.navigation.push("Profile", { id: item.beeper.id, beepEventId: item.id })}
                 title={`${item.beeper.first} ${item.beeper.last} beeped you`}
                 description={`Group size: ${item.groupSize}\nOrigin: ${item.origin}\nDestination: ${item.destination}\nDate: ${new Date(item.timeEnteredQueue)}`}
             />
@@ -98,7 +111,7 @@ export class RiderRideLogScreen extends Component<Props, State> {
         }
         else {
             return (
-                <Layout>
+                <Layout style={styles.container}>
                     <Text category='h5'>Loading your history</Text>
                     <Spinner />
                 </Layout>
@@ -109,7 +122,7 @@ export class RiderRideLogScreen extends Component<Props, State> {
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
+        height: '83%',
         alignItems: "center",
         justifyContent: 'center'
     }

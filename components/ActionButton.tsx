@@ -40,12 +40,12 @@ export default class ActionButton extends Component<Props, State> {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.tokens.token
+                Authorization: `Bearer ${this.context.user.tokens.token}`
             },
             body: JSON.stringify({
-                "value": value,
-                "queueID": queueID,
-                "riderID": riderID
+                value: value,
+                queueID: queueID,
+                riderID: riderID
             })
         })
         .then(response => {

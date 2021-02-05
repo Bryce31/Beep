@@ -50,7 +50,8 @@ export class ProfileScreen extends Component<Props, State> {
         this.props.navigation.navigate("Report", {
             id: this.props.route.params.id,
             first: this.state.user.first,
-            last: this.state.user.last
+            last: this.state.user.last,
+            beepEventId: this.props.route.params.beepEventId
         });
     }
     
@@ -99,11 +100,12 @@ export class ProfileScreen extends Component<Props, State> {
                         }
                         <Text style={styles.item} category="h1">{user.first} {user.last}</Text>
 
-                        {user.isBeeping && <Text style={styles.item} >{user.first} is beeping 🚗</Text>}
-
-                        {user.isStudent && <Text style={styles.item} >{user.first} is a student 🎓</Text>}
-
-                        {user.masksRequired && <Text style={styles.item} >{user.first} requires a mask 😷</Text>}
+                        <Layout style={styles.row}>
+                            {user.isBeeping && <Button size='tiny' status='primary' style={styles.tag}>Currently Beeping 🚗</Button>}
+                            {user.masksRequired && <Button status="info" size='tiny' style={styles.tag}>Masks Required</Button>}
+                            {user.userLevel > 0 && <Button size='tiny' status='danger' style={styles.tag}>Founder</Button>}
+                            {user.isStudent && <Button status="basic" size='tiny' style={styles.tag}>Student</Button>}
+                        </Layout>
                         
                         <Layout style={styles.data}>
                             {user.isBeeping && 
@@ -133,7 +135,7 @@ export class ProfileScreen extends Component<Props, State> {
                                 <Text>${user.groupRate}</Text>
                             </Layout>
                         </Layout>
-                        {(this.props.route.params.id != this.context.user.user.id) &&
+                        {(this.props.route.params.id != this.context.user.id) &&
                             <Button onPress={() => this.handleReport()} accessoryRight={ReportIcon} style={styles.button}>Report User</Button>
                         }
                     </Layout>
@@ -170,5 +172,15 @@ const styles = StyleSheet.create({
     button: {
         width: "80%",
         marginTop: 20
+    },
+    row: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        marginBottom: 10,
+        width: "80%",
+        justifyContent: "center"
+    },
+    tag: {
+        margin: 4 
     }
 });

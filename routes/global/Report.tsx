@@ -40,7 +40,8 @@ export class ReportScreen extends Component<Props, State> {
                 },
                 body: JSON.stringify({
                     id: this.props.route.params.id,
-                    reason: this.state.reason
+                    reason: this.state.reason,
+                    beep: this.props.route.params.beepEventId
                 })
             });
 

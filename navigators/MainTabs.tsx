@@ -1,14 +1,33 @@
 import React, { Component } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomTabNavigationProp, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FindBeepScreen } from './FindBeep';
 import { SettingsScreen } from './Settings';
 import { StartBeepingScreen } from '../routes/beep/StartBeeping';
-import { BottomNavigation, BottomNavigationTab, Icon } from '@ui-kitten/components';
+import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
 import { CarIcon, MapIcon, SettingsIcon } from '../utils/Icons';
 
-const { Navigator, Screen } = createBottomTabNavigator();
 
-const BottomTabBar = ({ navigation, state }) => (
+export type MainNavParamList = {
+    Ride: undefined;
+    Beep: undefined;
+    Settings: undefined;
+    MainFindBeepScreen: undefined;
+    PickBeepScreen: { handlePick: (id: string) => Promise<void> } | undefined;
+    Profile: { id: string | undefined} | undefined;
+    EditProfileScreen: undefined;
+    ProfilePhotoScreen: undefined;
+    ChangePasswordScreen: undefined;
+    RideLogScreen: undefined;
+}
+
+interface NavState {
+    index: number;
+    routeNames: [];
+}
+
+const { Navigator, Screen } = createBottomTabNavigator<MainNavParamList>();
+
+const BottomTabBar = ({ navigation, state }: { navigation: BottomTabNavigationProp<MainNavParamList>, state: NavState}) => (
     <BottomNavigation
         selectedIndex={state.index}
         onSelect={index => navigation.navigate(state.routeNames[index])}

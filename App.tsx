@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React, { Component, ReactNode } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet, StatusBar, Platform, AppState } from 'react-native';
+import { StyleSheet } from 'react-native';
 import RegisterScreen from './routes/auth/Register';
 import LoginScreen from './routes/auth/Login';
 import ForgotPassword from './routes/auth/ForgotPassword';
@@ -56,11 +56,6 @@ export default class App extends Component<undefined, State> {
     }
 
     async componentDidMount(): Promise<void> {
-        socket.on("connect", () => {
-            if (this.state.user) {
-                socket.emit('getUser', this.state.user.user.token);
-            }
-        });
 
         let user;
         let theme = this.state.theme;
@@ -104,6 +99,13 @@ export default class App extends Component<undefined, State> {
                     AsyncStorage.setItem('@user', JSON.stringify(a));
                     this.setUser(a);
                 }
+            }
+        });
+
+        socket.on("connect", () => {
+            if (this.state.user && !initialScreen) {
+                console.log("getUser called by connect", this.state.user.tokens);
+                socket.emit('getUser', this.state.user.tokens.token);
             }
         });
     }
