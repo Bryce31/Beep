@@ -15,49 +15,31 @@ import { default as beepTheme } from './utils/theme.json';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
 import { ThemeContext } from './utils/ThemeContext';
 import { UserContext } from './utils/UserContext';
-import * as SplashScreen from 'expo-splash-screen';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { updatePushToken } from "./utils/Notifications";
 import socket, { getUpdatedUser } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
-import * as Updates from 'expo-updates';
-import * as Sentry from 'sentry-expo';
-
-Sentry.init({
-  dsn: 'https://9bea69e2067f4e2a96e6c26627f97732@sentry.nussman.us/4',
-  enableInExpoDevelopment: true,
-  debug: true, // Sentry will try to print out useful debugging information if something goes wrong with sending an event. Set this to `false` in production.
-  enableAutoSessionTracking: true
-});
+import init from "./utils/Init";
+import Sentry from "./utils/Sentry";
+import { AuthContext } from './types/Beep';
+import { isMobile } from './utils/config';
+import ThemedStatusBar from './utils/StatusBar';
 
 const Stack = createStackNavigator();
-
-SplashScreen.preventAutoHideAsync()
-  .then(result => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
-  .catch(console.warn); // it's good to explicitly catch and inspect any error
-
 let initialScreen: string;
-
-interface User {
-    token?: string;
-    isBeeping?: boolean;
-}
-
-interface Props {
-    
-}
+init();
 
 interface State {
-    user: any;
+    user: AuthContext | null;
     theme: string;
 }
 
-export default class App extends Component<Props, State> {
+export default class App extends Component<undefined, State> {
 
-    constructor(props: Props) {
-        super(props);
+    constructor() {
+        super(undefined);
         this.state = {
-            user: {},
+            user: null,
             theme: "light"
         };
     }
@@ -68,37 +50,17 @@ export default class App extends Component<Props, State> {
         AsyncStorage.setItem('@theme', nextempTheme);
     }
 
-    setUser = (user: User): void => {
+    setUser = (user: AuthContext | null): void => {
         this.setState({ user: user });
-        if ((Platform.OS == "ios" || Platform.OS == "android")) {
-            Sentry.Native.setUser({ ...user });
-        }
-        else {
-            Sentry.Browser.setUser({ ...user });
-        }
+        Sentry.setUserContext(user);
     }
 
-    handleAppStateChange = (nextAppState: string): void => {
-        if (nextAppState === "active" && !socket.connected && this.state.user) {
-            socket.emit('getUser', this.state.user.token);
-        }
-    }
-
-    async handleUpdateCheck(): Promise<void> {
-        if (!__DEV__) {
-            const result = await Updates.checkForUpdateAsync();
-            console.log(result);
-            if (result.isAvailable) {
-                console.log("running Expo OTA update");
-                Updates.reloadAsync();
-            }
-        }
-    }
-    
     async componentDidMount(): Promise<void> {
-        this.handleUpdateCheck();
-
-        AppState.addEventListener("change", this.handleAppStateChange);
+        socket.on("connect", () => {
+            if (this.state.user) {
+                socket.emit('getUser', this.state.user.user.token);
+            }
+        });
 
         let user;
         let theme = this.state.theme;
@@ -108,22 +70,16 @@ export default class App extends Component<Props, State> {
         if (storageData[0][1]) {
             initialScreen = "Main";
             user = JSON.parse(storageData[0][1]);
-            //If user is on a mobile device and user object has a token, sub them to notifications
-            if ((Platform.OS == "ios" || Platform.OS == "android") && user.tokens.token) {
+
+            if (isMobile && user.tokens.token) {
                 updatePushToken(user.tokens.token);
             }
 
-            //if user has a token, subscribe them to user updates
             if (user.tokens.token) {
                 socket.emit('getUser', user.tokens.token);
             }
 
-            if ((Platform.OS == "ios" || Platform.OS == "android")) {
-                Sentry.Native.setUser({ ...user });
-            }
-            else {
-                Sentry.Browser.setUser({ ...user });
-            }
+            Sentry.setUserContext(user);
         }
         else {
             initialScreen = "Login";
@@ -139,13 +95,15 @@ export default class App extends Component<Props, State> {
         });
 
         socket.on('updateUser', (data: unknown) => {
-            const updatedUser = getUpdatedUser(this.state.user.user, data);
-            if (updatedUser != null) {
-                const a = this.state.user;
-                a['user'] = updatedUser;
-                console.log("[~] Updating Context!");
-                AsyncStorage.setItem('@user', JSON.stringify(a));
-                this.setUser(a);
+            if (this.state.user?.user) {
+                const updatedUser = getUpdatedUser(this.state.user.user, data);
+                if (updatedUser != null) {
+                    const a = this.state.user;
+                    a['user'] = updatedUser;
+                    console.log("[~] Updating Context!");
+                    AsyncStorage.setItem('@user', JSON.stringify(a));
+                    this.setUser(a);
+                }
             }
         });
     }
@@ -166,11 +124,7 @@ export default class App extends Component<Props, State> {
                     <IconRegistry icons={EvaIconsPack} />
                     <ApplicationProvider {...eva} theme={{ ...eva[this.state.theme], ...beepTheme }}>
                         <Layout style={styles.statusbar}>
-                            {Platform.OS == "ios" ?
-                                <StatusBar barStyle={(this.state.theme === 'light' ? 'dark' : 'light') + "-content"} />
-                                :
-                                <StatusBar translucent barStyle={(this.state.theme === 'light' ? 'dark' : 'light') + "-content"} backgroundColor={(this.state.theme === "dark") ? "#222b45" : "#ffffff"} />
-                            }
+                            <ThemedStatusBar theme={this.state.theme}/>
                         </Layout>
                         <NavigationContainer>
                             <Stack.Navigator initialRouteName={initialScreen} screenOptions={{ headerShown: false }} >
