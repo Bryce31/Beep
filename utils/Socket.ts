@@ -31,14 +31,12 @@ socket.on("reconnect_error", (reason: string) => {
 
 export default socket
 
-export function getUpdatedUser(existingUser: User | null, newData: any): User | null {
-    if (!existingUser) return null;
+export function didUserChange(existingUser: any, newData: any): boolean {
     let changed = false;
     for (const key in newData) {
-        if ((existingUser[key] != null && newData[key] != null) && (existingUser[key] != newData[key])) {
-            existingUser[key] = newData[key];
+        if (existingUser[key] != newData[key]) {
             changed = true;
         }
     }
-    return changed ? existingUser : null;
+    return changed;
 }

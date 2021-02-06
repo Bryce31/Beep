@@ -17,7 +17,7 @@ import { ThemeContext } from './utils/ThemeContext';
 import { UserContext } from './utils/UserContext';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { updatePushToken } from "./utils/Notifications";
-import socket, { getUpdatedUser } from './utils/Socket';
+import socket, { didUserChange, getUpdatedUser } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
 import init from "./utils/Init";
 import Sentry from "./utils/Sentry";
@@ -89,15 +89,19 @@ export default class App extends Component<undefined, State> {
             theme: theme
         });
 
-        socket.on('updateUser', (data: unknown) => {
+        socket.on('updateUser', (userChanges: unknown) => {
             if (this.state.user?.user) {
-                const updatedUser = getUpdatedUser(this.state.user.user, data);
-                if (updatedUser != null) {
-                    const a = this.state.user;
-                    a['user'] = updatedUser;
-                    console.log("[~] Updating Context!");
-                    AsyncStorage.setItem('@user', JSON.stringify(a));
-                    this.setUser(a);
+                if (didUserChange(this.state.user.user, userChanges)) {
+                    const currentState = this.state.user;
+                    for (const key in userChanges) {
+                        currentState["user"][key] = userChanges[key];
+                        console.log(currentState["user"][key], "updated");
+                    }
+                    AsyncStorage.setItem('@user', JSON.stringify(currentState));
+                    this.setUser(currentState);
+                }
+                else {
+                    console.log("Socket sent an update but user didnt change");
                 }
             }
         });

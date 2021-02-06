@@ -1,11 +1,11 @@
 import React, { Component, ReactNode } from 'react';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
-import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import socket from '../../utils/Socket';
 import { UserContext } from '../../utils/UserContext';
-import { config } from "../../utils/config";
+import { config, isAndroid } from "../../utils/config";
 import * as Notifications from 'expo-notifications';
 import ActionButton from "../../components/ActionButton";
 import AcceptDenyButton from "../../components/AcceptDenyButton";
@@ -15,6 +15,7 @@ import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../util
 import ProfilePicture from '../../components/ProfilePicture';
 import Toggle from "./components/Toggle";
 import * as Permissions from 'expo-permissions';
+import Logger from '../../utils/Logger';
 
 interface Props {
     navigation: any;
@@ -91,15 +92,20 @@ export class StartBeepingScreen extends Component<Props, State> {
         if (!__DEV__) {
             await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
                 accuracy: Location.Accuracy.Highest,
-                timeInterval: 60000,
-                distanceInterval: 5,
+                timeInterval: (15 * 1000),
+                distanceInterval: 6,
+                foregroundService: {
+                    notificationTitle: "Ride Beep App",
+                    notificationBody: "You are currently beeping!",
+                    notificationColor: "#e8c848"
+                }
             });
             const hasStarted = await Location.hasStartedLocationUpdatesAsync(
                 LOCATION_TRACKING
             );
-            console.log('tracking started?', hasStarted);
+            console.log(hasStarted);
         }
-    } 
+    }
 
     async stopLocationTracking(): Promise<void> {
         if (!__DEV__) {
@@ -110,51 +116,18 @@ export class StartBeepingScreen extends Component<Props, State> {
     componentDidMount(): void {
         this.retrieveData();
 
-        AppState.addEventListener("change", this.handleAppStateChange);
-
         socket.on("updateQueue", () => {
-            console.log("[StartBeeping.js] [Socket.io] Socktio.io told us to update queue!");
             this.getQueue();
         });
-    }
 
-    /*
-    async UNSAFE_componentWillReceiveProps(): Promise<void> {
-        if (this.state.isBeeping != this.context.user.isBeeping) {
-            if (this.context.user.isBeeping) {
-                //if we are turning on isBeeping, ensure we have location permission
-                const { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-                if (status !== 'granted') {
-                    this.setState({ isBeeping: false });
-                    return alert("You must allow location to beep!");
-                }
-
-                //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
-                this.enableGetQueue();
+        socket.on("connect", async () => {
+            await this.retrieveData();
+            if (this.state.isBeeping) {
+                Logger.info("[getQueue] reconnected to socket successfully");
                 this.getQueue();
-                this.startLocationTracking();
+                this.enableGetQueue();
             }
-            else {
-                //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
-                this.disableGetQueue();
-                this.stopLocationTracking();
-            }
-            this.setState({ isBeeping: this.context.user.isBeeping });
-        }
-    }
-     */
-
-    componentWillUnmount(): void {
-        AppState.removeEventListener("change", this.handleAppStateChange);
-    }
-
-    handleAppStateChange = (nextAppState: string): void => {
-        if (nextAppState === "active" && !socket.connected && this.state.isBeeping) {
-            console.log("socket is not connected but user is beeping! We need to resubscribe and get our queue.");
-            this.enableGetQueue();
-            this.getQueue();
-        }
+        });
     }
 
     async getQueue(): Promise<void> {
@@ -175,23 +148,8 @@ export class StartBeepingScreen extends Component<Props, State> {
                 //TODO revisit this
                 Notifications.setBadgeCountAsync(data.queue.length);
 
-                //We sucessfuly updated beeper status in database
-                //This will calculate the array index of your current beep
-                //TODO revisit this, I think the index will always be zero?
-                let currentIndex = 0;
-                for(let i = 0;  i < data.queue.length; i++) {
-                    if (data.queue[i].isAccepted) {
-                        currentIndex = i;
-                        break;
-                    }
-                }
-
-                //TODO is this a bad way to compare arrays
                 if (JSON.stringify(this.state.queue) !== JSON.stringify(data.queue)) {
-                    console.log("queue is not same, set state");
-                    console.log(this.state.queue);
-                    console.log(data.queue);
-                    this.setState({ queue: data.queue, currentIndex: currentIndex });
+                    this.setState({ queue: data.queue });
                 }
             }
             else {
@@ -200,6 +158,26 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
         catch (error) {
             handleFetchError(error);
+        }
+    }
+    toggleSwitchWrapper(value: boolean): void {
+        if (isAndroid && value) {
+            Alert.alert(
+                "Background Location Notice",
+                "Ride Beep App collects location data to enable ETAs for riders when your are beeping and the app is closed or not in use",
+                [
+                    {
+                        text: "Cancel",
+                        onPress: () => console.log("Cancel Pressed"),
+                            style: "cancel"
+                    },
+                    { text: "OK", onPress: () => this.toggleSwitch(value) }
+                ],
+                { cancelable: true }
+            );
+        }
+        else {
+            this.toggleSwitch(value);
         }
     }
 
@@ -234,11 +212,11 @@ export class StartBeepingScreen extends Component<Props, State> {
                     "Authorization": "Bearer " + this.context.user.tokens.token
                 },
                 body: JSON.stringify({
-                    "isBeeping": value,
-                    "singlesRate": this.state.singlesRate,
-                    "groupRate": this.state.groupRate,
-                    "capacity": this.state.capacity,
-                    "masksRequired": this.state.masksRequired
+                    isBeeping: value,
+                    singlesRate: this.state.singlesRate,
+                    groupRate: this.state.groupRate,
+                    capacity: this.state.capacity,
+                    masksRequired: this.state.masksRequired
                 })
             });
 
@@ -251,9 +229,9 @@ export class StartBeepingScreen extends Component<Props, State> {
                 }
 
                 const tempUser = JSON.parse(JSON.stringify(this.context.user));
-                tempUser.user.isBeeping = value;
+                tempUser.isBeeping = value;
                 AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-                this.context.setUser(tempUser);
+                //this.context.setUser(tempUser);
             }
             else {
                 //Use native popup to tell user why they could not change their status
@@ -279,12 +257,10 @@ export class StartBeepingScreen extends Component<Props, State> {
     }
 
     enableGetQueue(): void {
-        console.log("Subscribing to Socket.io for Beeper's Queue");
         socket.emit('getQueue', this.context.user.user.id);
     }
 
     disableGetQueue(): void {
-        console.log("Unsubscribing to Socket.io for Beeper's Queue");
         socket.emit('stopGetQueue');
     }
 
@@ -293,7 +269,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
         const tempUser = this.context.user;
 
-        tempUser.singlesRate = value;
+        tempUser.user.singlesRate = value;
 
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
@@ -303,7 +279,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
         const tempUser = this.context.user;
 
-        tempUser.groupRate = value;
+        tempUser.user.groupRate = value;
 
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
@@ -313,7 +289,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
         const tempUser = this.context.user;
 
-        tempUser.capacity = value;
+        tempUser.user.capacity = value;
 
         AsyncStorage.setItem('@user', JSON.stringify(tempUser));
     }
@@ -389,7 +365,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             if (this.state.queue && this.state.queue.length != 0) {
                 return (
                     <Layout style={styles.container}>
-                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
+                        <Toggle isBeepingState={this.state.isBeeping} onToggle={async (value) => this.toggleSwitchWrapper(value)}/>
                         <List
                             style={styles.list}
                             data={this.state.queue}
@@ -526,7 +502,7 @@ export class StartBeepingScreen extends Component<Props, State> {
             else {
                 return (
                     <Layout style={styles.container}>
-                        <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
+                        <Toggle isBeepingState={this.state.isBeeping} onToggle={async (value) => this.toggleSwitchWrapper(value)}/>
                         <Layout style={styles.empty}>
                             <Text category='h5'>Your queue is empty</Text>
                             <Text appearance='hint'>If someone wants you to beep them, it will appear here. If your app is closed, you will recieve a push notification.</Text>
@@ -540,9 +516,9 @@ export class StartBeepingScreen extends Component<Props, State> {
 
 TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
     if (error) {
-        console.log('LOCATION_TRACKING task ERROR:', error);
-        return;
+        return Logger.error(error);
     }
+
     if (data) {
         console.log(data);
         const { locations } = data;
@@ -554,17 +530,13 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
         const heading = locations[0].coords.heading;
         const speed = locations[0].coords.speed;
 
-        const user = await AsyncStorage.getItem('@user')
+        const auth = await AsyncStorage.getItem('@user')
 
-        if (!user) return;
+        if (!auth) return;
 
-        const userObj = JSON.parse(user);
+        const authToken = JSON.parse(auth).tokens.token;
 
-        socket.emit('updateUsersLocation', userObj.token, lat, long, altitude, accuracy, altitudeAccuracy, heading, speed);
-
-        console.log(
-            `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
-        );
+        socket.emit('updateUsersLocation', authToken, lat, long, altitude, accuracy, altitudeAccuracy, heading, speed);
     }
 });
 
