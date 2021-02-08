@@ -174,8 +174,6 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
             const data = await result.json();
 
-            data.beeper.queueSize--;
-
             if (data.status === "success") {
                 this.setState({
                     foundBeep: true,

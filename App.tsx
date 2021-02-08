@@ -56,6 +56,12 @@ export default class App extends Component<undefined, State> {
     }
 
     async componentDidMount(): Promise<void> {
+        socket.on("connect", () => {
+            if (this.state.user && !initialScreen) {
+                console.log(initialScreen);
+                socket.emit('getUser', this.state.user.tokens.token);
+            }
+        });
 
         let user;
         let theme = this.state.theme;
@@ -105,13 +111,7 @@ export default class App extends Component<undefined, State> {
                 }
             }
         });
-
-        socket.on("connect", () => {
-            if (this.state.user && !initialScreen) {
-                console.log("getUser called by connect", this.state.user.tokens);
-                socket.emit('getUser', this.state.user.tokens.token);
-            }
-        });
+        
     }
 
     render(): ReactNode {
