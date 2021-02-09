@@ -6,7 +6,7 @@ class Sentry {
         SentryInternal.init({
             dsn: 'https://9bea69e2067f4e2a96e6c26627f97732@sentry.nussman.us/4',
             enableInExpoDevelopment: true,
-            debug: true,
+            debug: false,
             enableAutoSessionTracking: true
         });
     }

@@ -17,7 +17,7 @@ import { ThemeContext } from './utils/ThemeContext';
 import { UserContext } from './utils/UserContext';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { updatePushToken } from "./utils/Notifications";
-import socket, { didUserChange, getUpdatedUser } from './utils/Socket';
+import socket, { didUserChange } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
 import init from "./utils/Init";
 import Sentry from "./utils/Sentry";
@@ -104,7 +104,10 @@ export default class App extends Component<undefined, State> {
                         console.log(key, "updated");
                     }
                     AsyncStorage.setItem('@user', JSON.stringify(currentState));
-                    this.setUser(currentState);
+                    if (!(userChanges.queueSize >= 0 && (Object.keys(userChanges).length == 1))) {
+                        console.log("Context Update Caused Re-Render");
+                        this.setUser(currentState);
+                    }
                 }
                 else {
                     console.log("Socket sent an update but user didnt change");
