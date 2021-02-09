@@ -101,7 +101,7 @@ export default class App extends Component<undefined, State> {
                     const currentState = this.state.user;
                     for (const key in userChanges) {
                         currentState["user"][key] = userChanges[key];
-                        console.log(currentState["user"][key], "updated");
+                        console.log(key, "updated");
                     }
                     AsyncStorage.setItem('@user', JSON.stringify(currentState));
                     this.setUser(currentState);
