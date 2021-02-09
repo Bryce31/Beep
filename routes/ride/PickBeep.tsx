@@ -16,7 +16,7 @@ interface Props {
 
 interface State {
     isLoading: boolean;
-    beeperList: User[];
+    beepers: User[];
 }
 
 export class PickBeepScreen extends Component<Props, State> {
@@ -25,7 +25,7 @@ export class PickBeepScreen extends Component<Props, State> {
         super(props);
         this.state = {
             isLoading: true,
-            beeperList: []
+            beepers: []
         }
     }
 
@@ -36,7 +36,7 @@ export class PickBeepScreen extends Component<Props, State> {
             const data = await result.json();
 
             if (data.status === "success") {
-                this.setState({ isLoading: false, beeperList: data.beeperList });
+                this.setState({ isLoading: false, beepers: data.beepers });
             }
             else {
                 this.setState({ isLoading: handleFetchError(data.message) });
@@ -96,17 +96,17 @@ export class PickBeepScreen extends Component<Props, State> {
         );
         
         if (!this.state.isLoading) {
-            if (this.state.beeperList && this.state.beeperList.length != 0) {
+            if (this.state.beepers && this.state.beepers.length != 0) {
                 return (
                     <>
                         <TopNavigation title='Beeper List' 
                             alignment='center' 
-                            subtitle={(this.state.beeperList.length == 1) ? `${this.state.beeperList.length} person is beeping` : `${this.state.beeperList.length} people are beeping`}
+                            subtitle={(this.state.beepers.length == 1) ? `${this.state.beepers.length} person is beeping` : `${this.state.beepers.length} people are beeping`}
                             accessoryLeft={BackAction} 
                             accessoryRight={RefreshAction}
                         />
                         <List
-                            data={this.state.beeperList}
+                            data={this.state.beepers}
                             ItemSeparatorComponent={Divider}
                             renderItem={renderItem}
                         />
@@ -118,7 +118,7 @@ export class PickBeepScreen extends Component<Props, State> {
                     <>
                         <TopNavigation
                             title='Beeper List'
-                            subtitle={(this.state.beeperList.length == 1) ? `${this.state.beeperList.length} person is beeping` : `${this.state.beeperList.length} people are beeping`}
+                            subtitle={(this.state.beepers.length == 1) ? `${this.state.beepers.length} person is beeping` : `${this.state.beepers.length} people are beeping`}
                             alignment='center'
                             accessoryLeft={BackAction}
                             accessoryRight={RefreshAction}
@@ -136,7 +136,7 @@ export class PickBeepScreen extends Component<Props, State> {
                 <>
                     <TopNavigation
                         title='Beeper List'
-                        subtitle={(this.state.beeperList.length == 1) ? `${this.state.beeperList.length} person is beeping` : `${this.state.beeperList.length} people are beeping`}
+                        subtitle={(this.state.beepers.length == 1) ? `${this.state.beepers.length} person is beeping` : `${this.state.beepers.length} people are beeping`}
                         alignment='center'
                         accessoryLeft={BackAction}
                         accessoryRight={RefreshAction}
