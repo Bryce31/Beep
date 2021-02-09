@@ -51,7 +51,7 @@ export class ProfileScreen extends Component<Props, State> {
             id: this.props.route.params.id,
             first: this.state.user.first,
             last: this.state.user.last,
-            beepEventId: this.props.route.params.beepEventId
+            beep: this.props.route.params.beep
         });
     }
     

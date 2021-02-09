@@ -376,7 +376,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                 <Card
                                     style={styles.cards}
                                     status={(this.state.currentIndex == index) ? "primary" : "basic"} 
-                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.rider.id})}
+                                    onPress={() => this.props.navigation.navigate("Profile", { id: item.rider.id, beep: item.id })}
                                 >
                                     <Layout
                                         style={{flex: 1, flexDirection: "row", alignItems: 'center'}}
@@ -465,7 +465,7 @@ export class StartBeepingScreen extends Component<Props, State> {
 
                                 <Card
                                     style={styles.cards}
-                                    onPress={() => this.props.navigation.navigate("Profile", {id: item.rider.id})}
+                                    onPress={() => this.props.navigation.navigate("Profile", { id: item.rider.id, beep: item.id })}
                                 >
                                     <Layout style={{flex: 1, flexDirection: "row", alignItems: 'center'}}>
                                         {item.rider.photoUrl &&

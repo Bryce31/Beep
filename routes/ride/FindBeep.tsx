@@ -13,12 +13,14 @@ import LeaveButton from './LeaveButton';
 import { User } from '../../types/Beep';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { MainNavParamList } from '../../navigators/MainTabs';
+import Logger from '../../utils/Logger';
 
 interface Props {
     navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
 interface State {
+    _id: string;
     isLoading: boolean;
     foundBeep: boolean;
     isAccepted: boolean;
@@ -84,9 +86,10 @@ export class MainFindBeepScreen extends Component<Props, State> {
         });
 
         socket.on("connect", async () => {
-            await this.getRiderStatus();
             if (this.state.foundBeep) {
-                this.enableGetRiderStatus();
+                Logger.info("fix me");
+                await this.getRiderStatus();
+                if (this.state.foundBeep) this.enableGetRiderStatus();
             }
         });
     }
@@ -114,6 +117,8 @@ export class MainFindBeepScreen extends Component<Props, State> {
                     ...data
                 });
 
+                console.log(this.state);
+
                 if (data.beeper.location) {
                     this.updateETA(data.beeper.location.latitude, data.beeper.location.longitude);
                 }
@@ -132,6 +137,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
 
                 if (!isInitial) {
                     this.setState({ isLoading: false, foundBeep: false, isAccepted: false, beeper: null, state: 0, ridersQueuePosition: 0 });
+                    console.log("Running as not initial");
                     this.disableGetRiderStatus();
                 }
             }
@@ -326,7 +332,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             if (this.state.beeper?.id) {
                 return(
                     <Layout style={styles.container}>
-                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beepEventId: this.state.id })} >
+                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beep: this.state._id })} >
                             <Layout style={{alignItems: "center", justifyContent: 'center'}}>
                                 {this.state.beeper.photoUrl &&
                                 <ProfilePicture
@@ -456,7 +462,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             if (this.state.isAccepted) {
                 return (
                     <Layout style={styles.container}>
-                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beepEventId: this.state.id })} >
+                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beep: this.state._id })} >
                             <Layout style={{alignItems: "center", justifyContent: 'center'}}>
                                 {this.state.beeper?.photoUrl &&
                                 <ProfilePicture
@@ -537,7 +543,7 @@ export class MainFindBeepScreen extends Component<Props, State> {
             else {
                 return (
                     <Layout style={styles.container}>
-                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beepEventId: this.state.id })} >
+                        <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beep: this.state._id })} >
                             <Layout style={{alignItems: "center", justifyContent: 'center'}}>
                                 {this.state.beeper?.photoUrl &&
                                 <ProfilePicture

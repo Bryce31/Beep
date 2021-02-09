@@ -13,7 +13,7 @@ export type MainNavParamList = {
     Settings: undefined;
     MainFindBeepScreen: undefined;
     PickBeepScreen: { handlePick: (id: string) => Promise<void> } | undefined;
-    Profile: { id: string | undefined} | undefined;
+    Profile: { id: string | undefined, beep?: string } | undefined;
     EditProfileScreen: undefined;
     ProfilePhotoScreen: undefined;
     ChangePasswordScreen: undefined;

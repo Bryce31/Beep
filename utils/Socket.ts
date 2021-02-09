@@ -1,5 +1,4 @@
 import { Manager } from "socket.io-client";
-import {User} from "../types/Beep";
 import { config } from './config';
 import Logger from "./Logger";
 
