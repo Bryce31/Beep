@@ -25,7 +25,7 @@ export function parseError(validatorError: string | any) {
  * @param error is the native fetch error
  * @returns false so I can throw this is the isLoading setState
  */
-export function handleFetchError(error: any) {
+export function handleFetchError(error: any): boolean {
     const message = "[API] Fetch Error:";
     console.log(message, error);
     alert(parseError(error));
