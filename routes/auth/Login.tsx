@@ -19,7 +19,7 @@ interface Props {
 function LoginScreen(props: Props) {
     const [username, setUsername] = useState<string>();
     const [password, setPassword] = useState<string>();
-    const [isLoading, setIsLoading] = useState<boolean>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true);
 
     const renderIcon = (props: unknown) => (
@@ -54,7 +54,7 @@ function LoginScreen(props: Props) {
                         onSubmitEditing={() => { console.log("Use GraphQL to login") }}
                         blurOnSubmit={true}
                     />
-                    {isLoading ?
+                    {!isLoading ?
                         <Button
                             accessoryRight={LoginIcon}
                             onPress={() => { console.log("Use GraphQL to login") }}
@@ -106,3 +106,5 @@ const styles = StyleSheet.create({
         padding: 15,
     },
 });
+
+export default LoginScreen;
