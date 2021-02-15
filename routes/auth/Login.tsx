@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Platform, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Layout, Text, Button, Input } from '@ui-kitten/components';
 import * as SplashScreen from 'expo-splash-screen';
@@ -12,12 +12,27 @@ import { handleFetchError } from "../../utils/Errors";
 import { Icon } from '@ui-kitten/components';
 import socket from "../../utils/Socket";
 import {Formik} from 'formik';
+import { gql, useMutation } from '@apollo/client';
 
 interface Props {
     navigation: any;
 }
 
+const Login = gql`
+    mutation Login($username: String!, $password: String!) {
+        login(input: {username: $username, password: $password}) {
+            user {
+                first
+            }
+            tokens {
+                id
+            }
+        }
+    }
+`;
+
 function LoginScreen(props: Props) {
+    const [login, { data, loading: mutationLoading, error: mutationError }] = useMutation(Login);
     const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true);
 
     const renderIcon = (props: unknown) => (
@@ -37,10 +52,8 @@ function LoginScreen(props: Props) {
                 <Formik
                     initialValues={{ username: '', password: '' }}
                     onSubmit={(values, { setSubmitting }) => {
-                        setTimeout(() => {
-                            alert(JSON.stringify(values, null, 2));
-                            setSubmitting(false);
-                        }, 400);
+                        login({ variables: values });
+                        setSubmitting(false);
                     }}
                 >
                     {({
@@ -75,6 +88,7 @@ function LoginScreen(props: Props) {
                         </form>
                     )}
                 </Formik>
+                {mutationLoading && <Text>Loading</Text>}
                 <Text style={{marginTop: 30, marginBottom: 10 }}> Don't have an account? </Text>
                 <Button
                     size="small"

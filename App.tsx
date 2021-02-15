@@ -24,10 +24,16 @@ import Sentry from "./utils/Sentry";
 import { AuthContext } from './types/Beep';
 import { isMobile } from './utils/config';
 import ThemedStatusBar from './utils/StatusBar';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 const Stack = createStackNavigator();
 let initialScreen: string;
 init();
+
+const client = new ApolloClient({
+    uri: 'http://localhost:3001',
+    cache: new InMemoryCache()
+});
 
 interface State {
     user: AuthContext | null;
@@ -128,26 +134,28 @@ export default class App extends Component<undefined, State> {
         const toggleTheme = this.toggleTheme;
 
         return (
-            <UserContext.Provider value={{user, setUser}}>
-                <ThemeContext.Provider value={{theme, toggleTheme}}>
-                    <IconRegistry icons={EvaIconsPack} />
-                    <ApplicationProvider {...eva} theme={{ ...eva[this.state.theme], ...beepTheme }}>
-                        <Layout style={styles.statusbar}>
-                            <ThemedStatusBar theme={this.state.theme}/>
-                        </Layout>
-                        <NavigationContainer>
-                            <Stack.Navigator initialRouteName={initialScreen} screenOptions={{ headerShown: false }} >
-                                <Stack.Screen name="Login" component={LoginScreen} />
-                                <Stack.Screen name="Register" component={RegisterScreen} />
-                                <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-                                <Stack.Screen name="Main" component={MainTabs} />
-                                <Stack.Screen name='Profile' component={ProfileScreen} />
-                                <Stack.Screen name='Report' component={ReportScreen} />
-                            </Stack.Navigator>
-                        </NavigationContainer>
-                    </ApplicationProvider>
-                </ThemeContext.Provider>
-            </UserContext.Provider>
+            <ApolloProvider client={client}>
+                <UserContext.Provider value={{user, setUser}}>
+                    <ThemeContext.Provider value={{theme, toggleTheme}}>
+                        <IconRegistry icons={EvaIconsPack} />
+                        <ApplicationProvider {...eva} theme={{ ...eva[this.state.theme], ...beepTheme }}>
+                            <Layout style={styles.statusbar}>
+                                <ThemedStatusBar theme={this.state.theme}/>
+                            </Layout>
+                            <NavigationContainer>
+                                <Stack.Navigator initialRouteName={initialScreen} screenOptions={{ headerShown: false }} >
+                                    <Stack.Screen name="Login" component={LoginScreen} />
+                                    <Stack.Screen name="Register" component={RegisterScreen} />
+                                    <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+                                    <Stack.Screen name="Main" component={MainTabs} />
+                                    <Stack.Screen name='Profile' component={ProfileScreen} />
+                                    <Stack.Screen name='Report' component={ReportScreen} />
+                                </Stack.Navigator>
+                            </NavigationContainer>
+                        </ApplicationProvider>
+                    </ThemeContext.Provider>
+                </UserContext.Provider>
+            </ApolloProvider>
         );
     }
 }
