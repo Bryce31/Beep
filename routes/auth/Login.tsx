@@ -11,15 +11,13 @@ import { LoginIcon, SignUpIcon, QuestionIcon, LoadingIndicator } from '../../uti
 import { handleFetchError } from "../../utils/Errors";
 import { Icon } from '@ui-kitten/components';
 import socket from "../../utils/Socket";
+import {Formik} from 'formik';
 
 interface Props {
     navigation: any;
 }
 
 function LoginScreen(props: Props) {
-    const [username, setUsername] = useState<string>();
-    const [password, setPassword] = useState<string>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true);
 
     const renderIcon = (props: unknown) => (
@@ -36,37 +34,47 @@ function LoginScreen(props: Props) {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!isMobile} >
             <Layout style={styles.container}>
                 <Text style={styles.title} category='h6'>Login</Text>
-                <Layout style={styles.form}>
-                    <Input
-                        textContentType="username"
-                        placeholder="Username"
-                        returnKeyType="next"
-                        onChangeText={text => setUsername(text)}
-                        blurOnSubmit={true}
-                    />
-                    <Input
-                        textContentType="password"
-                        placeholder="Password"
-                        returnKeyType="go"
-                        accessoryRight={renderIcon}
-                        secureTextEntry={secureTextEntry}
-                        onChangeText={text => setPassword(text)}
-                        onSubmitEditing={() => { console.log("Use GraphQL to login") }}
-                        blurOnSubmit={true}
-                    />
-                    {!isLoading ?
-                        <Button
-                            accessoryRight={LoginIcon}
-                            onPress={() => { console.log("Use GraphQL to login") }}
-                        >
-                            Login
-                        </Button>
-                        :
-                        <Button appearance='outline' accessoryRight={LoadingIndicator}>
-                            Loading
-                        </Button>
-                    }
-                </Layout>
+                <Formik
+                    initialValues={{ username: '', password: '' }}
+                    onSubmit={(values, { setSubmitting }) => {
+                        setTimeout(() => {
+                            alert(JSON.stringify(values, null, 2));
+                            setSubmitting(false);
+                        }, 400);
+                    }}
+                >
+                    {({
+                        values,
+                        errors,
+                        touched,
+                        handleChange,
+                        handleBlur,
+                        handleSubmit,
+                        isSubmitting,
+                    }) => (
+                        <form onSubmit={handleSubmit}>
+                            <input
+                                type="text"
+                                name="username"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                value={values.username}
+                            />
+                            {errors.username && touched.username && errors.username}
+                            <input
+                                type="password"
+                                name="password"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                value={values.password}
+                            />
+                            {errors.password && touched.password && errors.password}
+                            <button type="submit" disabled={isSubmitting}>
+                                Submit
+                            </button>
+                        </form>
+                    )}
+                </Formik>
                 <Text style={{marginTop: 30, marginBottom: 10 }}> Don't have an account? </Text>
                 <Button
                     size="small"
