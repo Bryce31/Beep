@@ -54,7 +54,7 @@ export type QueryGetBeepHistoryArgs = {
 
 
 export type QueryGetQueueArgs = {
-  id: Scalars['String'];
+  id?: Maybe<Scalars['String']>;
 };
 
 
@@ -231,7 +231,7 @@ export type MutationSignupArgs = {
 
 
 export type MutationLogoutArgs = {
-  isApp: Scalars['Boolean'];
+  isApp?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -370,11 +370,53 @@ export type LoginMutation = (
     { __typename?: 'Auth' }
     & { user: (
       { __typename?: 'User' }
-      & Pick<User, 'id' | 'first' | 'last' | 'username'>
+      & Pick<User, 'id' | 'first' | 'last' | 'username' | 'email' | 'phone' | 'venmo' | 'isBeeping' | 'isEmailVerified' | 'isStudent' | 'groupRate' | 'singlesRate' | 'capacity' | 'masksRequired' | 'queueSize' | 'role' | 'photoUrl' | 'name'>
     ), tokens: (
       { __typename?: 'TokenEntry' }
       & Pick<TokenEntry, 'id' | 'tokenid'>
     ) }
+  ) }
+);
+
+export type GetQueueQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetQueueQuery = (
+  { __typename?: 'Query' }
+  & { getQueue: Array<(
+    { __typename?: 'QueueEntry' }
+    & Pick<QueueEntry, 'id' | 'isAccepted' | 'groupSize' | 'origin' | 'destination' | 'state'>
+    & { rider: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'name' | 'first' | 'last' | 'venmo' | 'phone'>
+    ) }
+  )> }
+);
+
+export type UpdateBeepSettingsMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UpdateBeepSettingsMutation = (
+  { __typename?: 'Mutation' }
+  & { setBeeperStatus: (
+    { __typename?: 'User' }
+    & { queue: Array<(
+      { __typename?: 'QueueEntry' }
+      & Pick<QueueEntry, 'id'>
+    )> }
+  ) }
+);
+
+export type GetUserQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetUserQuery = (
+  { __typename?: 'Query' }
+  & { getUser: (
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'first' | 'last' | 'isBeeping' | 'isStudent' | 'role' | 'venmo' | 'singlesRate' | 'groupRate' | 'capacity' | 'masksRequired' | 'photoUrl' | 'queueSize'>
   ) }
 );
 
@@ -385,13 +427,13 @@ export type GetRiderStatusQuery = (
   { __typename?: 'Query' }
   & { getRiderStatus: (
     { __typename?: 'QueueEntry' }
-    & Pick<QueueEntry, 'ridersQueuePosition' | 'isAccepted' | 'origin' | 'destination' | 'state' | 'groupSize'>
+    & Pick<QueueEntry, 'id' | 'ridersQueuePosition' | 'isAccepted' | 'origin' | 'destination' | 'state' | 'groupSize'>
     & { location?: Maybe<(
       { __typename?: 'Location' }
       & Pick<Location, 'longitude' | 'latitude'>
     )>, beeper: (
       { __typename?: 'User' }
-      & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone'>
+      & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone' | 'photoUrl' | 'masksRequired' | 'capacity' | 'queueSize'>
     ) }
   ) }
 );
@@ -403,15 +445,23 @@ export type ChooseBeepMutation = (
   { __typename?: 'Mutation' }
   & { chooseBeep: (
     { __typename?: 'QueueEntry' }
-    & Pick<QueueEntry, 'ridersQueuePosition' | 'isAccepted' | 'origin' | 'destination' | 'state' | 'groupSize'>
+    & Pick<QueueEntry, 'id' | 'ridersQueuePosition' | 'isAccepted' | 'origin' | 'destination' | 'state' | 'groupSize'>
     & { location?: Maybe<(
       { __typename?: 'Location' }
       & Pick<Location, 'longitude' | 'latitude'>
     )>, beeper: (
       { __typename?: 'User' }
-      & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone'>
+      & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone' | 'photoUrl' | 'masksRequired' | 'capacity' | 'queueSize'>
     ) }
   ) }
+);
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'logout'>
 );
 
 
@@ -423,6 +473,20 @@ export const LoginDocument = gql`
       first
       last
       username
+      email
+      phone
+      venmo
+      isBeeping
+      isEmailVerified
+      isStudent
+      groupRate
+      singlesRate
+      capacity
+      masksRequired
+      queueSize
+      role
+      photoUrl
+      name
     }
     tokens {
       id
@@ -457,9 +521,135 @@ export function useLoginMutation(baseOptions?: ApolloReactHooks.MutationHookOpti
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = ApolloReactCommon.MutationResult<LoginMutation>;
 export type LoginMutationOptions = ApolloReactCommon.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export const GetQueueDocument = gql`
+    query GetQueue {
+  getQueue {
+    id
+    isAccepted
+    groupSize
+    origin
+    destination
+    state
+    rider {
+      id
+      name
+      first
+      last
+      venmo
+      phone
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetQueueQuery__
+ *
+ * To run a query within a React component, call `useGetQueueQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetQueueQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetQueueQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetQueueQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetQueueQuery, GetQueueQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetQueueQuery, GetQueueQueryVariables>(GetQueueDocument, baseOptions);
+      }
+export function useGetQueueLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetQueueQuery, GetQueueQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetQueueQuery, GetQueueQueryVariables>(GetQueueDocument, baseOptions);
+        }
+export type GetQueueQueryHookResult = ReturnType<typeof useGetQueueQuery>;
+export type GetQueueLazyQueryHookResult = ReturnType<typeof useGetQueueLazyQuery>;
+export type GetQueueQueryResult = ApolloReactCommon.QueryResult<GetQueueQuery, GetQueueQueryVariables>;
+export const UpdateBeepSettingsDocument = gql`
+    mutation UpdateBeepSettings {
+  setBeeperStatus(
+    input: {singlesRate: 1, groupRate: 1, capacity: 9, isBeeping: false, masksRequired: true}
+  ) {
+    queue {
+      id
+    }
+  }
+}
+    `;
+export type UpdateBeepSettingsMutationFn = ApolloReactCommon.MutationFunction<UpdateBeepSettingsMutation, UpdateBeepSettingsMutationVariables>;
+
+/**
+ * __useUpdateBeepSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateBeepSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBeepSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBeepSettingsMutation, { data, loading, error }] = useUpdateBeepSettingsMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUpdateBeepSettingsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateBeepSettingsMutation, UpdateBeepSettingsMutationVariables>) {
+        return ApolloReactHooks.useMutation<UpdateBeepSettingsMutation, UpdateBeepSettingsMutationVariables>(UpdateBeepSettingsDocument, baseOptions);
+      }
+export type UpdateBeepSettingsMutationHookResult = ReturnType<typeof useUpdateBeepSettingsMutation>;
+export type UpdateBeepSettingsMutationResult = ApolloReactCommon.MutationResult<UpdateBeepSettingsMutation>;
+export type UpdateBeepSettingsMutationOptions = ApolloReactCommon.BaseMutationOptions<UpdateBeepSettingsMutation, UpdateBeepSettingsMutationVariables>;
+export const GetUserDocument = gql`
+    query GetUser($id: String!) {
+  getUser(id: $id) {
+    id
+    first
+    last
+    isBeeping
+    isStudent
+    role
+    venmo
+    singlesRate
+    groupRate
+    capacity
+    masksRequired
+    photoUrl
+    queueSize
+  }
+}
+    `;
+
+/**
+ * __useGetUserQuery__
+ *
+ * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetUserQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetUserQuery, GetUserQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, baseOptions);
+      }
+export function useGetUserLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, baseOptions);
+        }
+export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
+export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
+export type GetUserQueryResult = ApolloReactCommon.QueryResult<GetUserQuery, GetUserQueryVariables>;
 export const GetRiderStatusDocument = gql`
     query GetRiderStatus {
   getRiderStatus {
+    id
     ridersQueuePosition
     isAccepted
     origin
@@ -481,6 +671,10 @@ export const GetRiderStatusDocument = gql`
       venmo
       username
       phone
+      photoUrl
+      masksRequired
+      capacity
+      queueSize
     }
   }
 }
@@ -516,6 +710,7 @@ export const ChooseBeepDocument = gql`
     beeperId: "string"
     input: {origin: "test", destination: "test", groupSize: 1}
   ) {
+    id
     ridersQueuePosition
     isAccepted
     origin
@@ -537,6 +732,10 @@ export const ChooseBeepDocument = gql`
       venmo
       username
       phone
+      photoUrl
+      masksRequired
+      capacity
+      queueSize
     }
   }
 }
@@ -565,3 +764,32 @@ export function useChooseBeepMutation(baseOptions?: ApolloReactHooks.MutationHoo
 export type ChooseBeepMutationHookResult = ReturnType<typeof useChooseBeepMutation>;
 export type ChooseBeepMutationResult = ApolloReactCommon.MutationResult<ChooseBeepMutation>;
 export type ChooseBeepMutationOptions = ApolloReactCommon.BaseMutationOptions<ChooseBeepMutation, ChooseBeepMutationVariables>;
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout(isApp: true)
+}
+    `;
+export type LogoutMutationFn = ApolloReactCommon.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+        return ApolloReactHooks.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, baseOptions);
+      }
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
+export type LogoutMutationResult = ApolloReactCommon.MutationResult<LogoutMutation>;
+export type LogoutMutationOptions = ApolloReactCommon.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;

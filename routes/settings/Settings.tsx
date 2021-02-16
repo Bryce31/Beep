@@ -9,29 +9,23 @@ import { config } from "../../utils/config";
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
 import ResendButton from '../../components/ResendVarificationEmailButton';
+import {gql, useMutation} from '@apollo/client';
+import {LogoutMutation} from '../../generated/graphql';
+
+const Logout = gql`
+    mutation Logout {
+        logout (isApp: true)
+    }
+`;
 
 export function MainSettingsScreen({ navigation }: any) {
     const themeContext: any = React.useContext(ThemeContext);
     const userContext: any = React.useContext(UserContext);
+    const [logout, { loading: loading, error: error }] = useMutation<LogoutMutation>(Logout);
 
-    async function logout() {
+    async function doLogout() {
         try {
-            fetch(config.apiUrl + "/auth/logout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + userContext.user.tokens.token
-                },
-                body: JSON.stringify({
-                    "isApp": true
-                })
-            });
-
-            AsyncStorage.multiRemove(['@user', '@tokenid'], (err) => {
-                if (err) { 
-                    console.error(err);
-                }
-            });
+            const result = await logout();
 
             socket.emit('stopGetQueue');
             socket.emit('stopGetRiderStatus');
@@ -40,14 +34,12 @@ export function MainSettingsScreen({ navigation }: any) {
             socket.off('updateQueue');
         }
         catch (error) {
-            //Probably no internet. Save tokenid so we can call the token revoker upon the next signin or signup
-            AsyncStorage.setItem("@tokenid", userContext.user.tokens.tokenid);
-            AsyncStorage.removeItem("@user", (error) => {
+            AsyncStorage.setItem("token", userContext.user.tokens.tokenid);
+            AsyncStorage.removeItem("auth", (error) => {
                 console.log("Removed all except tokenid and expoPushToken from storage.", error);
             });
         }
 
-        //Reset the navigation state and as a callback, remove the user from context
         await navigation.reset({
             index: 0,
             routes: [
@@ -136,12 +128,12 @@ export function MainSettingsScreen({ navigation }: any) {
                     Ride Log
                 </Button>
                 <Button
-                    onPress={logout}
+                    onPress={() => doLogout()}
                     accessoryLeft={LogoutIcon}
                     style={styles.button}
                     appearance='ghost'
                 >
-                    Logout
+                    {loading ? "Logging you out..." : "Logout"}
                 </Button>
             </Layout>
         </Layout>

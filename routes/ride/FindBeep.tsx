@@ -19,6 +19,7 @@ import {ChooseBeepMutation, GetRiderStatusQuery} from '../../generated/graphql';
 const RiderStatus = gql`
     query GetRiderStatus {
         getRiderStatus {
+            id
             ridersQueuePosition
             isAccepted
             origin
@@ -40,6 +41,10 @@ const RiderStatus = gql`
                 venmo
                 username
                 phone
+                photoUrl
+                masksRequired
+                capacity
+                queueSize
             }
         }
     }
@@ -51,6 +56,7 @@ const ChooseBeep = gql`
         beeperId: "string"
         input: { origin: "test", destination: "test", groupSize: 1 }
         ) {
+            id
             ridersQueuePosition
             isAccepted
             origin
@@ -72,6 +78,10 @@ const ChooseBeep = gql`
                 venmo
                 username
                 phone
+                photoUrl
+                masksRequired
+                capacity
+                queueSize
             }
         }
     }
@@ -83,22 +93,25 @@ interface Props {
 
 export function MainFindBeepScreen(props: Props) {
     const userContext: any = React.useContext(UserContext);
+
     const [eta, setEta] = useState<string>();
+    const [pickBeeper, setPickBeeper] = useState<boolean>(true);
+
     const [getBeep, { loading: isGetBeepLoading, error: error1 }] = useMutation<ChooseBeepMutation>(ChooseBeep);
+
     const { loading, error, data } = useQuery<GetRiderStatusQuery>(RiderStatus);
 
-    /*
     function getVenmoLink(): string {
-        if (Number(this.state.groupSize) > 1) {
-            return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper?.venmo + '&amount=' + this.state.beeper?.groupRate + '&note=Beep';
+        if (Number(data?.getRiderStatus.groupSize) > 1) {
+            return 'venmo://paycharge?txn=pay&recipients=' + data?.getRiderStatus.beeper?.venmo + '&amount=' + data?.getRiderStatus.beeper?.groupRate + '&note=Beep';
         }
-        return 'venmo://paycharge?txn=pay&recipients=' + this.state.beeper?.venmo + '&amount=' + this.state.beeper?.singlesRate + '&note=Beep';
+        return 'venmo://paycharge?txn=pay&recipients=' + data?.getRiderStatus.beeper?.venmo + '&amount=' + data?.getRiderStatus.beeper?.singlesRate + '&note=Beep';
     }
 
     function shareVenmoInformation(): void {
         try {
             Share.share({
-                message: `Please Venmo ${this.state.beeper?.venmo} $${this.state.beeper?.groupRate} for the beep!`,
+                message: `Please Venmo ${data?.getRiderStatus.beeper?.venmo} $${data?.getRiderStatus.beeper?.groupRate} for the beep!`,
                 url: getVenmoLink()
             });
         }
@@ -108,7 +121,7 @@ export function MainFindBeepScreen(props: Props) {
     }            
 
     function getCurrentStatusMessage(): string {
-        switch(1) {
+        switch(data?.getRiderStatus.state) {
             case 0:
                 return "Beeper is getting ready to come get you.";
             case 1:
@@ -127,14 +140,16 @@ export function MainFindBeepScreen(props: Props) {
             <Icon {...props} name='pin'/>
         </TouchableWithoutFeedback>
     );
+    
 
     const Tags = () => (
         <Layout style={styles.tagRow}>
-            {this.state.beeper?.isStudent && <Button status="basic" size='tiny' style={styles.tag}>Student</Button>}
-            {this.state.beeper?.masksRequired && <Button status="info" size='tiny' style={styles.tag}>Masks Required</Button>}
-            {(this.state.beeper && this.state.beeper?.userLevel > 0) && <Button size='tiny' status='danger' style={styles.tag}>Founder</Button>}
+            {data?.getRiderStatus.beeper?.isStudent && <Button status="basic" size='tiny' style={styles.tag}>Student</Button>}
+            {data?.getRiderStatus.beeper?.masksRequired && <Button status="info" size='tiny' style={styles.tag}>Masks Required</Button>}
+            {(data?.getRiderStatus.beeper && data?.getRiderStatus.beeper?.role == "ADMIN") && <Button size='tiny' status='danger' style={styles.tag}>Founder</Button>}
         </Layout>
     );
+    
     
     if (userContext.user.user.isBeeping) {
         return(
@@ -144,57 +159,56 @@ export function MainFindBeepScreen(props: Props) {
             </Layout>
         );
     }
-     */
+     
     console.log(data);
-    return <Text>Hello</Text>;
 
-    if (!this.state.foundBeep) {
-        if (this.state.beeper?.id) {
+    if (!data?.getRiderStatus.beeper) {
+        if (data?.getRiderStatus.beeper?.id) {
             return(
                 <Layout style={styles.container}>
-                    <TouchableWithoutFeedback onPress={() => props.navigation.navigate("Profile", { id: this.state.beeper?.id, beep: this.state._id })} >
+                    <TouchableWithoutFeedback onPress={() => props.navigation.navigate("Profile", { id: data?.getRiderStatus.beeper?.id, beep: data?.getRiderStatus.id })} >
                         <Layout style={{alignItems: "center", justifyContent: 'center'}}>
-                            {this.state.beeper.photoUrl &&
+                            {data?.getRiderStatus.beeper.photoUrl &&
                             <ProfilePicture
                                 style={{marginBottom: 5}}
                                 size={100}
-                                url={this.state.beeper.photoUrl}
+                                url={data.getRiderStatus.beeper.photoUrl}
                             />
                             }
                             <Layout style={styles.group}>
-                                <Text category='h5'>{this.state.beeper.first} {this.state.beeper.last}</Text>
+                                <Text category='h5'>{data?.getRiderStatus.beeper.first} {data?.getRiderStatus.beeper.last}</Text>
                                 <Text appearance='hint'>is avalible to beep you!</Text>
                             </Layout>
                         </Layout>
                     </TouchableWithoutFeedback>
                     <Tags/>
                     <Layout style={styles.group}>
-                        <Text category='h6'>{this.state.beeper.first}{"'"}s Rates</Text>
+                        <Text category='h6'>{data?.getRiderStatus.beeper.first}{"'"}s Rates</Text>
                         <Layout style={styles.rateGroup}>
                             <Layout style={styles.rateLayout}>
                                 <Text appearance='hint'>Single</Text>
-                                <Text>${this.state.beeper.singlesRate}</Text>
+                                <Text>${data?.getRiderStatus.beeper.singlesRate}</Text>
                             </Layout>
                             <Layout style={styles.rateLayout} >
                                 <Text appearance='hint'>Group</Text>
-                                <Text>${this.state.beeper.groupRate}</Text>
+                                <Text>${data?.getRiderStatus.beeper.groupRate}</Text>
                             </Layout>
                         </Layout>
                     </Layout>
                     <Layout style={styles.group}>
-                        <Text appearance='hint'>{this.state.beeper.first}{"'"}s rider capacity is</Text>
-                        <Text category='h6'>{this.state.beeper.capacity}</Text>
+                        <Text appearance='hint'>{data?.getRiderStatus.beeper.first}{"'"}s rider capacity is</Text>
+                        <Text category='h6'>{data?.getRiderStatus.beeper.capacity}</Text>
                     </Layout>
 
                     <Layout style={styles.group}>
-                        <Text appearance='hint'>{this.state.beeper.first}{"'"}s total queue length is</Text>
-                        <Text category='h6'>{this.state.beeper.queueSize}</Text>
+                        <Text appearance='hint'>{data?.getRiderStatus.beeper.first}{"'"}s total queue length is</Text>
+                        <Text category='h6'>{data?.getRiderStatus.beeper.queueSize}</Text>
                     </Layout>
-                    {!isLoading ?
+                    {!loading ?
                         <Button
                             style={styles.buttons}
                             accessoryRight={GetIcon}
-                            onPress={() => this.chooseBeep(this.state.beeper?.id)}
+                            onPress={() => {}}
                         >
                         Get Beep
                         </Button>
@@ -207,7 +221,7 @@ export function MainFindBeepScreen(props: Props) {
                         status='basic'
                         style={styles.buttons}
                         accessoryLeft={BackIcon}
-                        onPress={() => this.setState({ beeper: null })}
+                        onPress={() => {}}
                     >
                     Go Back
                     </Button>
@@ -228,34 +242,34 @@ export function MainFindBeepScreen(props: Props) {
                             label='Group Size'
                             style={styles.buttons}
                             placeholder='Group Size'
-                            value={String(this.state.groupSize)}
-                            onChangeText={value => this.setState({groupSize: value})}
+                            value={String(data?.getRiderStatus.groupSize)}
+                            onChangeText={value => {}}
                         />
                         <Input
                             label='Pick-up Location'
                             style={styles.buttons}
                             placeholder='Pickup Location'
                             accessoryRight={CurrentLocationIcon}
-                            value={this.state.origin}
-                            onChangeText={value => this.setState({origin: value})}
+                            value={data?.getRiderStatus.origin}
+                            onChangeText={value => {}}
                         />
                         <Input
                             label='Destination Location'
                             style={styles.buttons}
                             placeholder='Destination'
-                            value={this.state.destination}
-                            onChangeText={value => this.setState({destination: value})}
+                            value={data?.getRiderStatus.destination}
+                            onChangeText={value => {}}
                         />
                         <CheckBox
-                            checked={this.state.pickBeeper}
-                            onChange={(value) => this.setState({pickBeeper: value})}
+                            checked={pickBeeper}
+                            onChange={(value) => setPickBeeper(value)}
                         >
                             Pick your own beeper
                         </CheckBox>
-                        {!isLoading ?
+                        {!loading ?
                             <Button
                                 accessoryRight={FindIcon}
-                                onPress={() => this.findBeep()}
+                                onPress={() => {}}
                                 size='large'
                                 style={{marginTop:15}}
                             >
@@ -279,52 +293,52 @@ export function MainFindBeepScreen(props: Props) {
         }
     }
     else {
-        if (this.state.isAccepted) {
+        if (data?.getRiderStatus.isAccepted) {
             return (
                 <Layout style={styles.container}>
-                    <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beep: this.state._id })} >
+                    <TouchableWithoutFeedback onPress={() => props.navigation.navigate("Profile", { id: data?.getRiderStatus.beeper?.id, beep: data?.getRiderStatus.id })} >
                         <Layout style={{alignItems: "center", justifyContent: 'center'}}>
-                            {this.state.beeper?.photoUrl &&
+                            {data?.getRiderStatus.beeper?.photoUrl &&
                             <ProfilePicture
                                 style={{marginBottom: 5}}
                                 size={100}
-                                url={this.state.beeper.photoUrl}
+                                url={data?.getRiderStatus.beeper.photoUrl}
                             />
                             }
                             <Layout style={styles.group}>
-                                <Text category='h6'>{this.state.beeper?.first || "No"} {this.state.beeper?.last || "User"}</Text>
+                                <Text category='h6'>{data?.getRiderStatus.beeper?.first || "No"} {data?.getRiderStatus.beeper?.last || "User"}</Text>
                                 <Text appearance='hint'>is your beeper!</Text>
                             </Layout>
                         </Layout>
                     </TouchableWithoutFeedback>
                     <Tags/>
-                    {(this.state.ridersQueuePosition == 0) &&
+                    {(data?.getRiderStatus.ridersQueuePosition == 0) &&
                         <Layout style={styles.group}>
                             <Card>
                                 <Text category='h6'>Current Status</Text>
                                 <Text appearance='hint'>
-                                    {this.getCurrentStatusMessage()}
+                                    {getCurrentStatusMessage()}
                                 </Text>
                             </Card>
-                            {(this.state.state == 1 && this.state.eta) &&
+                            {(data?.getRiderStatus.state == 1 && eta) &&
                                 <Card style={{marginTop: 10}}>
                                     <Text category='h6'>Arrival ETA</Text>
-                                    <Text appearance='hint'>Your beeper is {this.state.eta} away</Text>
+                                    <Text appearance='hint'>Your beeper is {eta} away</Text>
                                 </Card>
                             }
                         </Layout>
                     }
-                    {(this.state.ridersQueuePosition != 0) && 
+                    {(data?.getRiderStatus.ridersQueuePosition != 0) && 
                         <Layout style={styles.group}>
-                            <Text category='h6'>{this.state.ridersQueuePosition}</Text>
-                            <Text appearance='hint'>{(this.state.ridersQueuePosition == 1) ? "person is" : "people are"} ahead of you in {this.state.beeper?.first || "User"}{"'"}s queue.</Text>
+                            <Text category='h6'>{data?.getRiderStatus.ridersQueuePosition}</Text>
+                            <Text appearance='hint'>{(data?.getRiderStatus.ridersQueuePosition == 1) ? "person is" : "people are"} ahead of you in {data?.getRiderStatus.beeper?.first || "User"}{"'"}s queue.</Text>
                         </Layout>
                     }
                     <Button
                         status='basic'
                         accessoryRight={PhoneIcon}
                         style={styles.buttons}
-                        onPress={() =>{ Linking.openURL('tel:' + this.state.beeper?.phone); } }
+                        onPress={() =>{ Linking.openURL('tel:' + data?.getRiderStatus.beeper?.phone); } }
                     >
                     Call Beeper
                     </Button>
@@ -332,7 +346,7 @@ export function MainFindBeepScreen(props: Props) {
                         status='basic'
                         accessoryRight={TextIcon}
                         style={styles.buttons}
-                        onPress={() =>{ Linking.openURL('sms:' + this.state.beeper?.phone); } }
+                        onPress={() =>{ Linking.openURL('sms:' + data?.getRiderStatus.beeper?.phone); } }
                     >
                     Text Beeper
                     </Button>
@@ -340,22 +354,22 @@ export function MainFindBeepScreen(props: Props) {
                         status='info'
                         accessoryRight={VenmoIcon}
                         style={styles.buttons}
-                        onPress={() => Linking.openURL(this.getVenmoLink())}
+                        onPress={() => Linking.openURL(getVenmoLink())}
                     >
                     Pay Beeper with Venmo
                     </Button> 
-                    {(Number(this.state.groupSize) > 1) &&
+                    {(Number(data?.getRiderStatus.groupSize) > 1) &&
                         <Button
                             status='basic'
                             accessoryRight={ShareIcon}
                             style={styles.buttons}
-                            onPress={() => this.shareVenmoInformation()}
+                            onPress={() => shareVenmoInformation()}
                         >
                         Share Venmo Info with Your Friends
                         </Button>
                     }
-                    {(this.state.ridersQueuePosition >= 1 && this.state.beeper) && 
-                        <LeaveButton beepersId={this.state.beeper.id} />
+                    {(data?.getRiderStatus.ridersQueuePosition >= 1 && data?.getRiderStatus.beeper) && 
+                        <LeaveButton beepersId={data?.getRiderStatus.beeper.id} />
                     }
                 </Layout>
             );
@@ -363,43 +377,43 @@ export function MainFindBeepScreen(props: Props) {
         else {
             return (
                 <Layout style={styles.container}>
-                    <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate("Profile", { id: this.state.beeper?.id, beep: this.state._id })} >
+                    <TouchableWithoutFeedback onPress={() => props.navigation.navigate("Profile", { id: data?.getRiderStatus.beeper.id, beep: data?.getRiderStatus.id })} >
                         <Layout style={{alignItems: "center", justifyContent: 'center'}}>
-                            {this.state.beeper?.photoUrl &&
+                            {data?.getRiderStatus.beeper.photoUrl &&
                             <ProfilePicture
                                 style={{marginBottom: 5}}
                                 size={100}
-                                url={this.state.beeper.photoUrl}
+                                url={data.getRiderStatus.beeper.photoUrl}
                             />
                             }
                             <Layout style={styles.group}>
-                            <Text appearance='hint'>Waiting on</Text>
-                            <Text category='h6'>{this.state.beeper?.first || "No"} {this.state.beeper?.last || "User"}</Text>
-                            <Text appearance='hint'>to accept your request.</Text>
+                                <Text appearance='hint'>Waiting on</Text>
+                                <Text category='h6'>{data?.getRiderStatus.beeper.first || "No"} {data?.getRiderStatus.beeper.last || "User"}</Text>
+                                <Text appearance='hint'>to accept your request.</Text>
                             </Layout>
                         </Layout>
                     </TouchableWithoutFeedback>
                     <Tags/>
                     <Layout style={styles.group}>
-                        <Text category='h6'>{this.state.beeper?.first}{"'"}{(this.state.beeper?.first.charAt(this.state.beeper.first.length - 1) != 's') && "s"} Rates</Text>
+                        <Text category='h6'>{data?.getRiderStatus.beeper?.first}{"'"}{(data?.getRiderStatus.beeper?.first.charAt(data?.getRiderStatus.beeper.first.length - 1) != 's') && "s"} Rates</Text>
                         <Text appearance='hint' style={{marginBottom: 6}}>per person</Text>
                         <Layout style={styles.rateGroup}>
                             <Layout style={styles.rateLayout}>
                                 <Text appearance='hint'>Single</Text>
-                                <Text>${this.state.beeper?.singlesRate || "0.0"}</Text>
+                                <Text>${data?.getRiderStatus.beeper?.singlesRate || "0.0"}</Text>
                             </Layout>
                             <Layout style={styles.rateLayout} >
                                 <Text appearance='hint'>Group</Text>
-                                <Text>${this.state.beeper?.groupRate || "0.0"}</Text>
+                                <Text>${data?.getRiderStatus.beeper?.groupRate || "0.0"}</Text>
                             </Layout>
                         </Layout>
                     </Layout>
-
+    
                     <Layout style={styles.group}>
-                        <Text category='h6'>{this.state.beeper?.queueSize}</Text>
-                        <Text appearance='hint'>{(this.state.beeper?.queueSize == 1) ? "person is" : "people are"} ahead of you in {this.state.beeper?.first}{"'"}s queue</Text>
+                        <Text category='h6'>{data?.getRiderStatus.beeper?.queueSize}</Text>
+                        <Text appearance='hint'>{(data?.getRiderStatus.beeper?.queueSize == 1) ? "person is" : "people are"} ahead of you in {data?.getRiderStatus.beeper?.first}{"'"}s queue</Text>
                     </Layout>
-                    {this.state.beeper && <LeaveButton beepersId={this.state.beeper.id} />}
+                    {data?.getRiderStatus.beeper && <LeaveButton beepersId={data.getRiderStatus.beeper.id} />}
                 </Layout>
             );
         }

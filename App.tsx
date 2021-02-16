@@ -36,12 +36,16 @@ const httpLink = createHttpLink({
 
 const authLink = setContext(async (_, { headers }) => {
   // get the authentication token from local storage if it exists
-  const token = await AsyncStorage.getItem('token');
+  const tit = await AsyncStorage.getItem('auth');
+
+  if (!tit) return;
+
+  const auth = JSON.parse(tit);
   // return the headers to the context so httpLink can read them
   return {
     headers: {
       ...headers,
-      Authorization: token ? `Bearer ${token}` : "",
+      Authorization: auth.tokens.id ? `Bearer ${auth.tokens.id}` : "",
     }
   }
 });
@@ -87,7 +91,7 @@ export default class App extends Component<undefined, State> {
         let user;
         let theme = this.state.theme;
 
-        const storageData = await AsyncStorage.multiGet(['@user', '@theme']);
+        const storageData = await AsyncStorage.multiGet(['auth', '@theme']);
 
         if (storageData[0][1]) {
             initialScreen = "Main";

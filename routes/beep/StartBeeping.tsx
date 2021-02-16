@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react';
+import React, { Component, ReactNode, useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
@@ -16,79 +16,61 @@ import ProfilePicture from '../../components/ProfilePicture';
 import Toggle from "./components/Toggle";
 import * as Permissions from 'expo-permissions';
 import Logger from '../../utils/Logger';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { GetQueueQuery, UpdateBeepSettingsMutation } from '../../generated/graphql';
 
 interface Props {
     navigation: any;
 }
 
-interface State {
-    isBeeping: boolean; 
-    masksRequired: boolean;
-    capacity: undefined | string;
-    singlesRate: undefined | string;
-    groupRate: undefined | string;
-    queue: any[];
-    currentIndex: number;
-}
+const GetQueue = gql`
+    query GetQueue {
+        getQueue {
+            id
+            isAccepted
+            groupSize
+            origin
+            destination
+            state
+            rider {
+                id
+                name
+                first
+                last
+                venmo
+                phone
+            }
+        }
+    }
+`;
+
+const UpdateBeepSettings = gql`
+    mutation UpdateBeepSettings {
+        setBeeperStatus(
+        input : {
+            singlesRate: 1
+            groupRate: 1
+            capacity: 9
+            isBeeping: false
+            masksRequired: true
+        }
+        ) {
+            queue {
+                id
+            }
+        }
+    }
+`;
 
 const LOCATION_TRACKING = 'location-tracking';
 
-export class StartBeepingScreen extends Component<Props, State> {
-    static contextType = UserContext;
-    
-    constructor(props: Props, context: any) {
-        super(props);
-        this.state = {
-            currentIndex: 0,
-            isBeeping: context.user.user.isBeeping,
-            masksRequired: context.user.user.masksRequired,
-            capacity: String(context.user.user.capacity),
-            singlesRate: String(context.user.user.singlesRate),
-            groupRate: String(context.user.user.groupRate),
-            queue: []
-        };
-    }
+export function StartBeepingScreen(props: Props) {
+    const userContext: any = React.useContext(UserContext);
+    const [isBeeping, setIsBeeping] = useState<boolean>(userContext.user.user.isBeeping);
+    const { loading, error, data } = useQuery<GetQueueQuery>(GetQueue);
+    const [updateBeepSettings, { loading: loadingBeepSettings, error: beepSettingsError }] = useMutation<UpdateBeepSettingsMutation>(UpdateBeepSettings);
 
-    async retrieveData(): Promise<void> {
-        try {
-            const result = await fetch(config.apiUrl + '/users/' + this.context.user.user.id);
-
-            const data = await result.json();
-
-            if (data.status == "success") {
-                if (this.state.isBeeping !== data.user.isBeeping) {
-                    this.setState({ isBeeping: data.isBeeping });
-                }
-
-                if(data.user.isBeeping) {
-                    this.getQueue();
-                    this.enableGetQueue();
-                    this.startLocationTracking();
-
-                    const { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-
-                    if (status !== 'granted') {
-                        //if we have no location access, dont let the user beep
-                        //TODO we only disable beeping client side, should we push false to server also?
-                        this.setState({ isBeeping: false });
-                        this.disableGetQueue();
-                        this.stopLocationTracking();
-                        //TODO better error handling
-                        alert("You must allow location to beep!");
-                    }
-                }
-            }
-            else {
-                handleFetchError(data.message);
-            }
-        }
-        catch (error) {
-            handleFetchError(error);
-        }
-    }
-
-    async startLocationTracking(): Promise<void> {
+    async function startLocationTracking(): Promise<void> {
         if (!__DEV__) {
             await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
                 accuracy: Location.Accuracy.Highest,
@@ -107,194 +89,26 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
-    async stopLocationTracking(): Promise<void> {
+    async function stopLocationTracking(): Promise<void> {
         if (!__DEV__) {
             Location.stopLocationUpdatesAsync(LOCATION_TRACKING);
         }
     }
 
-    componentDidMount(): void {
-        this.retrieveData();
+    useEffect(() => {
+    }, []);
 
-        socket.on("updateQueue", () => {
-            this.getQueue();
-        });
 
-        socket.on("connect", async () => {
-            await this.retrieveData();
-            if (this.state.isBeeping) {
-                Logger.info("[getQueue] reconnected to socket successfully");
-                this.getQueue();
-                this.enableGetQueue();
-            }
-        });
+    function enableGetQueue(): void {
+        socket.emit('getQueue', "");
     }
 
-    async getQueue(): Promise<void> {
-        try {
-            const result = await fetch(config.apiUrl + "/users/" + this.context.user.user.id + "/queue", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.tokens.token
-                }
-            });
-
-            const data = await result.json();
-            
-            if (data.status === "success") {
-                //this is cool and it works with web somehow, iOS or web
-                //badge count will be your queue size!!
-                //TODO revisit this
-                Notifications.setBadgeCountAsync(data.queue.length);
-
-                if (JSON.stringify(this.state.queue) !== JSON.stringify(data.queue)) {
-                    this.setState({ queue: data.queue });
-                }
-            }
-            else {
-                handleFetchError(data.message);
-            }
-        }
-        catch (error) {
-            handleFetchError(error);
-        }
-    }
-    toggleSwitchWrapper(value: boolean): void {
-        if (isAndroid && value) {
-            Alert.alert(
-                "Background Location Notice",
-                "Ride Beep App collects location data to enable ETAs for riders when your are beeping and the app is closed or not in use",
-                [
-                    {
-                        text: "Cancel",
-                        onPress: () => console.log("Cancel Pressed"),
-                            style: "cancel"
-                    },
-                    { text: "OK", onPress: () => this.toggleSwitch(value) }
-                ],
-                { cancelable: true }
-            );
-        }
-        else {
-            this.toggleSwitch(value);
-        }
-    }
-
-    async toggleSwitch(value: boolean): Promise<void> {
-        //Update the toggle switch's value into a isBeeping state
-        this.setState({ isBeeping: value });
-
-        if (value) {
-            //if we are turning on isBeeping, ensure we have location permission
-            const { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-
-            if (status !== 'granted') {
-                this.setState({ isBeeping: false });
-                return alert("You must allow location to beep!");
-            }
-            //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
-            this.enableGetQueue();
-            this.startLocationTracking();
-        }
-        else {
-            //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
-            this.disableGetQueue();
-            this.stopLocationTracking();
-        }
-        
-        try {
-            const result = await fetch(config.apiUrl + "/beeper/status", {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.tokens.token
-                },
-                body: JSON.stringify({
-                    isBeeping: value,
-                    singlesRate: this.state.singlesRate,
-                    groupRate: this.state.groupRate,
-                    capacity: this.state.capacity,
-                    masksRequired: this.state.masksRequired
-                })
-            });
-
-            const data = await result.json();
-
-            if (data.status === "success") {
-                //We sucessfuly updated beeper status in database
-                if (value) {
-                    this.getQueue();
-                }
-
-                const tempUser = JSON.parse(JSON.stringify(this.context.user));
-                tempUser.isBeeping = value;
-                AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-                //this.context.setUser(tempUser);
-            }
-            else {
-                //Use native popup to tell user why they could not change their status
-                //Unupdate the toggle switch because something failed
-                //We redo our actions so the client does not have to wait on server to update the switch
-                this.setState({ isBeeping: !this.state.isBeeping });
-                //we also need to resubscribe to the socket
-                if (this.state.isBeeping) {
-                    this.enableGetQueue();
-                    this.startLocationTracking();
-                }
-                else {
-                    this.disableGetQueue();
-                    this.stopLocationTracking();
-                }
-
-                handleFetchError(data.message);
-            }
-        }
-        catch (error) {
-            handleFetchError(error);
-        }
-    }
-
-    enableGetQueue(): void {
-        socket.emit('getQueue', this.context.user.user.id);
-    }
-
-    disableGetQueue(): void {
+    function disableGetQueue(): void {
         socket.emit('stopGetQueue');
     }
 
-    updateSingles(value: undefined | string): void {
-        this.setState({ singlesRate: value });
 
-        const tempUser = this.context.user;
-
-        tempUser.user.singlesRate = value;
-
-        AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-    }
-
-    updateGroup(value: undefined | string): void {
-        this.setState({groupRate: value});
-
-        const tempUser = this.context.user;
-
-        tempUser.user.groupRate = value;
-
-        AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-    }
-
-    updateCapacity(value: undefined | string): void {
-        this.setState({capacity: value});
-
-        const tempUser = this.context.user;
-
-        tempUser.user.capacity = value;
-
-        AsyncStorage.setItem('@user', JSON.stringify(tempUser));
-    }
-
-    handleDirections(origin: string, dest: string): void {
+    function handleDirections(origin: string, dest: string): void {
         if (Platform.OS == 'ios') {
             Linking.openURL('http://maps.apple.com/?saddr=' + origin + '&daddr=' + dest);
         }
@@ -303,22 +117,20 @@ export class StartBeepingScreen extends Component<Props, State> {
         }
     }
 
-    handleVenmo (groupSize: string | number, venmo: string): void {
+    function handleVenmo(groupSize: string | number, venmo: string): void {
         if (groupSize > 1) {
-            Linking.openURL('venmo://paycharge?txn=pay&recipients='+ venmo + '&amount=' + this.state.groupRate + '&note=Beep');
+            Linking.openURL('venmo://paycharge?txn=pay&recipients='+ venmo + '&amount=' + userContext.user.user.groupRate + '&note=Beep');
         }
         else {
-            Linking.openURL('venmo://paycharge?txn=pay&recipients='+ venmo + '&amount=' + this.state.singlesRate + '&note=Beep');
+            Linking.openURL('venmo://paycharge?txn=pay&recipients='+ venmo + '&amount=' + userContext.user.user.singlesRate + '&note=Beep');
         }
     }
 
-    render(): ReactNode {
-        console.log("[StartBeeping.js] Rendering Start Beeping Screen");
-        if(!this.state.isBeeping) {
-            return (
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!(Platform.OS == "ios" || Platform.OS == "android")} >
+    if(!isBeeping) {
+        return (
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!(Platform.OS == "ios" || Platform.OS == "android")} >
                 <Layout style={styles.container}>
-                    <Toggle isBeepingState={this.state.isBeeping} onToggle={(value) => this.toggleSwitch(value)}/>
+                    <Toggle isBeepingState={isBeeping} onToggle={(value) => {}}/>
                     <Layout style={{marginTop: 6, width: "85%"}}>
                         <Input
                             label='Max Capacity'
@@ -326,8 +138,8 @@ export class StartBeepingScreen extends Component<Props, State> {
                             placeholder='Max Capcity'
                             keyboardType='numeric'
                             style={styles.inputs}
-                            value={this.state.capacity}
-                            onChangeText={(value) => this.updateCapacity(value)}
+                            value={""}
+                            onChangeText={(value) => {}}
                         />
                         <Input
                             label='Singles Rate'
@@ -335,9 +147,9 @@ export class StartBeepingScreen extends Component<Props, State> {
                             placeholder='Singles Rate'
                             keyboardType='numeric'
                             style={styles.inputs}
-                            value={this.state.singlesRate}
                             accessoryLeft={DollarIcon}
-                            onChangeText={(value) => this.updateSingles(value)}
+                            value={""}
+                            onChangeText={(value) => {}}
                         />
                         <Input
                             label='Group Rate'
@@ -345,38 +157,38 @@ export class StartBeepingScreen extends Component<Props, State> {
                             placeholder='Group Rate'
                             keyboardType='numeric'
                             style={styles.inputs}
-                            value={this.state.groupRate}
                             accessoryLeft={DollarIcon}
-                            onChangeText={(value) => this.updateGroup(value)}
+                            value={""}
+                            onChangeText={(value) => {}}
                         />
                         <CheckBox
-                            checked={this.state.masksRequired}
-                            onChange={(value) => this.setState({ masksRequired: value })}
+                            checked={false}
+                            onChange={(value) => {}}
                             style={{marginTop: 5}}
                         >
                             Require riders to have a mask 😷
                         </CheckBox>
                     </Layout>
                 </Layout>
-                </TouchableWithoutFeedback>
-            );
-        }
-        else {
-            if (this.state.queue && this.state.queue.length != 0) {
-                return (
-                    <Layout style={styles.container}>
-                        <Toggle isBeepingState={this.state.isBeeping} onToggle={async (value) => this.toggleSwitchWrapper(value)}/>
-                        <List
-                            style={styles.list}
-                            data={this.state.queue}
-                            keyExtractor={item => item.id.toString()}
-                            renderItem={({item, index}) =>
-                                item.isAccepted ?
+            </TouchableWithoutFeedback>
+        );
+    }
+    else {
+        if (data?.getQueue && data.getQueue.length > 0) {
+            return (
+                <Layout style={styles.container}>
+                    <Toggle isBeepingState={isBeeping} onToggle={async (value) => {}}/>
+                    <List
+                        style={styles.list}
+                        data={data?.getQueue}
+                        keyExtractor={item => item.id.toString()}
+                        renderItem={({item, index}) =>
+                            item.isAccepted ?
 
                                 <Card
                                     style={styles.cards}
-                                    status={(this.state.currentIndex == index) ? "primary" : "basic"} 
-                                    onPress={() => this.props.navigation.navigate("Profile", { id: item.rider.id, beep: item.id })}
+                                    status={(0 == index) ? "primary" : "basic"} 
+                                    onPress={() => props.navigation.navigate("Profile", { id: item.rider.id, beep: item.id })}
                                 >
                                     <Layout
                                         style={{flex: 1, flexDirection: "row", alignItems: 'center'}}
@@ -411,7 +223,7 @@ export class StartBeepingScreen extends Component<Props, State> {
                                                 accessoryLeft={PhoneIcon}
                                                 onPress={() =>{ Linking.openURL('tel:' + item.rider.phone); } }
                                             >
-                                            Call Rider
+                                                Call Rider
                                             </Button>
                                         </Layout>
                                         <Layout style={styles.layout}>
@@ -421,18 +233,18 @@ export class StartBeepingScreen extends Component<Props, State> {
                                                 accessoryLeft={TextIcon}
                                                 onPress={() =>{ Linking.openURL('sms:' + item.rider.phone); } }
                                             >
-                                            Text Rider
+                                                Text Rider
                                             </Button>
-                                    </Layout>
+                                        </Layout>
                                     </Layout>
                                     <Button
                                         size="small"
                                         style={styles.paddingUnder}
                                         status='info'
                                         accessoryLeft={VenmoIcon}
-                                        onPress={() => this.handleVenmo(item.groupSize, item.rider.venmo)}
+                                        onPress={() => handleVenmo(item.groupSize, item.rider.venmo)}
                                     >
-                                    Request Money from Rider with Venmo
+                                        Request Money from Rider with Venmo
                                     </Button>
                                     {item.state <= 1 ?
                                         <Button
@@ -440,32 +252,32 @@ export class StartBeepingScreen extends Component<Props, State> {
                                             style={styles.paddingUnder}
                                             status='success'
                                             accessoryLeft={MapsIcon}
-                                            onPress={() => this.handleDirections("Current+Location", item.origin) }
+                                            onPress={() => handleDirections("Current+Location", item.origin) }
                                         >
-                                        Get Directions to Rider
+                                            Get Directions to Rider
                                         </Button>
-                                    :
+                                        :
                                         <Button
                                             size="small"
                                             style={styles.paddingUnder}
                                             status='success'
                                             accessoryLeft={MapsIcon}
-                                            onPress={() => this.handleDirections(item.origin, item.destination) }
+                                            onPress={() => handleDirections(item.origin, item.destination) }
                                         >
-                                        Get Directions for Beep
+                                            Get Directions for Beep
                                         </Button>
                                     }
                                     <ActionButton ref={
-                                    //@ts-ignore
+                                        //@ts-ignore
                                         this.actionButtonElement
-                                    } item={item}/>
+                                        } item={item}/>
                                 </Card>
 
                                 :
 
                                 <Card
                                     style={styles.cards}
-                                    onPress={() => this.props.navigation.navigate("Profile", { id: item.rider.id, beep: item.id })}
+                                    onPress={() => props.navigation.navigate("Profile", { id: item.rider.id, beep: item.id })}
                                 >
                                     <Layout style={{flex: 1, flexDirection: "row", alignItems: 'center'}}>
                                         {item.rider.photoUrl &&
@@ -494,22 +306,21 @@ export class StartBeepingScreen extends Component<Props, State> {
                                         </Layout>
                                     </Layout>
                                 </Card>
-                            }
-                        />
+                        }
+                    />
+                </Layout>
+            );
+        }
+        else {
+            return (
+                <Layout style={styles.container}>
+                    <Toggle isBeepingState={isBeeping} onToggle={async (value) => {}}/>
+                    <Layout style={styles.empty}>
+                        <Text category='h5'>Your queue is empty</Text>
+                        <Text appearance='hint'>If someone wants you to beep them, it will appear here. If your app is closed, you will recieve a push notification.</Text>
                     </Layout>
-                );
-            }
-            else {
-                return (
-                    <Layout style={styles.container}>
-                        <Toggle isBeepingState={this.state.isBeeping} onToggle={async (value) => this.toggleSwitchWrapper(value)}/>
-                        <Layout style={styles.empty}>
-                            <Text category='h5'>Your queue is empty</Text>
-                            <Text appearance='hint'>If someone wants you to beep them, it will appear here. If your app is closed, you will recieve a push notification.</Text>
-                        </Layout>
-                    </Layout>
-                );
-            }
+                </Layout>
+            );
         }
     }
 }
