@@ -37,7 +37,8 @@ const Login = gql`
 `;
 
 function LoginScreen(props: Props) {
-    const [login, { result: data, loading: mutationLoading, error: mutationError }] = useMutation<LoginMutation>(Login);
+    const userContext: any = React.useContext(UserContext);
+    const [login, { loading: loading, error: error }] = useMutation<LoginMutation>(Login);
     const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true);
 
     const renderIcon = (props: unknown) => (
@@ -54,11 +55,11 @@ function LoginScreen(props: Props) {
 
         const r = await login({ variables: values });
 
-        r.data?.login.user.
+        AsyncStorage.setItem("auth", JSON.stringify(r.data?.login));
 
-        AsyncStorage.setItem("auth", JSON.stringify(login));
+        userContext.setUser(r.data?.login);
             
-        socket.emit('getUser', login.tokens.id);
+        socket.emit('getUser', r.data?.login.tokens.id);
 
         props.navigation.reset({
             index: 0,
@@ -111,7 +112,7 @@ function LoginScreen(props: Props) {
                         </form>
                     )}
                 </Formik>
-                {mutationLoading && <Text>Loading</Text>}
+                {loading && <Text>Loading</Text>}
                 <Text style={{marginTop: 30, marginBottom: 10 }}> Don't have an account? </Text>
                 <Button
                     size="small"
