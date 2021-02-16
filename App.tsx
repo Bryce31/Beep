@@ -24,7 +24,7 @@ import Sentry from "./utils/Sentry";
 import { AuthContext } from './types/Beep';
 import { isMobile } from './utils/config';
 import ThemedStatusBar from './utils/StatusBar';
-import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloProvider, createHttpLink, DefaultOptions, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 
 const Stack = createStackNavigator();
@@ -49,9 +49,22 @@ const authLink = setContext(async (_, { headers }) => {
     }
   }
 });
+
+const defaultOptions: DefaultOptions = {
+    watchQuery: {
+        fetchPolicy: 'no-cache',
+        errorPolicy: 'ignore',
+    },
+    query: {
+        fetchPolicy: 'no-cache',
+        errorPolicy: 'all',
+    },
+};
+
 const client = new ApolloClient({
     link: authLink.concat(httpLink),
-    cache: new InMemoryCache()
+    cache: new InMemoryCache(),
+    defaultOptions: defaultOptions
 });
 
 interface State {

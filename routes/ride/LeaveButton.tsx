@@ -6,26 +6,23 @@ import { LeaveIcon } from '../../utils/Icons';
 import { Button } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext';
 import { isMobile } from '../../utils/config';
+import {gql, useMutation} from '@apollo/client';
+import {LeaveQueueMutation} from '../../generated/graphql';
 
 interface Props {
     beepersId: string; 
 }
 
-interface State {
-    isLoading: boolean;
-}
-
-export default class LeaveButton extends Component<Props, State> {
-    static contextType = UserContext;
-
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            isLoading: false
-        };
+const LeaveQueue = gql`
+    mutation LeaveQueue {
+        riderLeaveQueue
     }
+`;
 
-    leaveQueueWrapper(): void {
+function LeaveButton(props: Props) {
+    const [leave, { loading, error, data }] = useMutation<LeaveQueueMutation>(LeaveQueue);
+
+    function leaveQueueWrapper(): void {
         if (isMobile) {
             Alert.alert(
                 "Leave Queue?",
@@ -36,63 +33,38 @@ export default class LeaveButton extends Component<Props, State> {
                         onPress: () => console.log("No Pressed"),
                             style: "cancel"
                     },
-                    { text: "Yes", onPress: () => this.leaveQueue() }
+                    { text: "Yes", onPress: () => leaveQueue() }
                 ],
                 { cancelable: true }
             );
         }
         else {
-            this.leaveQueue();
+            leaveQueue();
         }
     }
 
-    async leaveQueue(): Promise<void> {
-        this.setState({ isLoading: true });
-
-        try {
-            const result = await fetch(config.apiUrl + "/rider/leave", {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + this.context.user.tokens.token
-                },
-                body: JSON.stringify({
-                    beepersID: this.props.beepersId
-                })
-            });
-
-            const data = await result.json();
-
-            if (data.status === "error") {
-                this.setState({ isLoading: handleFetchError(data.message) });
-            }
-        }
-        catch (error) {
-            this.setState({ isLoading: handleFetchError(error) });
-        }
+    async function leaveQueue(): Promise<void> {
+        leave();
     }
 
-    render() {
-        if (this.state.isLoading) {
-            return (
-                <Button appearance='outline' status='danger' style={styles.button}>
-                    Loading
-                </Button>
-            );
-        }
-        else {
-            return (
-            <Button
-                status='danger'
-                style={styles.button}
-                accessoryRight={LeaveIcon}
-                onPress={() => this.leaveQueueWrapper()}
-            >
-                Leave Queue
+    if (loading) {
+        return (
+            <Button appearance='outline' status='danger' style={styles.button}>
+                Loading
             </Button>
-            );
-        }
+        );
     }
+
+    return (
+        <Button
+            status='danger'
+            style={styles.button}
+            accessoryRight={LeaveIcon}
+            onPress={() => leaveQueueWrapper()}
+        >
+            Leave Queue
+        </Button>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -100,3 +72,5 @@ const styles = StyleSheet.create({
         width: "85%"
     }
 });
+
+export default LeaveButton;
