@@ -11,8 +11,9 @@ import { LoginIcon, SignUpIcon, QuestionIcon, LoadingIndicator } from '../../uti
 import { handleFetchError } from "../../utils/Errors";
 import { Icon } from '@ui-kitten/components';
 import socket from "../../utils/Socket";
-import {Formik} from 'formik';
+import { Formik } from 'formik';
 import { gql, useMutation } from '@apollo/client';
+import { LoginMutation, LoginMutationVariables } from '../../generated/graphql';
 
 interface Props {
     navigation: any;
@@ -22,17 +23,21 @@ const Login = gql`
     mutation Login($username: String!, $password: String!) {
         login(input: {username: $username, password: $password}) {
             user {
+                id
                 first
+                last
+                username
             }
             tokens {
                 id
+                tokenid
             }
         }
     }
 `;
 
 function LoginScreen(props: Props) {
-    const [login, { data, loading: mutationLoading, error: mutationError }] = useMutation(Login);
+    const [login, { result: data, loading: mutationLoading, error: mutationError }] = useMutation<LoginMutation>(Login);
     const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true);
 
     const renderIcon = (props: unknown) => (
@@ -45,6 +50,24 @@ function LoginScreen(props: Props) {
         SplashScreen.hideAsync();
     }, []);
 
+    async function doLogin(values: LoginMutationVariables) {
+
+        const r = await login({ variables: values });
+
+        r.data?.login.user.
+
+        AsyncStorage.setItem("auth", JSON.stringify(login));
+            
+        socket.emit('getUser', login.tokens.id);
+
+        props.navigation.reset({
+            index: 0,
+            routes: [
+                { name: 'Main' },
+            ],
+        });
+    }
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!isMobile} >
             <Layout style={styles.container}>
@@ -52,7 +75,7 @@ function LoginScreen(props: Props) {
                 <Formik
                     initialValues={{ username: '', password: '' }}
                     onSubmit={(values, { setSubmitting }) => {
-                        login({ variables: values });
+                        doLogin(values);
                         setSubmitting(false);
                     }}
                 >

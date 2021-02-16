@@ -24,14 +24,29 @@ import Sentry from "./utils/Sentry";
 import { AuthContext } from './types/Beep';
 import { isMobile } from './utils/config';
 import ThemedStatusBar from './utils/StatusBar';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 
 const Stack = createStackNavigator();
 let initialScreen: string;
 init();
-
-const client = new ApolloClient({
+const httpLink = createHttpLink({
     uri: 'http://localhost:3001',
+});
+
+const authLink = setContext(async (_, { headers }) => {
+  // get the authentication token from local storage if it exists
+  const token = await AsyncStorage.getItem('token');
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      Authorization: token ? `Bearer ${token}` : "",
+    }
+  }
+});
+const client = new ApolloClient({
+    link: authLink.concat(httpLink),
     cache: new InMemoryCache()
 });
 
