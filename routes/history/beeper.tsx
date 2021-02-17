@@ -7,71 +7,38 @@ import { UserContext } from '../../utils/UserContext';
 import ProfilePicture from '../../components/ProfilePicture';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { MainNavParamList } from '../../navigators/MainTabs';
-import {User} from '../../types/Beep';
-
-export interface BeeperEventEntry {
-    beeper: User;
-    rider: User;
-    destination: string;
-    doneTime: string;
-    groupSize: string;
-    id: string;
-    isAccepted: boolean;
-    origin: string;
-    state: number;
-    timeEnteredQueue: number;
-}
+import { User } from '../../types/Beep';
+import { gql, useQuery } from '@apollo/client';
+import { GetBeepHistoryQuery } from '../../generated/graphql';
 
 interface Props {
     navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
-interface State {
-    isLoading: boolean;
-    beeperList: User[];
-}
-
-export class BeeperRideLogScreen extends Component<Props, State> {
-    static contextType = UserContext;
-
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            isLoading: true,
-            beeperList: []
-        }
-    }
-
-    async getBeeperList(): Promise<void> {
-        try {
-            const result = await fetch(config.apiUrl + "/users/" + this.context.user.user.id + "/history/beeper", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${this.context.user.tokens.token}`
-                }
-            });
-
-            const data = await result.json();
-
-            if (data.status == "success") {
-                this.setState({ isLoading: false, beeperList: data.data });
-            }
-            else {
-                this.setState({ isLoading: handleFetchError(data.message) });
+const GetBeepHistory = gql`
+    query GetBeepHistory {
+        getBeepHistory {
+            id
+            timeEnteredQueue
+            doneTime
+            groupSize
+            origin
+            destination
+            rider {
+                id
+                name
+                first
+                last
+                photoUrl
             }
         }
-        catch (error) {
-            this.setState({ isLoading: handleFetchError(error) });
-        }
     }
+`;
 
-    componentDidMount(): void {
-        this.getBeeperList();
-    }
+export function BeeperRideLogScreen(props: Props) {
+    const { data, loading, error, refetch } = useQuery<GetBeepHistoryQuery>(GetBeepHistory);
 
-    render() {
-        const renderItem = ({ item }: { item: BeeperEventEntry }) => (
+        const renderItem = ({ item }) => (
             <ListItem
                 accessoryLeft={() => {
                     return (
@@ -81,19 +48,19 @@ export class BeeperRideLogScreen extends Component<Props, State> {
                         />
                     );
                 }}
-                onPress={() => this.props.navigation.push("Profile", { id: item.rider.id, beepEventId: item.id })}
+                onPress={() => props.navigation.push("Profile", { id: item.rider.id, beepEventId: item.id })}
                 title={`You beeped ${item.rider.first} ${item.rider.last}`}
                 description={`Group size: ${item.groupSize}\nOrigin: ${item.origin}\nDestination: ${item.destination}\nDate: ${new Date(item.timeEnteredQueue)}`}
             />
         );
         
-        if (!this.state.isLoading) {
-            if (this.state.beeperList && this.state.beeperList.length != 0) {
+        if (!loading) {
+            if (data?.getBeepHistory && data.getBeepHistory.length > 0) {
                 return (
                 <Layout style={styles.container}>
                     <List
                         style={{width:"100%"}}
-                        data={this.state.beeperList}
+                        data={data?.getBeepHistory}
                         ItemSeparatorComponent={Divider}
                         renderItem={renderItem}
                     />
@@ -117,7 +84,6 @@ export class BeeperRideLogScreen extends Component<Props, State> {
                 </Layout>
             );
         }
-    } 
 }
 
 const styles = StyleSheet.create({

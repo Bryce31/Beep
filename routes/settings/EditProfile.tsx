@@ -81,7 +81,7 @@ export class EditProfileScreen extends Component<Props, State> {
                     this.context.setUser(tempUser);
 
                     //put the tempUser back into storage
-                    AsyncStorage.setItem('@user', JSON.stringify(tempUser));
+                    AsyncStorage.setItem('auth', JSON.stringify(tempUser));
 
                     //on success, go back to settings page
                     this.props.navigation.goBack();

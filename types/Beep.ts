@@ -24,7 +24,7 @@ export interface User {
 }
 
 export interface Tokens {
-    token: string;
+    id: string;
     tokenid: string;
 }
 

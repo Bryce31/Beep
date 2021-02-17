@@ -15,6 +15,7 @@ import { MainNavParamList } from '../../navigators/MainTabs';
 import Logger from '../../utils/Logger';
 import {gql, useLazyQuery, useMutation, useQuery} from '@apollo/client';
 import {ChooseBeepMutation, GetRiderStatusQuery, FindBeepQuery} from '../../generated/graphql';
+import { UniqueDirectivesPerLocationRule } from 'graphql';
 
 const RiderStatus = gql`
     query GetRiderStatus {
@@ -112,6 +113,9 @@ export function MainFindBeepScreen(props: Props) {
     const userContext: any = React.useContext(UserContext);
 
     const [eta, setEta] = useState<string>();
+    const [groupSize, setGroupSize] = useState<string>("1");
+    const [origin, setOrigin] = useState<string>();
+    const [destination, setDestination] = useState<string>();
     const [pickBeeper, setPickBeeper] = useState<boolean>(true);
 
     const [getBeep, { loading: isGetBeepLoading, error: error1, data: chooseBeepData }] = useMutation<ChooseBeepMutation>(ChooseBeep);
@@ -121,7 +125,7 @@ export function MainFindBeepScreen(props: Props) {
     const [suggestBeep, { loading: loadingFindBeep, error: errorFindBeep, data: findBeepData, updateQuery: updateSuggestedBeeper }] = useLazyQuery<FindBeepQuery | null>(FindBeep);
 
     useEffect(() => {
-        startPolling(2000);
+        //startPolling(2000);
     }, []);
 
     async function findBeep(): Promise<void> {
@@ -135,12 +139,13 @@ export function MainFindBeepScreen(props: Props) {
 
     async function chooseBeep(id: string): Promise<void> {
         console.log("Getting beep with", id);
+        console.log(destination);
         
         const result = await getBeep({ variables: {
             beeperId: id,
-            origin: "Test",
-            destination: "Test",
-            groupSize: 3
+            origin: origin,
+            destination: destination,
+            groupSize: Number(groupSize)
         }});
 
         console.log(result);
@@ -181,8 +186,34 @@ export function MainFindBeepScreen(props: Props) {
         }
     }
 
+    async function useCurrentLocation(): Promise<void> {
+        setOrigin("Loading your location...");
+       
+        Location.setGoogleApiKey("AIzaSyBgabJrpu7-ELWiUIKJlpBz2mL6GYjwCVI");
+
+        const { status } = await Location.requestPermissionsAsync();
+
+        if (status !== 'granted') {
+            return alert("You must enable location to use this feature.");
+        }
+
+        const position = await Location.getCurrentPositionAsync({});
+        const location = await Location.reverseGeocodeAsync({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+
+        let string;
+
+        if (!location[0].name) {
+            string = position.coords.latitude + ", "+ position.coords.longitude;
+        }
+        else {
+            string = location[0].name + " " + location[0].street + " " + location[0].city + ", " + location[0].region + " " + location[0].postalCode;  
+        }
+
+        setOrigin(string);
+    }
+
     const CurrentLocationIcon = (props: Props) => (
-        <TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={() => useCurrentLocation()}>
             <Icon {...props} name='pin'/>
         </TouchableWithoutFeedback>
     );
@@ -223,23 +254,23 @@ export function MainFindBeepScreen(props: Props) {
                                 label='Group Size'
                                 style={styles.buttons}
                                 placeholder='Group Size'
-                                value={String(data?.getRiderStatus.groupSize)}
-                                onChangeText={value => {}}
+                                value={groupSize}
+                                onChangeText={value => setGroupSize(value)}
                             />
                             <Input
                                 label='Pick-up Location'
                                 style={styles.buttons}
                                 placeholder='Pickup Location'
                                 accessoryRight={CurrentLocationIcon}
-                                value={data?.getRiderStatus.origin}
-                                onChangeText={value => {}}
+                                value={origin}
+                                onChangeText={value => setOrigin(value)}
                             />
                             <Input
                                 label='Destination Location'
                                 style={styles.buttons}
                                 placeholder='Destination'
-                                value={data?.getRiderStatus.destination}
-                                onChangeText={value => {}}
+                                value={destination}
+                                onChangeText={value => setDestination(value)}
                             />
                             <CheckBox
                                 checked={pickBeeper}

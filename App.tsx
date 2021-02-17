@@ -97,7 +97,7 @@ export default class App extends Component<undefined, State> {
         socket.on("connect", () => {
             if (this.state.user && !initialScreen) {
                 console.log(initialScreen);
-                socket.emit('getUser', this.state.user.tokens.token);
+                socket.emit('getUser', this.state.user.tokens.id);
             }
         });
 
@@ -110,12 +110,12 @@ export default class App extends Component<undefined, State> {
             initialScreen = "Main";
             user = JSON.parse(storageData[0][1]);
 
-            if (isMobile && user.tokens.token) {
-                updatePushToken(user.tokens.token);
+            if (isMobile && user.tokens.id) {
+                updatePushToken(user.tokens.id);
             }
 
-            if (user.tokens.token) {
-                socket.emit('getUser', user.tokens.token);
+            if (user.tokens.id) {
+                socket.emit('getUser', user.tokens.id);
             }
 
             Sentry.setUserContext(user);
@@ -141,7 +141,7 @@ export default class App extends Component<undefined, State> {
                         currentState["user"][key] = userChanges[key];
                         console.log(key, "updated");
                     }
-                    AsyncStorage.setItem('@user', JSON.stringify(currentState));
+                    AsyncStorage.setItem('auth', JSON.stringify(currentState));
                     if (!(userChanges.queueSize >= 0 && (Object.keys(userChanges).length == 1))) {
                         console.log("Context Update Caused Re-Render");
                         this.setUser(currentState);

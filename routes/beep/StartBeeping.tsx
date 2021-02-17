@@ -45,20 +45,16 @@ const GetQueue = gql`
 `;
 
 const UpdateBeepSettings = gql`
-    mutation UpdateBeepSettings {
+    mutation UpdateBeepSettings($singlesRate: Float!, $groupRate: Float!, $capacity: Float!, $isBeeping: Boolean!, $masksRequired: Boolean!) {
         setBeeperStatus(
         input : {
-            singlesRate: 1
-            groupRate: 1
-            capacity: 9
-            isBeeping: false
-            masksRequired: true
+            singlesRate: $singlesRate
+            groupRate: $groupRate
+            capacity: $capacity
+            isBeeping: $isBeeping
+            masksRequired: $masksRequired
         }
-        ) {
-            queue {
-                id
-            }
-        }
+        )
     }
 `;
 
@@ -67,8 +63,94 @@ const LOCATION_TRACKING = 'location-tracking';
 export function StartBeepingScreen(props: Props) {
     const userContext: any = React.useContext(UserContext);
     const [isBeeping, setIsBeeping] = useState<boolean>(userContext.user.user.isBeeping);
-    const { loading, error, data } = useQuery<GetQueueQuery>(GetQueue);
+    const [masksRequired, setMasksRequired] = useState<boolean>(userContext.user.user.masksRequired);
+    const [singlesRate, setSinglesRate] = useState<string>(userContext.user.user.singlesRate);
+    const [groupRate, setGroupRate] = useState<string>(userContext.user.user.groupRate);
+    const [capacity, setCapacity] = useState<string>(userContext.user.user.capacity);
+
+    const { loading, error, data, refetch } = useQuery<GetQueueQuery>(GetQueue);
     const [updateBeepSettings, { loading: loadingBeepSettings, error: beepSettingsError }] = useMutation<UpdateBeepSettingsMutation>(UpdateBeepSettings);
+
+    function toggleSwitchWrapper(value: boolean): void {
+        if (isAndroid && value) {
+            Alert.alert(
+                "Background Location Notice",
+                "Ride Beep App collects location data to enable ETAs for riders when your are beeping and the app is closed or not in use",
+                [
+                    {
+                        text: "Cancel",
+                        onPress: () => console.log("Cancel Pressed"),
+                            style: "cancel"
+                    },
+                    { text: "OK", onPress: () => toggleSwitch(value) }
+                ],
+                { cancelable: true }
+            );
+        }
+        else {
+            toggleSwitch(value);
+        }
+    }
+
+    async function toggleSwitch(value: boolean): Promise<void> {
+        setIsBeeping(value);
+
+        if (value) {
+            //if we are turning on isBeeping, ensure we have location permission
+            const { status } = await Permissions.askAsync(Permissions.LOCATION);
+
+
+            if (status !== 'granted') {
+                setIsBeeping(false);
+                return alert("You must allow location to beep!");
+            }
+            //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
+            enableGetQueue();
+            startLocationTracking();
+        }
+        else {
+            //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
+            disableGetQueue();
+            stopLocationTracking();
+        }
+        
+        const result = await updateBeepSettings({ variables: {
+            isBeeping: !isBeeping,
+            singlesRate: singlesRate,
+            groupRate: groupRate,
+            masksRequired: masksRequired,
+            capacity: capacity
+        }});
+
+            if (result) {
+                //We sucessfuly updated beeper status in database
+                if (value) {
+                    refetch();
+                }
+
+                const tempUser = JSON.parse(JSON.stringify(userContext.user));
+                tempUser.user.isBeeping = value;
+                AsyncStorage.setItem('auth', JSON.stringify(tempUser));
+                userContext.setUser(tempUser);
+            }
+            else {
+                //Use native popup to tell user why they could not change their status
+                //Unupdate the toggle switch because something failed
+                //We redo our actions so the client does not have to wait on server to update the switch
+                setIsBeeping(!isBeeping);
+                //we also need to resubscribe to the socket
+                if (isBeeping) {
+                    enableGetQueue();
+                    startLocationTracking();
+                }
+                else {
+                    disableGetQueue();
+                    stopLocationTracking();
+                }
+
+                handleFetchError("Error");
+            }
+    }
 
     async function startLocationTracking(): Promise<void> {
         if (!__DEV__) {
@@ -96,11 +178,22 @@ export function StartBeepingScreen(props: Props) {
     }
 
     useEffect(() => {
+        socket.on("updateQueue", () => {
+            refetch();
+        });
+
+        socket.on("connect", async () => {
+            if (userContext.user.user.isBeeping) {
+                Logger.info("[getQueue] reconnected to socket successfully");
+                refetch();
+                enableGetQueue();
+            }
+        });
     }, []);
 
 
     function enableGetQueue(): void {
-        socket.emit('getQueue', "");
+        socket.emit('getQueue', userContext.user.user.id);
     }
 
     function disableGetQueue(): void {
@@ -130,7 +223,7 @@ export function StartBeepingScreen(props: Props) {
         return (
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={!(Platform.OS == "ios" || Platform.OS == "android")} >
                 <Layout style={styles.container}>
-                    <Toggle isBeepingState={isBeeping} onToggle={(value) => {}}/>
+                    <Toggle isBeepingState={isBeeping} onToggle={async (value) => toggleSwitchWrapper(value)}/>
                     <Layout style={{marginTop: 6, width: "85%"}}>
                         <Input
                             label='Max Capacity'
@@ -138,8 +231,8 @@ export function StartBeepingScreen(props: Props) {
                             placeholder='Max Capcity'
                             keyboardType='numeric'
                             style={styles.inputs}
-                            value={""}
-                            onChangeText={(value) => {}}
+                            value={String(capacity)}
+                            onChangeText={(value) => setCapacity(value)}
                         />
                         <Input
                             label='Singles Rate'
@@ -148,8 +241,8 @@ export function StartBeepingScreen(props: Props) {
                             keyboardType='numeric'
                             style={styles.inputs}
                             accessoryLeft={DollarIcon}
-                            value={""}
-                            onChangeText={(value) => {}}
+                            value={String(singlesRate)}
+                            onChangeText={(value) => setSinglesRate(value)}
                         />
                         <Input
                             label='Group Rate'
@@ -158,12 +251,12 @@ export function StartBeepingScreen(props: Props) {
                             keyboardType='numeric'
                             style={styles.inputs}
                             accessoryLeft={DollarIcon}
-                            value={""}
-                            onChangeText={(value) => {}}
+                            value={String(groupRate)}
+                            onChangeText={(value) => setGroupRate(value)}
                         />
                         <CheckBox
-                            checked={false}
-                            onChange={(value) => {}}
+                            checked={masksRequired}
+                            onChange={(value) => setMasksRequired(value)}
                             style={{marginTop: 5}}
                         >
                             Require riders to have a mask 😷
@@ -177,7 +270,7 @@ export function StartBeepingScreen(props: Props) {
         if (data?.getQueue && data.getQueue.length > 0) {
             return (
                 <Layout style={styles.container}>
-                    <Toggle isBeepingState={isBeeping} onToggle={async (value) => {}}/>
+                    <Toggle isBeepingState={isBeeping} onToggle={async (value) => toggleSwitchWrapper(value)}/>
                     <List
                         style={styles.list}
                         data={data?.getQueue}
@@ -314,7 +407,7 @@ export function StartBeepingScreen(props: Props) {
         else {
             return (
                 <Layout style={styles.container}>
-                    <Toggle isBeepingState={isBeeping} onToggle={async (value) => {}}/>
+                    <Toggle isBeepingState={isBeeping} onToggle={async (value) => toggleSwitchWrapper(value)}/>
                     <Layout style={styles.empty}>
                         <Text category='h5'>Your queue is empty</Text>
                         <Text appearance='hint'>If someone wants you to beep them, it will appear here. If your app is closed, you will recieve a push notification.</Text>
@@ -341,7 +434,7 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
         const heading = locations[0].coords.heading;
         const speed = locations[0].coords.speed;
 
-        const auth = await AsyncStorage.getItem('@user')
+        const auth = await AsyncStorage.getItem('auth')
 
         if (!auth) return;
 
