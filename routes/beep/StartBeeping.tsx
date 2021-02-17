@@ -32,6 +32,7 @@ const GetQueue = gql`
             origin
             destination
             state
+            timeEnteredQueue
             rider {
                 id
                 name
@@ -39,6 +40,7 @@ const GetQueue = gql`
                 last
                 venmo
                 phone
+                photoUrl
             }
         }
     }
@@ -116,10 +118,10 @@ export function StartBeepingScreen(props: Props) {
         
         const result = await updateBeepSettings({ variables: {
             isBeeping: !isBeeping,
-            singlesRate: singlesRate,
-            groupRate: groupRate,
+            singlesRate: Number(singlesRate),
+            groupRate: Number(groupRate),
             masksRequired: masksRequired,
-            capacity: capacity
+            capacity: Number(capacity)
         }});
 
             if (result) {

@@ -109,6 +109,8 @@ interface Props {
     navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
+var ran = false;
+
 export function MainFindBeepScreen(props: Props) {
     const userContext: any = React.useContext(UserContext);
 
@@ -135,8 +137,12 @@ export function MainFindBeepScreen(props: Props) {
     }, []);
 
     useEffect(() => {
-        if (data?.getRiderStatus.beeper.id) {
+        if (data?.getRiderStatus.beeper.id && !ran) {
+            ran = true;
             enableGetRiderStatus(data.getRiderStatus.beeper.id);
+        }
+        if (data == null) {
+            disableGetRiderStatus();
         }
       }, [data, error, loading])
 

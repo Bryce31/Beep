@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from "react";
+import React, { Component, ReactNode, useState } from "react";
 import { StyleSheet } from "react-native";
 import { Button } from "@ui-kitten/components";
 import { UserContext } from '../utils/UserContext';
@@ -25,9 +25,12 @@ mutation UpdateBeeperQueue($queueId: String!, $riderId: String!, $value: String!
 `;
 
 function AcceptDenyButton(props: Props) {
-    const [update, { data, loading, error }] = useMutation<UpdateBeeperQueueMutation>(UpdateBeeperQueue);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [update, { data, error }] = useMutation<UpdateBeeperQueueMutation>(UpdateBeeperQueue);
 
     async function updateStatus(queueId: string, riderId: string, value: string | boolean): Promise<void> {
+        setLoading(true);
+        
         const result = await update({
             variables: {
                 queueId: queueId,

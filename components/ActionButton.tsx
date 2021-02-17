@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from "react";
+import React, { Component, ReactNode, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, Spinner } from "@ui-kitten/components";
 import { UserContext } from '../utils/UserContext';
@@ -28,9 +28,14 @@ const UpdateBeeperQueue = gql`
 `;
 
 function ActionButton(props: Props) {
-    const [update, { data, loading, error }] = useMutation<UpdateBeeperQueueMutation>(UpdateBeeperQueue);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [update, { data, error }] = useMutation<UpdateBeeperQueueMutation>(UpdateBeeperQueue);
+
+    useEffect( () => { setLoading(false) }, [ props.item.state ] );
 
     async function updateStatus(queueId: string, riderId: string, value: string | boolean): Promise<void> {
+        setLoading(true);
+        
         const result = await update({
             variables: {
                 queueId: queueId,
