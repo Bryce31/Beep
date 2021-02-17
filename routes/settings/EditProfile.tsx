@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext';
@@ -8,124 +8,42 @@ import { handleFetchError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
+import { Formik } from 'formik';
+import { gql, useMutation } from '@apollo/client';
+import { EditAccountMutation } from '../../generated/graphql';
 
 interface Props {
     navigation: any;
 }
 
-interface State {
-    isLoading: boolean;
-    username: string;
-    first: string;
-    last: string;
-    email: string;
-    phone: string;
-    venmo: string;
-}
-
-export class EditProfileScreen extends Component<Props, State> {
-    static contextType = UserContext;
-    
-    constructor(props: Props, context: any) {
-        super(props);
-        this.state = {
-            isLoading: false,
-            username: context.user.user.username,
-            first: context.user.user.first,
-            last: context.user.user.last,
-            email: context.user.user.email,
-            phone: context.user.user.phone,
-            venmo: context.user.user.venmo
-        };
-    }
-
-    handleUpdate () {
-        //send button into loading state
-        this.setState({ isLoading: true });
-
-        //POST to our edit profile API
-        fetch(config.apiUrl + "/account", {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.tokens.token
-            },
-            body: JSON.stringify({
-                "first": this.state.first,
-                "last": this.state.last,
-                "email": this.state.email,
-                "phone": this.state.phone,
-                "venmo": this.state.venmo
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    //make a copy of the current user
-                    const tempUser = this.context.user;
-
-                    //update the tempUser with the new data
-                    tempUser.user.first = this.state.first;
-                    tempUser.user.last = this.state.last;
-                    tempUser.user.email = this.state.email;
-                    tempUser.user.phone = this.state.phone;
-                    tempUser.user.venmo = this.state.venmo;
-
-                    if (this.state.email !== this.context.user.user.email) {
-                        //email has changed for sure, set to not verified on client side
-                        tempUser.user.isEmailVerified = false;
-                        tempUser.user.isStudent = false;
-                    }
-
-                    //update the context
-                    this.context.setUser(tempUser);
-
-                    //put the tempUser back into storage
-                    AsyncStorage.setItem('auth', JSON.stringify(tempUser));
-
-                    //on success, go back to settings page
-                    this.props.navigation.goBack();
-                }
-                else {
-                    this.setState({
-                        isLoading: false,
-                        username: this.context.user.username,
-                        first: this.context.user.first,
-                        last: this.context.user.last,
-                        email: this.context.user.email,
-                        phone: this.context.user.phone,
-                        venmo: this.context.user.venmo
-                    });
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
-            });
-        })
-        .catch((error) => {
-            this.setState({ isLoading: handleFetchError(error) });
-        });
-    }
-
-    UNSAFE_componentWillReceiveProps() {
-        if (this.state.first != this.context.user.first) {
-            this.setState({ first: this.context.user.first });
-        }
-        if (this.state.last != this.context.user.last) {
-            this.setState({ last: this.context.user.last });
-        }
-        if (this.state.email != this.context.user.email) {
-            this.setState({ email: this.context.user.email });
-        }
-        if (this.state.phone != this.context.user.phone) {
-            this.setState({ phone: this.context.user.phone });
-        }
-        if (this.state.venmo != this.context.user.venmo) {
-            this.setState({ venmo: this.context.user.venmo });
+const EditAccount = gql`
+    mutation EditAccount($first: String, $last: String, $email: String, $phone: String, $venmo: String) {
+        editAccount (
+            input: {
+                first : $first,
+                last: $last,
+                email: $email,
+                phone: $phone,
+                venmo: $venmo
+            }
+        ) {
+        id
+        name
         }
     }
+  `;
 
-    render () {
+
+export function EditProfileScreen(props: Props) {
+    const userContext = useContext(UserContext);
+    const [edit, { data, loading, error }] = useMutation<EditAccountMutation>(EditAccount);
+
+    function handleUpdate() {
+
+    }
+
         const BackAction = () => (
-            <TopNavigationAction icon={BackIcon} onPress={() => this.props.navigation.goBack()}/>
+            <TopNavigationAction icon={BackIcon} onPress={() => props.navigation.goBack()}/>
         );
 
         return (
@@ -134,81 +52,89 @@ export class EditProfileScreen extends Component<Props, State> {
                 <Layout style={{flex: 1}}>
                 <KeyboardAwareScrollView scrollEnabled={false} extraScrollHeight={70}>
                 <Layout style={styles.container}>
-                    <Layout style={styles.form}>
-                        <Input
-                            label="Username"
-                            value={this.state.username}
-                            textContentType="username"
-                            placeholder="Username"
-                            disabled={true} />
-                        <Input
-                            label="First Name"
-                            value={this.state.first}
-                            textContentType="givenName"
-                            placeholder="First Name"
-                            returnKeyType="next"
-                            onChangeText={(text) => this.setState({first:text})}
-                            onSubmitEditing={() => this.secondTextInput.focus()} />
-                        <Input
-                            label="Last Name"
-                            value={this.state.last}
-                            textContentType="familyName"
-                            placeholder="Last Name"
-                            returnKeyType="next"
-                            onChangeText={(text) => this.setState({last:text})}
-                            ref={(input)=>this.secondTextInput = input}
-                            onSubmitEditing={() => this.thirdTextInput.focus()} />
-                        <Input
-                            label="Email"
-                            value={this.state.email}
-                            textContentType="emailAddress"
-                            placeholder="Email"
-                            caption={this.context.user.isEmailVerified ? (this.context.user.isStudent) ? "Your email is verified and you are a student": "Your email is verified" : "Your email is not verified"}
-                            returnKeyType="next"
-                            onChangeText={(text) => this.setState({email:text})}
-                            ref={(input) => this.thirdTextInput = input}
-                            onSubmitEditing={() => this.fourthTextInput.focus()} />
-                        <Input
-                            label="Phone Number"
-                            value={this.state.phone}
-                            textContentType="telephoneNumber"
-                            placeholder="Phone Number"
-                            returnKeyType="next"
-                            style={{marginTop: 5}}
-                            onChangeText={(text) => this.setState({phone:text})}
-                            ref={(input)=>this.fourthTextInput = input}
-                            onSubmitEditing={()=>this.fifthTextInput.focus()} />
-                        <Input
-                            label="Venmo Username"
-                            value={this.state.venmo}
-                            textContentType="username"
-                            placeholder="Venmo Username"
-                            returnKeyType="go"
-                            onChangeText={(text) => this.setState({venmo:text})}
-                            ref={(input)=>this.fifthTextInput = input}
-                            onSubmitEditing={() => this.handleUpdate()} />
-                        {!this.state.isLoading ?
-                            <Button
-                                onPress={() => this.handleUpdate()}
-                                accessoryRight={EditIcon}
-                            >
-                                Update Profile
-                            </Button>
-                            :
-                            <Button
-                                appearance="outline"
-                                accessoryRight={LoadingIndicator}
-                            >
-                                Loading
-                            </Button>
-                        }
-                    </Layout>
+                    <Formik
+                            initialValues={{
+                                first: userContext?.user?.user.first,
+                                last: userContext?.user?.user.last,
+                                email: userContext?.user?.user.email,
+                                phone: userContext?.user?.user.phone,
+                                venmo: userContext?.user?.user.venmo,
+                                username: userContext?.user?.user.username
+                            }}
+                            onSubmit={async (values, { setSubmitting }) => {
+                                const result = await edit({ variables: values });
+                                setSubmitting(false);
+                            }}
+                        >
+                            {({
+                                values,
+                                errors,
+                                touched,
+                                handleChange,
+                                handleBlur,
+                                handleSubmit,
+                                isSubmitting,
+                            }) => (
+                                <form onSubmit={handleSubmit}>
+                                    <input
+                                        type="text"
+                                        name="first"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.first}
+                                    />
+                                    {errors.first && touched.first && errors.first}
+                                    <input
+                                        type="text"
+                                        name="last"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.last}
+                                    />
+                                    {errors.last && touched.last && errors.last}
+                                    <input
+                                        type="text"
+                                        name="email"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.email}
+                                    />
+                                    {errors.email && touched.email && errors.email}
+                                    <input
+                                        type="text"
+                                        name="phone"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.phone}
+                                    />
+                                    {errors.phone && touched.phone && errors.phone}
+                                    <input
+                                        type="text"
+                                        name="phone"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.venmo}
+                                    />
+                                    {errors.venmo && touched.venmo && errors.venmo}
+                                    <input
+                                        type="text"
+                                        name="username"
+                                        onBlur={handleBlur}
+                                        value={values.username}
+                                        disabled
+                                    />
+                                    {errors.username && touched.username && errors.username}
+                                    <button type="submit" disabled={isSubmitting}>
+                                        Submit
+                                    </button>
+                                </form>
+                            )}
+                        </Formik>
                 </Layout>
                 </KeyboardAwareScrollView>
                 </Layout>
             </>
         );
-    }
 }
 
 const styles = StyleSheet.create({

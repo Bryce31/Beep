@@ -178,6 +178,10 @@ export function StartBeepingScreen(props: Props) {
     }
 
     useEffect(() => {
+        if (userContext.user.user.isBeeping) {
+            enableGetQueue();
+        }
+
         socket.on("updateQueue", () => {
             refetch();
         });
@@ -360,10 +364,7 @@ export function StartBeepingScreen(props: Props) {
                                             Get Directions for Beep
                                         </Button>
                                     }
-                                    <ActionButton ref={
-                                        //@ts-ignore
-                                        this.actionButtonElement
-                                        } item={item}/>
+                                    <ActionButton item={item}/>
                                 </Card>
 
                                 :

@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { StyleSheet } from 'react-native';
 import RegisterScreen from './routes/auth/Register';
 import LoginScreen from './routes/auth/Login';
-import ForgotPassword from './routes/auth/ForgotPassword';
+import { ForgotPasswordScreen } from './routes/auth/ForgotPassword';
 import { MainTabs } from './navigators/MainTabs';
 import { ProfileScreen } from './routes/global/Profile';
 import { ReportScreen } from './routes/global/Report';
@@ -178,7 +178,7 @@ export default class App extends Component<undefined, State> {
                                 <Stack.Navigator initialRouteName={initialScreen} screenOptions={{ headerShown: false }} >
                                     <Stack.Screen name="Login" component={LoginScreen} />
                                     <Stack.Screen name="Register" component={RegisterScreen} />
-                                    <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+                                    <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
                                     <Stack.Screen name="Main" component={MainTabs} />
                                     <Stack.Screen name='Profile' component={ProfileScreen} />
                                     <Stack.Screen name='Report' component={ReportScreen} />

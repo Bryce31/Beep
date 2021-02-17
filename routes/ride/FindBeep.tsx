@@ -116,25 +116,42 @@ export function MainFindBeepScreen(props: Props) {
     const [groupSize, setGroupSize] = useState<string>("1");
     const [origin, setOrigin] = useState<string>();
     const [destination, setDestination] = useState<string>();
-    const [pickBeeper, setPickBeeper] = useState<boolean>(true);
 
     const [getBeep, { loading: isGetBeepLoading, error: error1, data: chooseBeepData }] = useMutation<ChooseBeepMutation>(ChooseBeep);
 
     const { loading, error, data, refetch, startPolling } = useQuery<GetRiderStatusQuery>(RiderStatus);
 
-    const [suggestBeep, { loading: loadingFindBeep, error: errorFindBeep, data: findBeepData, updateQuery: updateSuggestedBeeper }] = useLazyQuery<FindBeepQuery | null>(FindBeep);
-
     useEffect(() => {
-        //startPolling(2000);
+        socket.on('updateRiderStatus', () => {
+            refetch();
+        });
+
+        socket.on("connect", async () => {
+            if (data?.getRiderStatus) {
+                Logger.info("[getRiderStatus] reconnected to socket successfully");
+                enableGetRiderStatus(data.getRiderStatus.beeper.id);
+            }
+        });
     }, []);
 
-    async function findBeep(): Promise<void> {
-        if (pickBeeper) {
-            return props.navigation.navigate('PickBeepScreen', {
-                handlePick: (id: string) => chooseBeep(id)
-            });
+    useEffect(() => {
+        if (data?.getRiderStatus.beeper.id) {
+            enableGetRiderStatus(data.getRiderStatus.beeper.id);
         }
-        suggestBeep();
+      }, [data, error, loading])
+
+    async function findBeep(): Promise<void> {
+        return props.navigation.navigate('PickBeepScreen', {
+            handlePick: (id: string) => chooseBeep(id)
+        });
+    }
+
+    function enableGetRiderStatus(beeperId: string): void {
+        socket.emit('getRiderStatus', userContext.user.tokens.id, beeperId);
+    }
+
+    function disableGetRiderStatus(): void {
+        socket.emit('stopGetRiderStatus');
     }
 
     async function chooseBeep(id: string): Promise<void> {
@@ -148,7 +165,6 @@ export function MainFindBeepScreen(props: Props) {
             groupSize: Number(groupSize)
         }});
 
-        console.log(result);
         refetch();
     }
 
@@ -272,12 +288,6 @@ export function MainFindBeepScreen(props: Props) {
                                 value={destination}
                                 onChangeText={value => setDestination(value)}
                             />
-                            <CheckBox
-                                checked={pickBeeper}
-                                onChange={(value) => setPickBeeper(value)}
-                            >
-                                Pick your own beeper
-                            </CheckBox>
                             {!isGetBeepLoading ?
                                 <Button
                                     accessoryRight={FindIcon}
@@ -304,73 +314,7 @@ export function MainFindBeepScreen(props: Props) {
         );
     }
 
-    if (findBeepData?.findBeep) {
-        return(
-            <Layout style={styles.container}>
-                <TouchableWithoutFeedback onPress={() => props.navigation.navigate("Profile", { id: findBeepData.findBeep.id })} >
-                    <Layout style={{alignItems: "center", justifyContent: 'center'}}>
-                        {findBeepData.findBeep.photoUrl &&
-                        <ProfilePicture
-                            style={{marginBottom: 5}}
-                            size={100}
-                            url={findBeepData.findBeep.photoUrl}
-                        />
-                        }
-                        <Layout style={styles.group}>
-                            <Text category='h5'>{findBeepData.findBeep.first} {findBeepData.findBeep.last}</Text>
-                            <Text appearance='hint'>is avalible to beep you!</Text>
-                        </Layout>
-                    </Layout>
-                </TouchableWithoutFeedback>
-                <Tags/>
-                <Layout style={styles.group}>
-                    <Text category='h6'>{findBeepData.findBeep.first}{"'"}s Rates</Text>
-                    <Layout style={styles.rateGroup}>
-                        <Layout style={styles.rateLayout}>
-                            <Text appearance='hint'>Single</Text>
-                            <Text>${findBeepData.findBeep.singlesRate}</Text>
-                        </Layout>
-                        <Layout style={styles.rateLayout} >
-                            <Text appearance='hint'>Group</Text>
-                            <Text>${findBeepData.findBeep.groupRate}</Text>
-                        </Layout>
-                    </Layout>
-                </Layout>
-                <Layout style={styles.group}>
-                    <Text appearance='hint'>{findBeepData.findBeep.first}{"'"}s rider capacity is</Text>
-                    <Text category='h6'>{findBeepData.findBeep.capacity}</Text>
-                </Layout>
-
-                <Layout style={styles.group}>
-                    <Text appearance='hint'>{findBeepData.findBeep.first}{"'"}s total queue length is</Text>
-                    <Text category='h6'>{findBeepData.findBeep.queueSize}</Text>
-                </Layout>
-                {!isGetBeepLoading ?
-                    <Button
-                        style={styles.buttons}
-                        accessoryRight={GetIcon}
-                        onPress={() => chooseBeep(findBeepData.findBeep.id)}
-                    >
-                        Get Beep
-                    </Button>
-                    :
-                    <Button appearance='outline' style={styles.buttons} accessoryRight={LoadingIndicator}>
-                        Loading
-                    </Button>
-                }
-                <Button
-                    status='basic'
-                    style={styles.buttons}
-                    accessoryLeft={BackIcon}
-                    onPress={() => console.log("UGH")}>
-                    Go Back
-                </Button>
-            </Layout>
-        );
-    }
-
-
-
+    
     if (data?.getRiderStatus.isAccepted) {
         return (
             <Layout style={styles.container}>

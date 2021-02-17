@@ -1,69 +1,47 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { UserContext } from '../../utils/UserContext';
-import { config } from "../../utils/config";
 import { EditIcon, LoadingIndicator, BackIcon } from "../../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
+import { gql, useMutation } from '@apollo/client';
+import { ChangePasswordMutation } from '../../generated/graphql';
 
 interface Props {
     navigation: any;
 }
 
-interface State {
-    isLoading: boolean;
-    password: string;
-    password2: string;
-}
-
-export class ChangePasswordScreen extends Component<Props, State> {
-    static contextType = UserContext;
-
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            isLoading: false,
-            password: "",
-            password2: ""
-        }
+const ChangePassword = gql`
+    mutation ChangePassword($password: String!) {
+        changePassword (password: $password)
     }
+  `;
 
-    async handleChangePassword () {
-        this.setState({ isLoading: true });
+export function ChangePasswordScreen(props: Props) {
+    
+    const [password, setPassword] = useState<string>();
+    const [confirmPassword, setConfirmPassword] = useState<string>();
+    const [changePassword, { data, loading, error }] = useMutation<ChangePasswordMutation>(ChangePassword);
 
-        if (this.state.password !== this.state.password2) {
-            this.setState({ isLoading: false });
+    async function handleChangePassword() {
+        if (password !== confirmPassword) {
             return alert("Your passwords do not match");
         }
-
-        fetch(config.apiUrl + "/account/password", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.tokens.token
-            },
-            body: JSON.stringify({
-                "password": this.state.password
-            })
-        })
-        .then(response => {
-            response.json().then(data => {
-                if (data.status === "success") {
-                    this.props.navigation.goBack();
-                }
-                else {
-                    this.setState({ isLoading: handleFetchError(data.message) });
-                }
-            });
-        })
-        .catch((error) => {
-            this.setState({ isLoading: handleFetchError(error) });
+        
+        const result = await changePassword({
+            variables: {
+                password: password
+            }
         });
+        
+        if (result) {
+            props.navigation.goBack();
+        }
+        else {
+            alert("Error");
+        }
     }
 
-    render () {
         const BackAction = () => (
-            <TopNavigationAction icon={BackIcon} onPress={() =>this.props.navigation.goBack()}/>
+            <TopNavigationAction icon={BackIcon} onPress={() => props.navigation.goBack()}/>
         );
 
         return (
@@ -77,20 +55,19 @@ export class ChangePasswordScreen extends Component<Props, State> {
                             label="New Password"
                             textContentType="password"
                             placeholder="New Password"
-                            onChangeText={(text) => this.setState({password: text})}
-                            onSubmitEditing={() => this.secondTextInput.focus()} />
+                            onChangeText={(text) => setPassword(text)}
+                         />
                         <Input
                             secureTextEntry={true}
                             label="Repeat New Password"
                             textContentType="password"
                             placeholder="New Password"
                             returnKeyType="go"
-                            onChangeText={(text) => this.setState({password2: text})}
-                            ref={(input) => this.secondTextInput = input}
-                            onSubmitEditing={() => this.handleChangePassword()} />
-                        {!this.state.isLoading ? 
+                            onChangeText={(text) => setConfirmPassword(text)}
+                            onSubmitEditing={() => handleChangePassword()} />
+                        {!loading ? 
                             <Button
-                                onPress={() => this.handleChangePassword()}
+                                onPress={() => handleChangePassword()}
                                 accessoryRight={EditIcon}
                             >
                                 Change Password
@@ -108,7 +85,6 @@ export class ChangePasswordScreen extends Component<Props, State> {
                 </TouchableWithoutFeedback>
             </>
         );
-    }
 }
 
 const styles = StyleSheet.create({
