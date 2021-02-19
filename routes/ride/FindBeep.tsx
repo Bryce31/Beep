@@ -106,8 +106,6 @@ interface Props {
     navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
-var ran = false;
-
 export function MainFindBeepScreen(props: Props) {
     const userContext: any = React.useContext(UserContext);
 
@@ -134,14 +132,13 @@ export function MainFindBeepScreen(props: Props) {
     }, []);
 
     useEffect(() => {
-        if (data?.getRiderStatus.beeper.id && !ran) {
-            ran = true;
+        if (data?.getRiderStatus.beeper.id) {
             enableGetRiderStatus(data.getRiderStatus.beeper.id);
         }
         if (data == null) {
             disableGetRiderStatus();
         }
-      }, [data, error, loading])
+      }, [data])
 
     async function findBeep(): Promise<void> {
         return props.navigation.navigate('PickBeepScreen', {
@@ -169,6 +166,7 @@ export function MainFindBeepScreen(props: Props) {
         }});
 
         refetch();
+        enableGetRiderStatus();
     }
 
     function getVenmoLink(): string {

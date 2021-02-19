@@ -1,12 +1,10 @@
-import React, { Component, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Platform, StyleSheet, Keyboard, TouchableWithoutFeedback } from "react-native"
 import { Input, Button, Layout, TopNavigation, TopNavigationAction } from "@ui-kitten/components";
 import { BackIcon } from "../../utils/Icons";
-import { config } from "../../utils/config";
-import { UserContext } from '../../utils/UserContext';
 import { LoadingIndicator, ReportIcon } from "../../utils/Icons";
-import { handleFetchError, parseError } from "../../utils/Errors";
 import { gql, useMutation } from "@apollo/client";
+import { ReportUserMutation } from "../../generated/graphql";
 
 interface Props {
     route: any;
@@ -21,17 +19,26 @@ const ReportUser = gql`
 
 export function ReportScreen(props: Props) {
     const [reason, setReason] = useState<string>();
-    const [report, { data, loading, error }] = useMutation(ReportUser);
+    const [report, { data, loading, error }] = useMutation<ReportUserMutation>(ReportUser);
 
         async function reportUser() {
-            const result = await report({
-                variables: {
-                    userId: props.route.params.id,
-                    beep: props.route.params.beep,
-                    reason: reason
-                }
-            });
-            if (result) alert("Successfully Reported User");
+            try {
+                const result = await report({
+                    variables: {
+                        userId: props.route.params.id,
+                        beep: props.route.params.beep,
+                        reason: reason
+                    }
+                });
+                if (result) alert("Successfully Reported User");
+                else alert(error);
+                console.log("Errors ", error);
+                console.log("Result ", result);
+            }
+            catch (error) {
+                alert(error);
+                console.log(error);
+            }
         }
 
         const BackAction = () => (
