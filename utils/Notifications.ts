@@ -4,6 +4,8 @@ import Constants from 'expo-constants';
 import { Vibration, Platform } from 'react-native';
 import { config } from '../utils/config';
 import { handleFetchError } from './Errors';
+import {gql} from '@apollo/client';
+import {client} from '../App';
 
 /**
  * Checks for permssion for Notifications, asks expo for push token, sets up notification listeners, returns 
@@ -83,31 +85,16 @@ function setNotificationHandlers() {
  * call getPushToken and send to backend
  * @param token a user's auth token
  */
-export async function updatePushToken(token: string) {
-    fetch(config.apiUrl + "/account/pushtoken", {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({
-            expoPushToken: await getPushToken()
-        })
-    })
-    .then(
-        function(response) {
-            response.json().then(
-                function(data) {
-                    if (data.status == "error") {
-                        handleFetchError(data.message);
-                    }
-                }
-            );
+export async function updatePushToken(): Promise<void> {
+    const UpdatePushToken = gql`
+        mutation UpdatePushToken($token: String!) {
+          updatePushToken (pushToken: $token)
         }
-    )
-    .catch((error) => {
-        console.log("[Login.js] [API] Error fetching from the Beep (Login) API: ", error);
-    });
+    `;
+
+    const result = await client.query({ query: UpdatePushToken, variables: { token: await getPushToken() }}); 
+
+    console.log("Push Token Update", result);
 
 }
 

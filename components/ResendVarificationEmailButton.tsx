@@ -1,66 +1,42 @@
-import React, { Component } from 'react';
-import { config } from "../utils/config";
-import { handleFetchError } from "../utils/Errors";
-import { UserContext } from '../utils/UserContext';
+import React from 'react';
 import { Button } from '@ui-kitten/components';
 import { EmailIcon, LoadingIndicator } from '../utils/Icons';
+import {gql, useMutation} from '@apollo/client';
+import {ResendMutation} from '../generated/graphql';
 
-interface props {
+const Resend = gql`
+    mutation Resend {
+      resendEmailVarification
+    }
+`;
 
-}
+function ResendButton(props) {
+    const [resend, { data, loading, error }] = useMutation<ResendMutation>(Resend);
 
-interface state {
-    isLoading: boolean;
-}
-
-export default class ResendButton extends Component<props, state> {
-    static contextType = UserContext;
-
-    constructor(props: props) {
-        super(props);
-        this.state = {
-            isLoading: false
-        };
+    async function resendEmailVarification() {
+        const result = await resend();
+        if (result) alert("Successfuly resent varification email");
+        else alert(error);
     }
 
-    resendEmailVerification() {
-        this.setState({ isLoading: true });
-
-        fetch(config.apiUrl + "/account/verify/resend", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.context.user.tokens.token
-            }
-        })
-        .then(response => {
-            response.json().then(data => {
-                    console.log("[Settings.js] [API] Get Email Status Responce: ", data);
-                    this.setState({ isLoading: false });
-                    alert(data.message);
-                });
-        })
-        .catch((error) => this.setState({ isLoading: handleFetchError(error) }));
-    }
-
-    render() {
-        if (this.state.isLoading) {
-            return (
-                <Button appearance='ghost' accessoryLeft={LoadingIndicator} style={{ marginBottom: 10 }}>
-                    Loading
-                </Button>
-            );
-        }
-        
-        return(
-            <Button
-                onPress={() => this.resendEmailVerification()}
-                accessoryLeft={EmailIcon}
-                style={{ marginBottom: 10 }}
-                appearance='ghost'
-            >
-                    Resend Varification Email
+    if (loading) {
+        return (
+            <Button appearance='ghost' accessoryLeft={LoadingIndicator} style={{ marginBottom: 10 }}>
+                Loading
             </Button>
         );
     }
+    
+    return(
+        <Button
+            onPress={() => resendEmailVarification()}
+            accessoryLeft={EmailIcon}
+            style={{ marginBottom: 10 }}
+            appearance='ghost'
+        >
+                Resend Varification Email
+        </Button>
+    );
 }
+
+export default ResendButton;

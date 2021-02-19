@@ -5,8 +5,6 @@ import * as Location from 'expo-location';
 import socket from '../../utils/Socket'
 import * as SplashScreen from 'expo-splash-screen';
 import { UserContext } from '../../utils/UserContext';
-import { config } from '../../utils/config';
-import { handleFetchError } from "../../utils/Errors";
 import { PhoneIcon, TextIcon, VenmoIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
 import LeaveButton from './LeaveButton';
@@ -15,7 +13,6 @@ import { MainNavParamList } from '../../navigators/MainTabs';
 import Logger from '../../utils/Logger';
 import {gql, useLazyQuery, useMutation, useQuery} from '@apollo/client';
 import {ChooseBeepMutation, GetRiderStatusQuery, FindBeepQuery} from '../../generated/graphql';
-import { UniqueDirectivesPerLocationRule } from 'graphql';
 
 const RiderStatus = gql`
     query GetRiderStatus {
@@ -262,7 +259,6 @@ export function MainFindBeepScreen(props: Props) {
     }
 
     if (data?.getRiderStatus == null || error?.message) {
-        console.log("iTRUEEE");
         return (
             <Layout style={{height:"100%"}}>
                 <KeyboardAvoidingView
