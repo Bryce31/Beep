@@ -19,10 +19,9 @@ const ReportUser = gql`
 
 export function ReportScreen(props: Props) {
     const [reason, setReason] = useState<string>();
-    const [report, { data, loading, error }] = useMutation<ReportUserMutation>(ReportUser);
+    const [report, { data, loading, error }] = useMutation<ReportUserMutation>(ReportUser, { errorPolicy: 'all' });
 
         async function reportUser() {
-            try {
                 const result = await report({
                     variables: {
                         userId: props.route.params.id,
@@ -34,11 +33,6 @@ export function ReportScreen(props: Props) {
                 else alert(error);
                 console.log("Errors ", error);
                 console.log("Result ", result);
-            }
-            catch (error) {
-                alert(error);
-                console.log(error);
-            }
         }
 
         const BackAction = () => (

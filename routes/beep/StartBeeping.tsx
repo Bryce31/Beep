@@ -70,7 +70,7 @@ export function StartBeepingScreen(props: Props) {
     const [groupRate, setGroupRate] = useState<string>(userContext.user.user.groupRate);
     const [capacity, setCapacity] = useState<string>(userContext.user.user.capacity);
 
-    const { loading, error, data, refetch } = useQuery<GetQueueQuery>(GetQueue);
+    const { loading, error, data, refetch } = useQuery<GetQueueQuery>(GetQueue, { notifyOnNetworkStatusChange: true });
     const [updateBeepSettings, { loading: loadingBeepSettings, error: beepSettingsError }] = useMutation<UpdateBeepSettingsMutation>(UpdateBeepSettings);
 
     function toggleSwitchWrapper(value: boolean): void {
@@ -276,6 +276,7 @@ export function StartBeepingScreen(props: Props) {
         if (data?.getQueue && data.getQueue.length > 0) {
             return (
                 <Layout style={styles.container}>
+                    {loading && <Text>Loading</Text>}
                     <Toggle isBeepingState={isBeeping} onToggle={async (value) => toggleSwitchWrapper(value)}/>
                     <List
                         style={styles.list}

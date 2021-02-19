@@ -30,8 +30,9 @@ import { setContext } from '@apollo/client/link/context';
 const Stack = createStackNavigator();
 let initialScreen: string;
 init();
+
 const httpLink = createHttpLink({
-    uri: 'http://localhost:3001',
+    uri: 'http://192.168.1.57:3001',
 });
 
 const authLink = setContext(async (_, { headers }) => {
@@ -50,6 +51,7 @@ const authLink = setContext(async (_, { headers }) => {
   }
 });
 
+/*
 const defaultOptions: DefaultOptions = {
     watchQuery: {
         fetchPolicy: 'no-cache',
@@ -60,11 +62,12 @@ const defaultOptions: DefaultOptions = {
         errorPolicy: 'all',
     },
 };
+ */
 
 export const client = new ApolloClient({
     link: authLink.concat(httpLink),
     cache: new InMemoryCache(),
-    defaultOptions: defaultOptions
+    //defaultOptions: defaultOptions
 });
 
 interface State {

@@ -108,7 +108,7 @@ interface Props {
 
 export function MainFindBeepScreen(props: Props) {
     const userContext: any = React.useContext(UserContext);
-
+    let hasRiderStatusBeenEnabled = false;
     const [eta, setEta] = useState<string>();
     const [groupSize, setGroupSize] = useState<string>("1");
     const [origin, setOrigin] = useState<string>();
@@ -119,8 +119,15 @@ export function MainFindBeepScreen(props: Props) {
     const { loading, error, data, refetch, startPolling } = useQuery<GetRiderStatusQuery>(RiderStatus);
 
     useEffect(() => {
+        try {
+            SplashScreen.hideAsync();
+        }
+        catch(error) {
+            console.error(error);
+        }
         socket.on('updateRiderStatus', () => {
             refetch();
+            console.log("Getting rider status");
         });
 
         socket.on("connect", async () => {
@@ -129,11 +136,14 @@ export function MainFindBeepScreen(props: Props) {
                 enableGetRiderStatus(data.getRiderStatus.beeper.id);
             }
         });
+
     }, []);
 
     useEffect(() => {
-        if (data?.getRiderStatus.beeper.id) {
+        if (data?.getRiderStatus && !hasRiderStatusBeenEnabled) {
             enableGetRiderStatus(data.getRiderStatus.beeper.id);
+            hasRiderStatusBeenEnabled = true;
+
         }
         if (data == null) {
             disableGetRiderStatus();
@@ -166,7 +176,6 @@ export function MainFindBeepScreen(props: Props) {
         }});
 
         refetch();
-        enableGetRiderStatus();
     }
 
     function getVenmoLink(): string {
@@ -243,9 +252,6 @@ export function MainFindBeepScreen(props: Props) {
             {(data?.getRiderStatus.beeper && data?.getRiderStatus.beeper?.role == "ADMIN") && <Button size='tiny' status='danger' style={styles.tag}>Founder</Button>}
         </Layout>
     );
-
-    if (error) alert(error);
-
 
     if (userContext.user.user.isBeeping) {
         return(
@@ -391,7 +397,7 @@ export function MainFindBeepScreen(props: Props) {
                 </Button>
                 }
                 {(data?.getRiderStatus.ridersQueuePosition >= 1 && data?.getRiderStatus.beeper) && 
-                    <LeaveButton beepersId={data?.getRiderStatus.beeper.id} />
+                    <LeaveButton beepersId={data?.getRiderStatus.beeper.id} refetch={() => refetch()} />
                 }
             </Layout>
         );
@@ -435,7 +441,7 @@ export function MainFindBeepScreen(props: Props) {
                     <Text category='h6'>{data?.getRiderStatus.beeper?.queueSize}</Text>
                     <Text appearance='hint'>{(data?.getRiderStatus.beeper?.queueSize == 1) ? "person is" : "people are"} ahead of you in {data?.getRiderStatus.beeper?.first}{"'"}s queue</Text>
                 </Layout>
-                {data?.getRiderStatus.beeper && <LeaveButton beepersId={data.getRiderStatus.beeper.id} />}
+                <LeaveButton beepersId={data?.getRiderStatus.beeper.id} refetch={() => refetch()} />
             </Layout>
         );
     }

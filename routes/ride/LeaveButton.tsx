@@ -11,6 +11,7 @@ import {LeaveQueueMutation} from '../../generated/graphql';
 
 interface Props {
     beepersId: string; 
+    refetch: any;
 }
 
 const LeaveQueue = gql`
@@ -45,6 +46,7 @@ function LeaveButton(props: Props) {
 
     async function leaveQueue(): Promise<void> {
         leave();
+        props.refetch();
     }
 
     if (loading) {
