@@ -13,6 +13,7 @@ import { MainNavParamList } from '../../navigators/MainTabs';
 import Logger from '../../utils/Logger';
 import {gql, useLazyQuery, useMutation, useQuery} from '@apollo/client';
 import {ChooseBeepMutation, GetRiderStatusQuery, FindBeepQuery} from '../../generated/graphql';
+import {gqlChooseBeep} from './helpers';
 
 const RiderStatus = gql`
     query GetRiderStatus {
@@ -48,59 +49,6 @@ const RiderStatus = gql`
     }
 `;
 
-const ChooseBeep = gql`
-    mutation ChooseBeep($beeperId: String!, $origin: String!, $destination: String!, $groupSize: Float!) {
-        chooseBeep(
-        beeperId: $beeperId
-        input: { origin: $origin, destination: $destination, groupSize: $groupSize }
-        ) {
-            id
-            ridersQueuePosition
-            isAccepted
-            origin
-            destination
-            state
-            groupSize
-            location {
-                longitude
-                latitude
-            }
-            beeper {
-                id
-                first
-                last
-                singlesRate
-                groupRate
-                isStudent
-                role
-                venmo
-                username
-                phone
-                photoUrl
-                masksRequired
-                capacity
-                queueSize
-            }
-        }
-    }
-`;
-
-const FindBeep = gql`
-    query FindBeep {
-        findBeep {
-            id
-            first
-            last
-            isStudent
-            singlesRate
-            groupRate
-            capacity
-            queueSize
-            photoUrl
-            role
-        }
-    }
-`;
 
 interface Props {
     navigation: BottomTabNavigationProp<MainNavParamList>;
@@ -108,15 +56,14 @@ interface Props {
 
 export function MainFindBeepScreen(props: Props) {
     const userContext: any = React.useContext(UserContext);
-    let hasRiderStatusBeenEnabled = false;
+
     const [eta, setEta] = useState<string>();
     const [groupSize, setGroupSize] = useState<string>("1");
     const [origin, setOrigin] = useState<string>();
     const [destination, setDestination] = useState<string>();
+    const [isGetBeepLoading, setIsGetBeepLoading] = useState<boolean>(false);
 
-    const [getBeep, { loading: isGetBeepLoading, error: error1, data: chooseBeepData }] = useMutation<ChooseBeepMutation>(ChooseBeep);
-
-    const { loading, error, data, refetch, startPolling } = useQuery<GetRiderStatusQuery>(RiderStatus);
+    const { loading, error, data, refetch, startPolling, previousData } = useQuery<GetRiderStatusQuery>(RiderStatus, { errorPolicy: 'all' });
 
     useEffect(() => {
         try {
@@ -131,7 +78,7 @@ export function MainFindBeepScreen(props: Props) {
         });
 
         socket.on("connect", async () => {
-            if (data?.getRiderStatus) {
+            if (data?.getRiderStatus.beeper.id) {
                 Logger.info("[getRiderStatus] reconnected to socket successfully");
                 enableGetRiderStatus(data.getRiderStatus.beeper.id);
             }
@@ -140,15 +87,16 @@ export function MainFindBeepScreen(props: Props) {
     }, []);
 
     useEffect(() => {
-        if (data?.getRiderStatus && !hasRiderStatusBeenEnabled) {
+        console.log(error);
+        console.log(data);
+        if (data?.getRiderStatus.beeper.id && previousData == undefined) {
             enableGetRiderStatus(data.getRiderStatus.beeper.id);
-            hasRiderStatusBeenEnabled = true;
-
         }
-        if (data == null) {
+        if (data == null || data.getRiderStatus.state == -1) {
+            console.log("dead beep", error);
             disableGetRiderStatus();
         }
-      }, [data])
+      }, [data, error])
 
     async function findBeep(): Promise<void> {
         return props.navigation.navigate('PickBeepScreen', {
@@ -165,15 +113,16 @@ export function MainFindBeepScreen(props: Props) {
     }
 
     async function chooseBeep(id: string): Promise<void> {
-        console.log("Getting beep with", id);
-        console.log(destination);
-        
-        const result = await getBeep({ variables: {
+        setIsGetBeepLoading(true);
+        const result = await gqlChooseBeep({
             beeperId: id,
             origin: origin,
             destination: destination,
             groupSize: Number(groupSize)
-        }});
+        });
+        setIsGetBeepLoading(false);
+
+        console.log("Choose beeep result", result);
 
         refetch();
     }
@@ -262,7 +211,7 @@ export function MainFindBeepScreen(props: Props) {
         );
     }
 
-    if (data?.getRiderStatus == null || error?.message) {
+    if (data == null || data?.getRiderStatus == null || error?.message) {
         return (
             <Layout style={{height:"100%"}}>
                 <KeyboardAvoidingView
