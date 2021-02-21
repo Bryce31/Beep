@@ -92,7 +92,7 @@ export async function updatePushToken(): Promise<void> {
         }
     `;
 
-    const result = await client.query({ query: UpdatePushToken, variables: { token: await getPushToken() }}); 
+    const result = await client.mutate({ mutation: UpdatePushToken, variables: { token: await getPushToken() }}); 
 
     console.log("Push Token Update", result);
 

@@ -51,7 +51,6 @@ const authLink = setContext(async (_, { headers }) => {
   }
 });
 
-/*
 const defaultOptions: DefaultOptions = {
     watchQuery: {
         fetchPolicy: 'no-cache',
@@ -62,12 +61,11 @@ const defaultOptions: DefaultOptions = {
         errorPolicy: 'all',
     },
 };
- */
 
 export const client = new ApolloClient({
     link: authLink.concat(httpLink),
     cache: new InMemoryCache(),
-    //defaultOptions: defaultOptions
+    defaultOptions: defaultOptions
 });
 
 interface State {

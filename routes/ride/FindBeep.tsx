@@ -87,13 +87,10 @@ export function MainFindBeepScreen(props: Props) {
     }, []);
 
     useEffect(() => {
-        console.log(error);
-        console.log(data);
-        if (data?.getRiderStatus.beeper.id && previousData == undefined) {
+        if (data?.getRiderStatus.beeper.id && (previousData == null || previousData == undefined)) {
             enableGetRiderStatus(data.getRiderStatus.beeper.id);
         }
         if (data == null || data.getRiderStatus.state == -1) {
-            console.log("dead beep", error);
             disableGetRiderStatus();
         }
       }, [data, error])
@@ -123,6 +120,8 @@ export function MainFindBeepScreen(props: Props) {
         setIsGetBeepLoading(false);
 
         console.log("Choose beeep result", result);
+
+        enableGetRiderStatus(result.data?.chooseBeep.beeper.id);
 
         refetch();
     }
@@ -211,7 +210,7 @@ export function MainFindBeepScreen(props: Props) {
         );
     }
 
-    if (data == null || data?.getRiderStatus == null || error?.message) {
+    if (data == null || data?.getRiderStatus == null) {
         return (
             <Layout style={{height:"100%"}}>
                 <KeyboardAvoidingView

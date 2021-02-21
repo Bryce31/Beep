@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 import { Layout, Text, Divider, List, ListItem, Button, TopNavigation, TopNavigationAction, Spinner } from '@ui-kitten/components';
 import { StyleSheet, View } from 'react-native';
 import { config } from "../../utils/config";
@@ -34,7 +34,15 @@ const GetBeepers = gql`
 `;
 
 export function PickBeepScreen(props: Props) {
-    const { data, loading, error } = useQuery<GetBeepersQuery>(GetBeepers);
+    const { data, loading, error, startPolling, stopPolling } = useQuery<GetBeepersQuery>(GetBeepers);
+
+    useEffect(() => {
+        startPolling(2000);
+
+        return () => {
+            stopPolling();
+        };
+    }, []);
 
     function goBack(id: string): void {
         const { navigation, route } = props;

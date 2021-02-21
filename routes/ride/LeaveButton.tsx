@@ -45,7 +45,7 @@ function LeaveButton(props: Props) {
     }
 
     async function leaveQueue(): Promise<void> {
-        leave();
+        await leave();
         props.refetch();
     }
 
