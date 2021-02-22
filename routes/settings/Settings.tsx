@@ -32,6 +32,7 @@ export function MainSettingsScreen({ navigation }: any) {
             socket.emit('stopGetUser');
             socket.off('updateRiderStatus');
             socket.off('updateQueue');
+            AsyncStorage.clear();
         }
         catch (error) {
             AsyncStorage.setItem("token", userContext.user.tokens.tokenid);
@@ -47,6 +48,7 @@ export function MainSettingsScreen({ navigation }: any) {
             ],
             key: null
         }, () => userContext.setUser(null));
+
     }
 
     function UserHeader(props: any) {

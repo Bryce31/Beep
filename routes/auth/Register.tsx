@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Image, StyleSheet, Platform } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Text, Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
@@ -12,12 +12,56 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import * as Linking from 'expo-linking';
 import socket from "../../utils/Socket";
 import * as ImagePicker from 'expo-image-picker';
+import {gql, useMutation} from '@apollo/client';
+import {SignUpMutation} from '../../generated/graphql';
 
 interface Props {
     navigation: any;
 }
 
+let result: any;
+
+const SignUp = gql`
+    mutation SignUp ($first: String!, $last: String!, $email: String!, $phone: String!, $venmo: String!, $username: String!, $password: String!) {
+        signup(input: {
+            first: $first,
+            last: $last,
+            email: $email,
+            phone: $phone,
+            venmo: $venmo,
+            username: $username,
+            password: $password,
+        }) {
+            user {
+                id
+                first
+                last
+                username
+                email
+                phone
+                venmo
+                isBeeping
+                isEmailVerified
+                isStudent
+                groupRate
+                singlesRate
+                capacity
+                masksRequired
+                queueSize
+                role
+                photoUrl
+                name
+            }
+            tokens {
+                id
+                tokenid
+            }
+        }
+    }
+`;
+
 function RegisterScreen(props: Props) {
+    const userContext = useContext(UserContext);
     const [first, setFirst] = useState<string>();
     const [last, setLast] = useState<string>();
     const [email, setEmail] = useState<string>();
@@ -26,6 +70,49 @@ function RegisterScreen(props: Props) {
     const [username, setUsername] = useState<string>();
     const [password, setPassword] = useState<string>();
     const [photo, setPhoto] = useState<string>();
+
+    const [signup, { loading, data }] = useMutation<SignUpMutation>(SignUp);
+
+    async function handleSignUp() {
+        const result = await signup({ variables: {
+            first: first,
+            last: last,
+            email: email,
+            phone: phone,
+            venmo: venmo,
+            username: username, 
+            password: password,
+            pushToken: await getPushToken()
+        }});
+
+        if (result) {
+        
+            AsyncStorage.setItem("auth", JSON.stringify(result.data?.signup));
+
+            userContext.setUser(result.data?.signup);
+                
+            socket.emit('getUser', result.data?.signup.tokens.id);
+
+            props.navigation.reset({
+                index: 0,
+                routes: [
+                    { name: 'Main' },
+                ],
+            });
+        }
+    }
+
+    async function handlePhoto() {
+        result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: false,
+            allowsEditing: true,
+            aspect: [4, 3],
+            base64: false
+        });
+        setPhoto(result.uri);
+        console.log(photo);
+    }
 
     const BackAction = () => (
         <TopNavigationAction icon={BackIcon} onPress={() => props.navigation.goBack()}/>
@@ -44,64 +131,57 @@ function RegisterScreen(props: Props) {
                             placeholder="Jon"
                             returnKeyType="next"
                             onChangeText={(text) => setFirst(text)}
-                            onSubmitEditing={()=>this.secondTextInput.focus()}
                         />
                         <Input
                             label="Last Name"
                             textContentType="familyName"
                             placeholder="Doe"
                             returnKeyType="next"
-                            onChangeText={(text) => this.setState({last:text})}
-                            ref={(input)=>this.secondTextInput = input}
-                            onSubmitEditing={()=>this.thirdTextInput.focus()} />
+                            onChangeText={(text) => setLast(text)}
+                        />
                         <Input
                             label="Email"
                             textContentType="emailAddress"
                             placeholder="example@ridebeep.app"
                             caption="Use your .edu email to be verified as a student"
                             returnKeyType="next"
-                            onChangeText={(text) => this.setState({email:text})}
-                            ref={(input)=>this.thirdTextInput = input}
-                            onSubmitEditing={()=>this.fourthTextInput.focus()} />
+                            onChangeText={(text) => setEmail(text)}
+                        />
                         <Input
                             label="Phone Number"
                             textContentType="telephoneNumber"
                             placeholder="7048414949"
                             returnKeyType="next"
                             style={{marginTop: 5}}
-                            onChangeText={(text) => this.setState({phone:text})}
-                            ref={(input)=>this.fourthTextInput = input}
-                            onSubmitEditing={()=>this.fifthTextInput.focus()} />
-
+                            onChangeText={(text) => setPhone(text)}
+                        />
                         <Input
                             label="Venmo Username"
                             textContentType="username"
                             placeholder="jondoe"
                             returnKeyType="next"
-                            onChangeText={(text) => this.setState({venmo:text})}
-                            ref={(input)=>this.fifthTextInput = input}
-                            onSubmitEditing={()=>this.sixthTextInput.focus()} />
+                            onChangeText={(text) => setVenmo(text)}
+                        />
                         <Input
                             label="Username"
                             textContentType="username"
                             placeholder="jondoe"
                             returnKeyType="next"
-                            onChangeText={(text) => this.setState({username:text})}
-                            ref={(input)=>this.sixthTextInput = input}
-                            onSubmitEditing={()=>this.seventhTextInput.focus()} />
+                            onChangeText={(text) => setUsername(text)}
+                        />
                         <Input
                             label="Password"
                             textContentType="password"
                             placeholder="Password"
                             returnKeyType="go"
                             secureTextEntry={true}
-                            ref={(input)=>this.seventhTextInput = input}
-                            onChangeText={(text) => this.setState({password:text})}
-                            onSubmitEditing={() => this.handleRegister()} />
+                            onChangeText={(text) => setPassword(text)}
+                            onSubmitEditing={() => handleSignUp()}
+                        />
                         <Layout style={{flex: 1, flexDirection: "row", justifyContent: "center", marginTop: 5, marginBottom: 5}}>
-                            {this.state.photo && <Image source={{ uri: this.state.photo }} style={{ width: 50, height: 50, borderRadius: 50/ 2, marginTop: 10, marginBottom: 10, marginRight: 10 }} />}
+                            {photo && <Image source={{ uri: photo }} style={{ width: 50, height: 50, borderRadius: 50/ 2, marginTop: 10, marginBottom: 10, marginRight: 10 }} />}
                             <Button
-                                onPress={() => this.handlePhoto()}
+                                onPress={() => handlePhoto()}
                                 accessoryRight={PhotoIcon}
                                 style={{width: "60%"}}
                                 size="small"
@@ -109,9 +189,9 @@ function RegisterScreen(props: Props) {
                                 Profile Photo
                             </Button>
                         </Layout>
-                        {!this.state.isLoading ? 
+                        {!loading ? 
                             <Button
-                                onPress={() => this.handleRegister()}
+                                onPress={() => handleSignUp()}
                                 accessoryRight={SignUpIcon}
                             >
                             Sign Up

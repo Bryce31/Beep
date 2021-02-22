@@ -79,6 +79,7 @@ export function MainFindBeepScreen(props: Props) {
 
         socket.on("connect", async () => {
             if (data?.getRiderStatus.beeper.id) {
+                refetch();
                 Logger.info("[getRiderStatus] reconnected to socket successfully");
                 enableGetRiderStatus(data.getRiderStatus.beeper.id);
             }
@@ -242,7 +243,7 @@ export function MainFindBeepScreen(props: Props) {
                                 value={destination}
                                 onChangeText={value => setDestination(value)}
                             />
-                            {!isGetBeepLoading ?
+                            {!isGetBeepLoading || loading ?
                                 <Button
                                     accessoryRight={FindIcon}
                                     onPress={() => findBeep()}

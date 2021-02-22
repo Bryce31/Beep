@@ -438,6 +438,31 @@ export type LoginMutation = (
   ) }
 );
 
+export type SignUpMutationVariables = Exact<{
+  first: Scalars['String'];
+  last: Scalars['String'];
+  email: Scalars['String'];
+  phone: Scalars['String'];
+  venmo: Scalars['String'];
+  username: Scalars['String'];
+  password: Scalars['String'];
+}>;
+
+
+export type SignUpMutation = (
+  { __typename?: 'Mutation' }
+  & { signup: (
+    { __typename?: 'Auth' }
+    & { user: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'first' | 'last' | 'username' | 'email' | 'phone' | 'venmo' | 'isBeeping' | 'isEmailVerified' | 'isStudent' | 'groupRate' | 'singlesRate' | 'capacity' | 'masksRequired' | 'queueSize' | 'role' | 'photoUrl' | 'name'>
+    ), tokens: (
+      { __typename?: 'TokenEntry' }
+      & Pick<TokenEntry, 'id' | 'tokenid'>
+    ) }
+  ) }
+);
+
 export type GetQueueQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -537,40 +562,6 @@ export type GetRiderStatusQuery = (
       { __typename?: 'User' }
       & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone' | 'photoUrl' | 'masksRequired' | 'capacity' | 'queueSize'>
     ) }
-  ) }
-);
-
-export type ChooseBeepMutationVariables = Exact<{
-  beeperId: Scalars['String'];
-  origin: Scalars['String'];
-  destination: Scalars['String'];
-  groupSize: Scalars['Float'];
-}>;
-
-
-export type ChooseBeepMutation = (
-  { __typename?: 'Mutation' }
-  & { chooseBeep: (
-    { __typename?: 'QueueEntry' }
-    & Pick<QueueEntry, 'id' | 'ridersQueuePosition' | 'isAccepted' | 'origin' | 'destination' | 'state' | 'groupSize'>
-    & { location?: Maybe<(
-      { __typename?: 'Location' }
-      & Pick<Location, 'longitude' | 'latitude'>
-    )>, beeper: (
-      { __typename?: 'User' }
-      & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone' | 'photoUrl' | 'masksRequired' | 'capacity' | 'queueSize'>
-    ) }
-  ) }
-);
-
-export type FindBeepQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type FindBeepQuery = (
-  { __typename?: 'Query' }
-  & { findBeep: (
-    { __typename?: 'User' }
-    & Pick<User, 'id' | 'first' | 'last' | 'isStudent' | 'singlesRate' | 'groupRate' | 'capacity' | 'queueSize' | 'photoUrl' | 'role'>
   ) }
 );
 
@@ -776,6 +767,69 @@ export function useLoginMutation(baseOptions?: ApolloReactHooks.MutationHookOpti
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = ApolloReactCommon.MutationResult<LoginMutation>;
 export type LoginMutationOptions = ApolloReactCommon.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export const SignUpDocument = gql`
+    mutation SignUp($first: String!, $last: String!, $email: String!, $phone: String!, $venmo: String!, $username: String!, $password: String!) {
+  signup(
+    input: {first: $first, last: $last, email: $email, phone: $phone, venmo: $venmo, username: $username, password: $password}
+  ) {
+    user {
+      id
+      first
+      last
+      username
+      email
+      phone
+      venmo
+      isBeeping
+      isEmailVerified
+      isStudent
+      groupRate
+      singlesRate
+      capacity
+      masksRequired
+      queueSize
+      role
+      photoUrl
+      name
+    }
+    tokens {
+      id
+      tokenid
+    }
+  }
+}
+    `;
+export type SignUpMutationFn = ApolloReactCommon.MutationFunction<SignUpMutation, SignUpMutationVariables>;
+
+/**
+ * __useSignUpMutation__
+ *
+ * To run a mutation, you first call `useSignUpMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSignUpMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [signUpMutation, { data, loading, error }] = useSignUpMutation({
+ *   variables: {
+ *      first: // value for 'first'
+ *      last: // value for 'last'
+ *      email: // value for 'email'
+ *      phone: // value for 'phone'
+ *      venmo: // value for 'venmo'
+ *      username: // value for 'username'
+ *      password: // value for 'password'
+ *   },
+ * });
+ */
+export function useSignUpMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SignUpMutation, SignUpMutationVariables>) {
+        return ApolloReactHooks.useMutation<SignUpMutation, SignUpMutationVariables>(SignUpDocument, baseOptions);
+      }
+export type SignUpMutationHookResult = ReturnType<typeof useSignUpMutation>;
+export type SignUpMutationResult = ApolloReactCommon.MutationResult<SignUpMutation>;
+export type SignUpMutationOptions = ApolloReactCommon.BaseMutationOptions<SignUpMutation, SignUpMutationVariables>;
 export const GetQueueDocument = gql`
     query GetQueue {
   getQueue {
@@ -1082,111 +1136,6 @@ export function useGetRiderStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQu
 export type GetRiderStatusQueryHookResult = ReturnType<typeof useGetRiderStatusQuery>;
 export type GetRiderStatusLazyQueryHookResult = ReturnType<typeof useGetRiderStatusLazyQuery>;
 export type GetRiderStatusQueryResult = ApolloReactCommon.QueryResult<GetRiderStatusQuery, GetRiderStatusQueryVariables>;
-export const ChooseBeepDocument = gql`
-    mutation ChooseBeep($beeperId: String!, $origin: String!, $destination: String!, $groupSize: Float!) {
-  chooseBeep(
-    beeperId: $beeperId
-    input: {origin: $origin, destination: $destination, groupSize: $groupSize}
-  ) {
-    id
-    ridersQueuePosition
-    isAccepted
-    origin
-    destination
-    state
-    groupSize
-    location {
-      longitude
-      latitude
-    }
-    beeper {
-      id
-      first
-      last
-      singlesRate
-      groupRate
-      isStudent
-      role
-      venmo
-      username
-      phone
-      photoUrl
-      masksRequired
-      capacity
-      queueSize
-    }
-  }
-}
-    `;
-export type ChooseBeepMutationFn = ApolloReactCommon.MutationFunction<ChooseBeepMutation, ChooseBeepMutationVariables>;
-
-/**
- * __useChooseBeepMutation__
- *
- * To run a mutation, you first call `useChooseBeepMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useChooseBeepMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [chooseBeepMutation, { data, loading, error }] = useChooseBeepMutation({
- *   variables: {
- *      beeperId: // value for 'beeperId'
- *      origin: // value for 'origin'
- *      destination: // value for 'destination'
- *      groupSize: // value for 'groupSize'
- *   },
- * });
- */
-export function useChooseBeepMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ChooseBeepMutation, ChooseBeepMutationVariables>) {
-        return ApolloReactHooks.useMutation<ChooseBeepMutation, ChooseBeepMutationVariables>(ChooseBeepDocument, baseOptions);
-      }
-export type ChooseBeepMutationHookResult = ReturnType<typeof useChooseBeepMutation>;
-export type ChooseBeepMutationResult = ApolloReactCommon.MutationResult<ChooseBeepMutation>;
-export type ChooseBeepMutationOptions = ApolloReactCommon.BaseMutationOptions<ChooseBeepMutation, ChooseBeepMutationVariables>;
-export const FindBeepDocument = gql`
-    query FindBeep {
-  findBeep {
-    id
-    first
-    last
-    isStudent
-    singlesRate
-    groupRate
-    capacity
-    queueSize
-    photoUrl
-    role
-  }
-}
-    `;
-
-/**
- * __useFindBeepQuery__
- *
- * To run a query within a React component, call `useFindBeepQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindBeepQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useFindBeepQuery({
- *   variables: {
- *   },
- * });
- */
-export function useFindBeepQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<FindBeepQuery, FindBeepQueryVariables>) {
-        return ApolloReactHooks.useQuery<FindBeepQuery, FindBeepQueryVariables>(FindBeepDocument, baseOptions);
-      }
-export function useFindBeepLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<FindBeepQuery, FindBeepQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<FindBeepQuery, FindBeepQueryVariables>(FindBeepDocument, baseOptions);
-        }
-export type FindBeepQueryHookResult = ReturnType<typeof useFindBeepQuery>;
-export type FindBeepLazyQueryHookResult = ReturnType<typeof useFindBeepLazyQuery>;
-export type FindBeepQueryResult = ApolloReactCommon.QueryResult<FindBeepQuery, FindBeepQueryVariables>;
 export const LeaveQueueDocument = gql`
     mutation LeaveQueue {
   riderLeaveQueue

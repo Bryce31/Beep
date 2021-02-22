@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { config } from '../../utils/config';
 import { handleFetchError } from '../../utils/Errors';
-import { LeaveIcon } from '../../utils/Icons';
+import { DenyIndicator, LeaveIcon } from '../../utils/Icons';
 import { Button } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext';
 import { isMobile } from '../../utils/config';
@@ -22,6 +22,7 @@ const LeaveQueue = gql`
 
 function LeaveButton(props: Props) {
     const [leave, { loading, error, data }] = useMutation<LeaveQueueMutation>(LeaveQueue);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     function leaveQueueWrapper(): void {
         if (isMobile) {
@@ -45,13 +46,19 @@ function LeaveButton(props: Props) {
     }
 
     async function leaveQueue(): Promise<void> {
+        setIsLoading(true);
         await leave();
         props.refetch();
     }
 
-    if (loading) {
+    if (isLoading) {
         return (
-            <Button appearance='outline' status='danger' style={styles.button}>
+            <Button
+                appearance='outline'
+                status='danger'
+                style={styles.button}
+                accessoryRight={DenyIndicator}
+            >
                 Loading
             </Button>
         );

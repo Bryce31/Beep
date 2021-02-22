@@ -1,14 +1,10 @@
-import React, { Component, useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext';
-import { config } from "../../utils/config";
 import { EditIcon, LoadingIndicator } from "../../utils/Icons";
-import { handleFetchError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { BackIcon } from '../../utils/Icons';
-import AsyncStorage from '@react-native-community/async-storage';
-import { Formik } from 'formik';
 import { gql, useMutation } from '@apollo/client';
 import { EditAccountMutation } from '../../generated/graphql';
 
@@ -38,103 +34,112 @@ export function EditProfileScreen(props: Props) {
     const userContext = useContext(UserContext);
     const [edit, { data, loading, error }] = useMutation<EditAccountMutation>(EditAccount);
 
-    function handleUpdate() {
+    const [username] = useState<string | undefined>(userContext?.user?.user.username);
+    const [first, setFirst] = useState<string | undefined>(userContext?.user?.user.first);
+    const [last, setLast] = useState<string | undefined>(userContext?.user?.user.last);
+    const [email, setEmail] = useState<string | undefined>(userContext?.user?.user.email);
+    const [phone, setPhone] = useState<string | undefined>(userContext?.user?.user.phone);
+    const [venmo, setVenmo] = useState<string | undefined>(userContext?.user?.user.venmo);
 
+    useEffect(() => {
+        if (first !== userContext?.user?.user.first) setFirst(userContext?.user?.user.first);
+        if (last !== userContext?.user?.user.last) setLast(userContext?.user?.user.last);
+        if (email !== userContext?.user?.user.email) setEmail(userContext?.user?.user.email);
+        if (phone !== userContext?.user?.user.first) setPhone(userContext?.user?.user.phone);
+        if (venmo !== userContext?.user?.user.venmo) setVenmo(userContext?.user?.user.venmo);
+    }, [userContext?.user]);
+
+    function handleUpdate() {
+        edit({ variables: {
+            first: first,
+            last: last,
+            email: email,
+            phone: phone,
+            venmo: venmo
+        }});
     }
 
-        const BackAction = () => (
-            <TopNavigationAction icon={BackIcon} onPress={() => props.navigation.goBack()}/>
-        );
+    const BackAction = () => (
+        <TopNavigationAction icon={BackIcon} onPress={() => props.navigation.goBack()}/>
+    );
 
-        return (
-            <>
-                <TopNavigation title='Edit Profile' alignment='center' accessoryLeft={BackAction}/>
-                <Layout style={{flex: 1}}>
+    return (
+        <>
+            <TopNavigation title='Edit Profile' alignment='center' accessoryLeft={BackAction}/>
+            <Layout style={{flex: 1}}>
                 <KeyboardAwareScrollView scrollEnabled={false} extraScrollHeight={70}>
-                <Layout style={styles.container}>
-                    <Formik
-                            initialValues={{
-                                first: userContext?.user?.user.first,
-                                last: userContext?.user?.user.last,
-                                email: userContext?.user?.user.email,
-                                phone: userContext?.user?.user.phone,
-                                venmo: userContext?.user?.user.venmo,
-                                username: userContext?.user?.user.username
-                            }}
-                            onSubmit={async (values, { setSubmitting }) => {
-                                const result = await edit({ variables: values });
-                                setSubmitting(false);
-                            }}
-                        >
-                            {({
-                                values,
-                                errors,
-                                touched,
-                                handleChange,
-                                handleBlur,
-                                handleSubmit,
-                                isSubmitting,
-                            }) => (
-                                <form onSubmit={handleSubmit}>
-                                    <input
-                                        type="text"
-                                        name="first"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.first}
-                                    />
-                                    {errors.first && touched.first && errors.first}
-                                    <input
-                                        type="text"
-                                        name="last"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.last}
-                                    />
-                                    {errors.last && touched.last && errors.last}
-                                    <input
-                                        type="text"
-                                        name="email"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.email}
-                                    />
-                                    {errors.email && touched.email && errors.email}
-                                    <input
-                                        type="text"
-                                        name="phone"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.phone}
-                                    />
-                                    {errors.phone && touched.phone && errors.phone}
-                                    <input
-                                        type="text"
-                                        name="phone"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.venmo}
-                                    />
-                                    {errors.venmo && touched.venmo && errors.venmo}
-                                    <input
-                                        type="text"
-                                        name="username"
-                                        onBlur={handleBlur}
-                                        value={values.username}
-                                        disabled
-                                    />
-                                    {errors.username && touched.username && errors.username}
-                                    <button type="submit" disabled={isSubmitting}>
-                                        Submit
-                                    </button>
-                                </form>
-                            )}
-                        </Formik>
-                </Layout>
+                    <Layout style={styles.container}>
+                        <Layout style={styles.form}>
+                            <Input
+                                label="Username"
+                                value={username}
+                                textContentType="username"
+                                placeholder="Username"
+                                disabled={true} />
+                            <Input
+                                label="First Name"
+                                value={first}
+                                textContentType="givenName"
+                                placeholder="First Name"
+                                returnKeyType="next"
+                                onChangeText={(text) => setFirst(text)}
+                            />
+                            <Input
+                                label="Last Name"
+                                value={last}
+                                textContentType="familyName"
+                                placeholder="Last Name"
+                                returnKeyType="next"
+                                onChangeText={(text) => setLast(text)}
+                            />
+                            <Input
+                                label="Email"
+                                value={email}
+                                textContentType="emailAddress"
+                                placeholder="Email"
+                                caption={userContext?.user?.user.isEmailVerified ? (userContext.user.user.isStudent) ? "Your email is verified and you are a student": "Your email is verified" : "Your email is not verified"}
+                                returnKeyType="next"
+                                onChangeText={(text) => setEmail(text)}
+                            />
+                            <Input
+                                label="Phone Number"
+                                value={phone}
+                                textContentType="telephoneNumber"
+                                placeholder="Phone Number"
+                                returnKeyType="next"
+                                style={{marginTop: 5}}
+                                onChangeText={(text) => setPhone(text)}
+                            />
+                            <Input
+                                label="Venmo Username"
+                                value={venmo}
+                                textContentType="username"
+                                placeholder="Venmo Username"
+                                returnKeyType="go"
+                                onChangeText={(text) => setVenmo(text)}
+                                onSubmitEditing={() => handleUpdate()}
+                            />
+                            {!loading ?
+                                <Button
+                                    onPress={() => handleUpdate()}
+                                    accessoryRight={EditIcon}
+                                >
+                                    Update Profile
+                                </Button>
+                                :
+                                <Button
+                                    appearance="outline"
+                                    accessoryRight={LoadingIndicator}
+                                >
+                                    Loading
+                                </Button>
+                            }
+                        </Layout>
+                    </Layout>
                 </KeyboardAwareScrollView>
-                </Layout>
-            </>
-        );
+            </Layout>
+        </>
+    );
 }
 
 const styles = StyleSheet.create({

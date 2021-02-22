@@ -263,9 +263,9 @@ export function StartBeepingScreen(props: Props) {
                         <CheckBox
                             checked={masksRequired}
                             onChange={(value) => setMasksRequired(value)}
-                            style={{marginTop: 5}}
+                            style={{marginTop: 15}}
                         >
-                            Require riders to have a mask 😷
+                            Require riders to have a mask
                         </CheckBox>
                     </Layout>
                 </Layout>
@@ -367,7 +367,7 @@ export function StartBeepingScreen(props: Props) {
                                             Get Directions for Beep
                                         </Button>
                                     }
-                                    <ActionButton item={item}/>
+                                    {index == 0 && <ActionButton item={item}/>}
                                 </Card>
 
                                 :
