@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
+import { Layout, Button, Input, TopNavigation, TopNavigationAction, Text } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext';
 import { EditIcon, LoadingIndicator } from "../../utils/Icons";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -27,8 +27,7 @@ const EditAccount = gql`
         name
         }
     }
-  `;
-
+`;
 
 export function EditProfileScreen(props: Props) {
     const userContext = useContext(UserContext);
@@ -69,6 +68,8 @@ export function EditProfileScreen(props: Props) {
             <Layout style={{flex: 1}}>
                 <KeyboardAwareScrollView scrollEnabled={false} extraScrollHeight={70}>
                     <Layout style={styles.container}>
+                        {data && <Text>Success</Text>}
+                        {error && <Text>{error.message}</Text>}
                         <Layout style={styles.form}>
                             <Input
                                 label="Username"
