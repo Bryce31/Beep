@@ -5,7 +5,6 @@ import { ThemeContext } from '../../utils/ThemeContext';
 import { UserContext } from '../../utils/UserContext';
 import socket from '../../utils/Socket';
 import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon } from '../../utils/Icons';
-import { config } from "../../utils/config";
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
 import ResendButton from '../../components/ResendVarificationEmailButton';
