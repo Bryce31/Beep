@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard } from 'react-native';
-import { Icon, Layout, Text, Button, Input, CheckBox, Card } from '@ui-kitten/components';
+import { Icon, Layout, Text, Button, Input, Card } from '@ui-kitten/components';
 import * as Location from 'expo-location';
 import socket from '../../utils/Socket'
 import * as SplashScreen from 'expo-splash-screen';
 import { UserContext } from '../../utils/UserContext';
-import { PhoneIcon, TextIcon, VenmoIcon, BackIcon, GetIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
+import { PhoneIcon, TextIcon, VenmoIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
 import ProfilePicture from "../../components/ProfilePicture";
 import LeaveButton from './LeaveButton';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { MainNavParamList } from '../../navigators/MainTabs';
 import Logger from '../../utils/Logger';
-import {gql, useLazyQuery, useMutation, useQuery} from '@apollo/client';
-import {ChooseBeepMutation, GetRiderStatusQuery, FindBeepQuery} from '../../generated/graphql';
-import {gqlChooseBeep} from './helpers';
+import { gql, useLazyQuery, useQuery } from '@apollo/client';
+import { GetRiderStatusQuery, GetEtaQuery } from '../../generated/graphql';
+import { gqlChooseBeep } from './helpers';
 
 const RiderStatus = gql`
     query GetRiderStatus {
@@ -49,6 +49,12 @@ const RiderStatus = gql`
     }
 `;
 
+const GetETA = gql`
+    query GetETA ($start: String!, $end: String!)	{
+        getETA(start: $start, end: $end)
+    }
+`;
+
 
 interface Props {
     navigation: BottomTabNavigationProp<MainNavParamList>;
@@ -57,13 +63,23 @@ interface Props {
 export function MainFindBeepScreen(props: Props) {
     const userContext: any = React.useContext(UserContext);
 
-    const [eta, setEta] = useState<string>();
+    const [getETA, { data: eta, loading: etaLoading, error: etaError}] = useLazyQuery<GetEtaQuery>(GetETA);
     const [groupSize, setGroupSize] = useState<string>("1");
     const [origin, setOrigin] = useState<string>();
     const [destination, setDestination] = useState<string>();
     const [isGetBeepLoading, setIsGetBeepLoading] = useState<boolean>(false);
 
     const { loading, error, data, refetch, startPolling, previousData } = useQuery<GetRiderStatusQuery>(RiderStatus, { errorPolicy: 'all' });
+
+    async function updateETA(lat: number, long: number): Promise<void> {
+        const position = `${lat},${long}`;
+        getETA({
+            variables: {
+                start: position,
+                end: origin
+            }
+        });
+    }
 
     useEffect(() => {
         try {
@@ -77,6 +93,10 @@ export function MainFindBeepScreen(props: Props) {
             console.log("Getting rider status");
         });
 
+        socket.on('hereIsBeepersLocation', (data) => {
+            updateETA(data.latitude, data.longitude);
+        });
+
         socket.on("connect", async () => {
             if (data?.getRiderStatus.beeper.id) {
                 refetch();
@@ -84,7 +104,6 @@ export function MainFindBeepScreen(props: Props) {
                 enableGetRiderStatus(data.getRiderStatus.beeper.id);
             }
         });
-
     }, []);
 
     useEffect(() => {
@@ -93,6 +112,9 @@ export function MainFindBeepScreen(props: Props) {
         }
         if (data == null || data.getRiderStatus.state == -1) {
             disableGetRiderStatus();
+        }
+        if (data?.getRiderStatus.location) {
+            updateETA(data.getRiderStatus.location.latitude, data.getRiderStatus.location.longitude); 
         }
       }, [data, error])
 
@@ -297,11 +319,17 @@ export function MainFindBeepScreen(props: Props) {
                             {getCurrentStatusMessage()}
                         </Text>
                     </Card>
-                    {(data?.getRiderStatus.state == 1 && eta) &&
-                    <Card style={{marginTop: 10}}>
-                        <Text category='h6'>Arrival ETA</Text>
-                        <Text appearance='hint'>Your beeper is {eta} away</Text>
-                    </Card>
+                    {(data?.getRiderStatus.state == 1) &&
+                        <Layout>
+                        {etaError && <Text>etaError.message</Text>}
+                        {etaLoading && <Text>Loading ETA</Text>}
+                        {eta &&
+                            <Card style={{marginTop: 10}}>
+                                <Text category='h6'>Arrival ETA</Text>
+                                <Text appearance='hint'>Your beeper is {eta} away</Text>
+                            </Card>
+                        }
+                        </Layout>
                     }
                 </Layout>
                 }

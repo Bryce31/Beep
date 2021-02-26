@@ -12,24 +12,257 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The `Upload` scalar type represents a file upload. */
+  Upload: any;
+};
+
+export type Location = {
+  __typename?: 'Location';
+  id: Scalars['String'];
+  user: User;
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+  altitude: Scalars['Float'];
+  accuracy: Scalars['Float'];
+  altitudeAccuracy: Scalars['Float'];
+  heading: Scalars['Float'];
+  speed: Scalars['Float'];
+  timestamp: Scalars['Float'];
+};
+
+export type QueueEntry = {
+  __typename?: 'QueueEntry';
+  id: Scalars['String'];
+  origin: Scalars['String'];
+  destination: Scalars['String'];
+  state: Scalars['Float'];
+  isAccepted: Scalars['Boolean'];
+  groupSize: Scalars['Float'];
+  timeEnteredQueue: Scalars['Float'];
+  beeper: User;
+  rider: User;
+  ridersQueuePosition: Scalars['Float'];
+  location?: Maybe<Location>;
+};
+
+export type Beep = {
+  __typename?: 'Beep';
+  id: Scalars['String'];
+  beeper: User;
+  rider: User;
+  origin: Scalars['String'];
+  destination: Scalars['String'];
+  state: Scalars['Float'];
+  isAccepted: Scalars['Boolean'];
+  groupSize: Scalars['Float'];
+  timeEnteredQueue: Scalars['Float'];
+  doneTime: Scalars['Float'];
+};
+
+export type Rating = {
+  __typename?: 'Rating';
+  id: Scalars['String'];
+  rater: User;
+  rated: User;
+  stars: Scalars['Float'];
+  message: Scalars['String'];
+  timestamp: Scalars['Float'];
+  beep: Beep;
+};
+
+export type User = {
+  __typename?: 'User';
+  id: Scalars['String'];
+  first: Scalars['String'];
+  last: Scalars['String'];
+  username: Scalars['String'];
+  email: Scalars['String'];
+  phone: Scalars['String'];
+  venmo: Scalars['String'];
+  password: Scalars['String'];
+  isBeeping: Scalars['Boolean'];
+  isEmailVerified: Scalars['Boolean'];
+  isStudent: Scalars['Boolean'];
+  groupRate: Scalars['Float'];
+  singlesRate: Scalars['Float'];
+  capacity: Scalars['Float'];
+  masksRequired: Scalars['Boolean'];
+  queueSize: Scalars['Float'];
+  role: Scalars['String'];
+  pushToken?: Maybe<Scalars['String']>;
+  photoUrl?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  queue: Array<QueueEntry>;
+  locations: Array<Location>;
+  ratings: Array<Rating>;
+};
+
+export type TokenEntry = {
+  __typename?: 'TokenEntry';
+  id: Scalars['String'];
+  tokenid: Scalars['String'];
+  user: User;
+};
+
+export type VerifyEmail = {
+  __typename?: 'VerifyEmail';
+  id: Scalars['String'];
+  user: User;
+  time: Scalars['Float'];
+  email: Scalars['String'];
+};
+
+export type ForgotPassword = {
+  __typename?: 'ForgotPassword';
+  id: Scalars['String'];
+  user: User;
+  time: Scalars['Float'];
+};
+
+export type Report = {
+  __typename?: 'Report';
+  id: Scalars['String'];
+  reporter: User;
+  reported: User;
+  handledBy?: Maybe<User>;
+  reason: Scalars['String'];
+  notes?: Maybe<Scalars['String']>;
+  timestamp: Scalars['Float'];
+  handled: Scalars['Boolean'];
+  beep?: Maybe<Beep>;
+};
+
+export type Auth = {
+  __typename?: 'Auth';
+  user: User;
+  tokens: TokenEntry;
+};
+
+export type UsersResponse = {
+  __typename?: 'UsersResponse';
+  items: Array<User>;
+  count: Scalars['Int'];
+};
+
+export type BeepsResponse = {
+  __typename?: 'BeepsResponse';
+  items: Array<Beep>;
+  count: Scalars['Int'];
+};
+
+export type LocationsResponse = {
+  __typename?: 'LocationsResponse';
+  items: Array<Location>;
+  count: Scalars['Int'];
+};
+
+export type ReportsResponse = {
+  __typename?: 'ReportsResponse';
+  items: Array<Report>;
+  count: Scalars['Int'];
+};
+
+export type EditAccountInput = {
+  first?: Maybe<Scalars['String']>;
+  last?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+  venmo?: Maybe<Scalars['String']>;
+};
+
+export type LoginInput = {
+  username: Scalars['String'];
+  password: Scalars['String'];
+  pushToken?: Maybe<Scalars['String']>;
+};
+
+export type SignUpInput = {
+  username: Scalars['String'];
+  first: Scalars['String'];
+  last: Scalars['String'];
+  phone: Scalars['String'];
+  email: Scalars['String'];
+  venmo: Scalars['String'];
+  password: Scalars['String'];
+  pushToken?: Maybe<Scalars['String']>;
+};
+
+export type BeeperSettingsInput = {
+  singlesRate?: Maybe<Scalars['Float']>;
+  groupRate?: Maybe<Scalars['Float']>;
+  capacity?: Maybe<Scalars['Float']>;
+  isBeeping?: Maybe<Scalars['Boolean']>;
+  masksRequired?: Maybe<Scalars['Boolean']>;
+};
+
+export type UpdateQueueEntryInput = {
+  value: Scalars['String'];
+  riderId: Scalars['String'];
+  queueId: Scalars['String'];
+};
+
+export type EditUserValidator = {
+  first?: Maybe<Scalars['String']>;
+  last?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+  venmo?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
+  isBeeping?: Maybe<Scalars['Boolean']>;
+  isEmailVerified?: Maybe<Scalars['Boolean']>;
+  isStudent?: Maybe<Scalars['Boolean']>;
+  groupRate?: Maybe<Scalars['Float']>;
+  singlesRate?: Maybe<Scalars['Float']>;
+  capacity?: Maybe<Scalars['Float']>;
+  masksRequired?: Maybe<Scalars['Boolean']>;
+  queueSize?: Maybe<Scalars['Float']>;
+  role?: Maybe<Scalars['String']>;
+  pushToken?: Maybe<Scalars['String']>;
+  photoUrl?: Maybe<Scalars['String']>;
+  username?: Maybe<Scalars['String']>;
+};
+
+export type RatingInput = {
+  userId: Scalars['String'];
+  stars: Scalars['Float'];
+  message?: Maybe<Scalars['String']>;
+  beepId?: Maybe<Scalars['String']>;
+};
+
+export type ReportInput = {
+  userId: Scalars['String'];
+  reason: Scalars['String'];
+  beepId?: Maybe<Scalars['String']>;
+};
+
+export type UpdateReportInput = {
+  handled?: Maybe<Scalars['Boolean']>;
+  notes?: Maybe<Scalars['String']>;
+};
+
+export type GetBeepInput = {
+  origin: Scalars['String'];
+  destination: Scalars['String'];
+  groupSize: Scalars['Float'];
 };
 
 export type Query = {
   __typename?: 'Query';
   getUser: User;
-  getUsers: Array<User>;
+  getUsers: UsersResponse;
   getRideHistory: Array<Beep>;
   getBeepHistory: Array<Beep>;
   getQueue: Array<QueueEntry>;
+  getBeeps: BeepsResponse;
+  getBeep: Beep;
+  getETA: Scalars['String'];
+  getLocations: LocationsResponse;
+  getUserRating: Array<Rating>;
+  getReports: ReportsResponse;
+  getReport: Report;
   findBeep: User;
   getRiderStatus: QueueEntry;
   getBeeperList: Array<User>;
-  getBeeps: Array<Beep>;
-  getBeep: Array<Beep>;
-  getReports: Array<Report>;
-  getReport: Array<Report>;
-  getDirections: Scalars['String'];
-  getUserRating: Array<Rating>;
 };
 
 
@@ -65,15 +298,21 @@ export type QueryGetBeepsArgs = {
 };
 
 
-export type QueryGetReportsArgs = {
-  offset?: Maybe<Scalars['Int']>;
-  show?: Maybe<Scalars['Int']>;
+export type QueryGetBeepArgs = {
+  id: Scalars['String'];
 };
 
 
-export type QueryGetDirectionsArgs = {
+export type QueryGetEtaArgs = {
   end: Scalars['String'];
   start: Scalars['String'];
+};
+
+
+export type QueryGetLocationsArgs = {
+  id?: Maybe<Scalars['String']>;
+  offset?: Maybe<Scalars['Int']>;
+  show?: Maybe<Scalars['Int']>;
 };
 
 
@@ -81,160 +320,68 @@ export type QueryGetUserRatingArgs = {
   id: Scalars['String'];
 };
 
-export type User = {
-  __typename?: 'User';
-  id: Scalars['String'];
-  first: Scalars['String'];
-  last: Scalars['String'];
-  username: Scalars['String'];
-  email: Scalars['String'];
-  phone: Scalars['String'];
-  venmo: Scalars['String'];
-  password: Scalars['String'];
-  isBeeping: Scalars['Boolean'];
-  isEmailVerified: Scalars['Boolean'];
-  isStudent: Scalars['Boolean'];
-  groupRate: Scalars['Float'];
-  singlesRate: Scalars['Float'];
-  capacity: Scalars['Float'];
-  masksRequired: Scalars['Boolean'];
-  queueSize: Scalars['Float'];
-  role: Scalars['String'];
-  pushToken?: Maybe<Scalars['String']>;
-  photoUrl?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  queue: Array<QueueEntry>;
+
+export type QueryGetReportsArgs = {
+  offset?: Maybe<Scalars['Int']>;
+  show?: Maybe<Scalars['Int']>;
 };
 
-export type QueueEntry = {
-  __typename?: 'QueueEntry';
-  id: Scalars['String'];
-  origin: Scalars['String'];
-  destination: Scalars['String'];
-  state: Scalars['Float'];
-  isAccepted: Scalars['Boolean'];
-  groupSize: Scalars['Float'];
-  timeEnteredQueue: Scalars['Float'];
-  beeper: User;
-  rider: User;
-  ridersQueuePosition: Scalars['Float'];
-  location?: Maybe<Location>;
-};
 
-export type Location = {
-  __typename?: 'Location';
+export type QueryGetReportArgs = {
   id: Scalars['String'];
-  user: User;
-  latitude: Scalars['Float'];
-  longitude: Scalars['Float'];
-  altitude: Scalars['Float'];
-  accuracy: Scalars['Float'];
-  altitudeAccuracy: Scalars['Float'];
-  heading: Scalars['Float'];
-  speed: Scalars['Float'];
-  timestamp: Scalars['Float'];
-};
-
-export type Beep = {
-  __typename?: 'Beep';
-  id: Scalars['String'];
-  beeper: User;
-  rider: User;
-  origin: Scalars['String'];
-  destination: Scalars['String'];
-  state: Scalars['Float'];
-  isAccepted: Scalars['Boolean'];
-  groupSize: Scalars['Float'];
-  timeEnteredQueue: Scalars['Float'];
-  doneTime: Scalars['Float'];
-};
-
-export type Report = {
-  __typename?: 'Report';
-  id: Scalars['String'];
-  reporter: User;
-  reported: User;
-  handledBy?: Maybe<User>;
-  reason: Scalars['String'];
-  notes: Scalars['String'];
-  timestamp: Scalars['Float'];
-  handled: Scalars['Boolean'];
-  beep: Beep;
-};
-
-export type Rating = {
-  __typename?: 'Rating';
-  id: Scalars['String'];
-  rater: User;
-  rated: User;
-  stars: Scalars['Float'];
-  message: Scalars['String'];
-  timestamp: Scalars['Float'];
-  beep: Beep;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  removeUser: Scalars['Boolean'];
-  editUser: User;
-  chooseBeep: QueueEntry;
-  riderLeaveQueue: Scalars['Boolean'];
-  setBeeperStatus: Scalars['Boolean'];
-  setBeeperQueue: Scalars['Boolean'];
-  reportUser: Scalars['Boolean'];
-  updateReport: Report;
-  deleteReport: Scalars['Boolean'];
+  editAccount: User;
+  changePassword: Scalars['Boolean'];
+  updatePushToken: Scalars['Boolean'];
+  verifyAccount: Scalars['Boolean'];
+  resendEmailVarification: Scalars['Boolean'];
+  deleteAccount: Scalars['Boolean'];
+  uploadPhoto: Scalars['Boolean'];
   login: Auth;
   signup: Auth;
   logout: Scalars['Boolean'];
   removeToken: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
   resetPassword: Scalars['Boolean'];
-  editAccount: User;
-  changePassword: Scalars['Boolean'];
-  updatePushToken: Scalars['Boolean'];
-  verifyAccount: User;
-  resendEmailVarification: Scalars['Boolean'];
-  deleteAccount: Scalars['Boolean'];
+  setBeeperStatus: Scalars['Boolean'];
+  setBeeperQueue: Scalars['Boolean'];
+  removeUser: Scalars['Boolean'];
+  editUser: User;
+  deleteBeep: Scalars['Boolean'];
   rateUser: Scalars['Boolean'];
+  reportUser: Scalars['Boolean'];
+  updateReport: Report;
+  deleteReport: Scalars['Boolean'];
+  chooseBeep: QueueEntry;
+  riderLeaveQueue: Scalars['Boolean'];
 };
 
 
-export type MutationRemoveUserArgs = {
+export type MutationEditAccountArgs = {
+  input: EditAccountInput;
+};
+
+
+export type MutationChangePasswordArgs = {
+  password: Scalars['String'];
+};
+
+
+export type MutationUpdatePushTokenArgs = {
+  pushToken: Scalars['String'];
+};
+
+
+export type MutationVerifyAccountArgs = {
   id: Scalars['String'];
 };
 
 
-export type MutationEditUserArgs = {
-  data: EditUserValidator;
-  id: Scalars['String'];
-};
-
-
-export type MutationChooseBeepArgs = {
-  input: GetBeepInput;
-  beeperId: Scalars['String'];
-};
-
-
-export type MutationSetBeeperStatusArgs = {
-  input: BeeperSettingsInput;
-};
-
-
-export type MutationSetBeeperQueueArgs = {
-  input: UpdateQueueEntryInput;
-};
-
-
-export type MutationReportUserArgs = {
-  input: ReportInput;
-};
-
-
-export type MutationUpdateReportArgs = {
-  input: UpdateReportInput;
-  id: Scalars['String'];
+export type MutationUploadPhotoArgs = {
+  photo: Scalars['Upload'];
 };
 
 
@@ -269,22 +416,28 @@ export type MutationResetPasswordArgs = {
 };
 
 
-export type MutationEditAccountArgs = {
-  input: EditAccountInput;
+export type MutationSetBeeperStatusArgs = {
+  input: BeeperSettingsInput;
 };
 
 
-export type MutationChangePasswordArgs = {
-  password: Scalars['String'];
+export type MutationSetBeeperQueueArgs = {
+  input: UpdateQueueEntryInput;
 };
 
 
-export type MutationUpdatePushTokenArgs = {
-  pushToken: Scalars['String'];
+export type MutationRemoveUserArgs = {
+  id: Scalars['String'];
 };
 
 
-export type MutationVerifyAccountArgs = {
+export type MutationEditUserArgs = {
+  data: EditUserValidator;
+  id: Scalars['String'];
+};
+
+
+export type MutationDeleteBeepArgs = {
   id: Scalars['String'];
 };
 
@@ -293,100 +446,28 @@ export type MutationRateUserArgs = {
   input: RatingInput;
 };
 
-export type EditUserValidator = {
-  first?: Maybe<Scalars['String']>;
-  last?: Maybe<Scalars['String']>;
-  email?: Maybe<Scalars['String']>;
-  phone?: Maybe<Scalars['String']>;
-  venmo?: Maybe<Scalars['String']>;
-  password?: Maybe<Scalars['String']>;
-  isBeeping?: Maybe<Scalars['Boolean']>;
-  isEmailVerified?: Maybe<Scalars['Boolean']>;
-  isStudent?: Maybe<Scalars['Boolean']>;
-  groupRate?: Maybe<Scalars['Float']>;
-  singlesRate?: Maybe<Scalars['Float']>;
-  capacity?: Maybe<Scalars['Float']>;
-  masksRequired?: Maybe<Scalars['Boolean']>;
-  queueSize?: Maybe<Scalars['Float']>;
-  role?: Maybe<Scalars['String']>;
-  pushToken?: Maybe<Scalars['String']>;
+
+export type MutationReportUserArgs = {
+  input: ReportInput;
 };
 
-export type GetBeepInput = {
-  origin: Scalars['String'];
-  destination: Scalars['String'];
-  groupSize: Scalars['Float'];
-};
 
-export type BeeperSettingsInput = {
-  singlesRate?: Maybe<Scalars['Float']>;
-  groupRate?: Maybe<Scalars['Float']>;
-  capacity?: Maybe<Scalars['Float']>;
-  isBeeping?: Maybe<Scalars['Boolean']>;
-  masksRequired?: Maybe<Scalars['Boolean']>;
-};
-
-export type UpdateQueueEntryInput = {
-  value: Scalars['String'];
-  riderId: Scalars['String'];
-  queueId: Scalars['String'];
-};
-
-export type ReportInput = {
-  userId: Scalars['String'];
-  reason: Scalars['String'];
-  beepId?: Maybe<Scalars['String']>;
-};
-
-export type UpdateReportInput = {
-  handled?: Maybe<Scalars['Boolean']>;
-  notes?: Maybe<Scalars['String']>;
-};
-
-export type Auth = {
-  __typename?: 'Auth';
-  user: User;
-  tokens: TokenEntry;
-};
-
-export type TokenEntry = {
-  __typename?: 'TokenEntry';
+export type MutationUpdateReportArgs = {
+  input: UpdateReportInput;
   id: Scalars['String'];
-  tokenid: Scalars['String'];
-  user: User;
 };
 
-export type LoginInput = {
-  username: Scalars['String'];
-  password: Scalars['String'];
-  pushToken?: Maybe<Scalars['String']>;
+
+export type MutationDeleteReportArgs = {
+  id: Scalars['String'];
 };
 
-export type SignUpInput = {
-  username: Scalars['String'];
-  first: Scalars['String'];
-  last: Scalars['String'];
-  phone: Scalars['String'];
-  email: Scalars['String'];
-  venmo: Scalars['String'];
-  password: Scalars['String'];
-  pushToken?: Maybe<Scalars['String']>;
+
+export type MutationChooseBeepArgs = {
+  input: GetBeepInput;
+  beeperId: Scalars['String'];
 };
 
-export type EditAccountInput = {
-  first?: Maybe<Scalars['String']>;
-  last?: Maybe<Scalars['String']>;
-  email?: Maybe<Scalars['String']>;
-  phone?: Maybe<Scalars['String']>;
-  venmo?: Maybe<Scalars['String']>;
-};
-
-export type RatingInput = {
-  userId: Scalars['String'];
-  stars: Scalars['Float'];
-  message?: Maybe<Scalars['String']>;
-  beepId?: Maybe<Scalars['String']>;
-};
 
 export type UpdateBeeperQueueMutationVariables = Exact<{
   queueId: Scalars['String'];
@@ -563,6 +644,17 @@ export type GetRiderStatusQuery = (
       & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone' | 'photoUrl' | 'masksRequired' | 'capacity' | 'queueSize'>
     ) }
   ) }
+);
+
+export type GetEtaQueryVariables = Exact<{
+  start: Scalars['String'];
+  end: Scalars['String'];
+}>;
+
+
+export type GetEtaQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'getETA'>
 );
 
 export type LeaveQueueMutationVariables = Exact<{ [key: string]: never; }>;
@@ -1136,6 +1228,38 @@ export function useGetRiderStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQu
 export type GetRiderStatusQueryHookResult = ReturnType<typeof useGetRiderStatusQuery>;
 export type GetRiderStatusLazyQueryHookResult = ReturnType<typeof useGetRiderStatusLazyQuery>;
 export type GetRiderStatusQueryResult = ApolloReactCommon.QueryResult<GetRiderStatusQuery, GetRiderStatusQueryVariables>;
+export const GetEtaDocument = gql`
+    query GetETA($start: String!, $end: String!) {
+  getETA(start: $start, end: $end)
+}
+    `;
+
+/**
+ * __useGetEtaQuery__
+ *
+ * To run a query within a React component, call `useGetEtaQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEtaQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEtaQuery({
+ *   variables: {
+ *      start: // value for 'start'
+ *      end: // value for 'end'
+ *   },
+ * });
+ */
+export function useGetEtaQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetEtaQuery, GetEtaQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetEtaQuery, GetEtaQueryVariables>(GetEtaDocument, baseOptions);
+      }
+export function useGetEtaLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetEtaQuery, GetEtaQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetEtaQuery, GetEtaQueryVariables>(GetEtaDocument, baseOptions);
+        }
+export type GetEtaQueryHookResult = ReturnType<typeof useGetEtaQuery>;
+export type GetEtaLazyQueryHookResult = ReturnType<typeof useGetEtaLazyQuery>;
+export type GetEtaQueryResult = ApolloReactCommon.QueryResult<GetEtaQuery, GetEtaQueryVariables>;
 export const LeaveQueueDocument = gql`
     mutation LeaveQueue {
   riderLeaveQueue
