@@ -93,8 +93,8 @@ export class StartBeepingScreen extends Component<Props, State> {
         if (!__DEV__) {
             await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
                 accuracy: Location.Accuracy.Highest,
-                timeInterval: (15 * 1000),
-                distanceInterval: 6,
+                timeInterval: (30 * 1000),
+                distanceInterval: 20,
                 foregroundService: {
                     notificationTitle: "Ride Beep App",
                     notificationBody: "You are currently beeping!",
