@@ -189,6 +189,7 @@ export function StartBeepingScreen(props: Props) {
         });
 
         socket.on("connect", async () => {
+            console.log("SOCKET RECONNECT (beeper)");
             if (userContext.user.user.isBeeping) {
                 Logger.info("[getQueue] reconnected to socket successfully");
                 refetch();

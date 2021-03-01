@@ -98,10 +98,14 @@ export function MainFindBeepScreen(props: Props) {
         });
 
         socket.on("connect", async () => {
-            if (data?.getRiderStatus.beeper.id) {
-                refetch();
-                Logger.info("[getRiderStatus] reconnected to socket successfully");
-                enableGetRiderStatus(data.getRiderStatus.beeper.id);
+            console.log("SOCKET RECONNECT!!!");
+            const t = await refetch();
+            if (t.data?.getRiderStatus.beeper.id) {
+                Logger.info("~~~~~ [getRiderStatus] reconnected to socket successfully");
+                enableGetRiderStatus(t.data.getRiderStatus.beeper.id);
+            }
+            else {
+                console.log("Socket reconnected but not in beep"); 
             }
         });
     }, []);
@@ -110,7 +114,7 @@ export function MainFindBeepScreen(props: Props) {
         if (data?.getRiderStatus.beeper.id && (previousData == null || previousData == undefined)) {
             enableGetRiderStatus(data.getRiderStatus.beeper.id);
         }
-        if (data == null || data.getRiderStatus.state == -1) {
+        if ((data == null || data.getRiderStatus.state == -1) && !(previousData == null || previousData == undefined)) {
             disableGetRiderStatus();
         }
         if (data?.getRiderStatus.location) {

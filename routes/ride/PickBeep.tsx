@@ -29,6 +29,7 @@ const GetBeepers = gql`
             queueSize
             photoUrl
             role
+            masksRequired
         }
     }
 `;
@@ -64,9 +65,10 @@ export function PickBeepScreen(props: Props) {
             title={`${item.first} ${item.last}`}
             description={getDescription(item)}
             accessoryRight={() => {
+                console.log(item)
                 return (
                     <View style={styles.row}>
-                        {item.userLevel > 0 && <Button size='tiny' status='danger'>Founder</Button>}
+                        {item.role === "admin" && <Button size='tiny' status='danger'>Founder</Button>}
                         {item.isStudent && <Button status="basic" size='tiny' style={{marginRight: 4}}>Student</Button>}
                         {item.masksRequired && <Button status="info" size='tiny' style={{marginRight: 4}}>Masks</Button>}
                     </View>
