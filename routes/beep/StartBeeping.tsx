@@ -22,6 +22,8 @@ interface Props {
     navigation: any;
 }
 
+let unsubscribe = null;
+
 const GetInitialQueue = gql`
     query GetInitialQueue {
         getQueue {
@@ -151,6 +153,12 @@ export function StartBeepingScreen(props: Props) {
                 tempUser.user.isBeeping = value;
                 AsyncStorage.setItem('auth', JSON.stringify(tempUser));
                 userContext.setUser(tempUser);
+                if (value) {
+                    sub();
+                }
+                else {
+                    if (unsubscribe) unsubscribe();
+                }
             }
             else {
                 //Use native popup to tell user why they could not change their status
@@ -195,7 +203,11 @@ export function StartBeepingScreen(props: Props) {
     }
 
     useEffect(() => {
-        subscribeToMore({
+        if (userContext.user.user.isBeeping) sub();
+    }, []);
+
+    function sub() {
+        unsubscribe = subscribeToMore({
             document: GetQueue,
             variables: {
                 topic: userContext.user.user.id
@@ -210,7 +222,7 @@ export function StartBeepingScreen(props: Props) {
                 });
             }
         });
-    }, []);
+    }
 
     function handleDirections(origin: string, dest: string): void {
         if (Platform.OS == 'ios') {
