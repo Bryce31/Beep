@@ -17,15 +17,16 @@ import { ThemeContext } from './utils/ThemeContext';
 import { UserContext } from './utils/UserContext';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { updatePushToken } from "./utils/Notifications";
-import socket, { didUserChange } from './utils/Socket';
 import AsyncStorage from '@react-native-community/async-storage';
 import init from "./utils/Init";
 import Sentry from "./utils/Sentry";
 import { AuthContext } from './types/Beep';
 import { isMobile } from './utils/config';
 import ThemedStatusBar from './utils/StatusBar';
-import { ApolloClient, ApolloProvider, createHttpLink, DefaultOptions, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloProvider, createHttpLink, DefaultOptions, InMemoryCache, split } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { WebSocketLink } from '@apollo/client/link/ws';
+import {getMainDefinition} from '@apollo/client/utilities';
 
 const Stack = createStackNavigator();
 let initialScreen: string;
@@ -33,6 +34,12 @@ init();
 
 const httpLink = createHttpLink({
     uri: 'http://192.168.1.57:3001',
+});
+const wsLink = new WebSocketLink({
+  uri: 'ws://192.168.1.57:3001/subscriptions',
+  options: {
+    reconnect: true
+  }
 });
 
 const authLink = setContext(async (_, { headers }) => {
@@ -53,17 +60,29 @@ const authLink = setContext(async (_, { headers }) => {
 
 const defaultOptions: DefaultOptions = {
     watchQuery: {
-        fetchPolicy: 'no-cache',
+        //fetchPolicy: 'no-cache',
         errorPolicy: 'ignore',
     },
     query: {
-        fetchPolicy: 'no-cache',
+        //fetchPolicy: 'no-cache',
         errorPolicy: 'all',
     },
 };
 
+const splitLink = split(
+    ({ query }) => {
+        const definition = getMainDefinition(query);
+        return (
+            definition.kind === 'OperationDefinition' &&
+                definition.operation === 'subscription'
+        );
+    },
+    wsLink,
+    httpLink,
+);
+
 export const client = new ApolloClient({
-    link: authLink.concat(httpLink),
+    link: authLink.concat(splitLink),
     cache: new InMemoryCache(),
     defaultOptions: defaultOptions
 });
@@ -95,12 +114,6 @@ export default class App extends Component<undefined, State> {
     }
 
     async componentDidMount(): Promise<void> {
-        socket.on("connect", () => {
-            if (this.state.user && !initialScreen) {
-                console.log(initialScreen);
-                socket.emit('getUser', this.state.user.tokens.id);
-            }
-        });
 
         let user;
         let theme = this.state.theme;
@@ -112,11 +125,7 @@ export default class App extends Component<undefined, State> {
             user = JSON.parse(storageData[0][1]);
 
             if (isMobile && user.tokens.id) {
-                updatePushToken(user.tokens.id);
-            }
-
-            if (user.tokens.id) {
-                socket.emit('getUser', user.tokens.id);
+                updatePushToken();
             }
 
             Sentry.setUserContext(user);
@@ -134,26 +143,6 @@ export default class App extends Component<undefined, State> {
             theme: theme
         });
 
-        socket.on('updateUser', (userChanges: unknown) => {
-            if (this.state.user?.user) {
-                if (didUserChange(this.state.user.user, userChanges)) {
-                    const currentState = this.state.user;
-                    for (const key in userChanges) {
-                        currentState["user"][key] = userChanges[key];
-                        console.log(key, "updated");
-                    }
-                    AsyncStorage.setItem('auth', JSON.stringify(currentState));
-                    if (!(userChanges.queueSize >= 0 && (Object.keys(userChanges).length == 1))) {
-                        console.log("Context Update Caused Re-Render");
-                        this.setUser(currentState);
-                    }
-                }
-                else {
-                    console.log("Socket sent an update but user didnt change");
-                }
-            }
-        });
-        
     }
 
     render(): ReactNode {

@@ -469,6 +469,22 @@ export type MutationChooseBeepArgs = {
 };
 
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  getBeeperUpdates: Array<QueueEntry>;
+  getRiderUpdates: QueueEntry;
+};
+
+
+export type SubscriptionGetBeeperUpdatesArgs = {
+  topic: Scalars['String'];
+};
+
+
+export type SubscriptionGetRiderUpdatesArgs = {
+  topic: Scalars['String'];
+};
+
 export type UpdateBeeperQueueMutationVariables = Exact<{
   queueId: Scalars['String'];
   riderId: Scalars['String'];
@@ -544,12 +560,29 @@ export type SignUpMutation = (
   ) }
 );
 
-export type GetQueueQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetInitialQueueQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetQueueQuery = (
+export type GetInitialQueueQuery = (
   { __typename?: 'Query' }
   & { getQueue: Array<(
+    { __typename?: 'QueueEntry' }
+    & Pick<QueueEntry, 'id' | 'isAccepted' | 'groupSize' | 'origin' | 'destination' | 'state' | 'timeEnteredQueue'>
+    & { rider: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'name' | 'first' | 'last' | 'venmo' | 'phone' | 'photoUrl'>
+    ) }
+  )> }
+);
+
+export type GetQueueSubscriptionVariables = Exact<{
+  topic: Scalars['String'];
+}>;
+
+
+export type GetQueueSubscription = (
+  { __typename?: 'Subscription' }
+  & { getBeeperUpdates: Array<(
     { __typename?: 'QueueEntry' }
     & Pick<QueueEntry, 'id' | 'isAccepted' | 'groupSize' | 'origin' | 'destination' | 'state' | 'timeEnteredQueue'>
     & { rider: (
@@ -628,12 +661,32 @@ export type GetRideHistoryQuery = (
   )> }
 );
 
-export type GetRiderStatusQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetInitialRiderStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetRiderStatusQuery = (
+export type GetInitialRiderStatusQuery = (
   { __typename?: 'Query' }
   & { getRiderStatus: (
+    { __typename?: 'QueueEntry' }
+    & Pick<QueueEntry, 'id' | 'ridersQueuePosition' | 'isAccepted' | 'origin' | 'destination' | 'state' | 'groupSize'>
+    & { location?: Maybe<(
+      { __typename?: 'Location' }
+      & Pick<Location, 'longitude' | 'latitude'>
+    )>, beeper: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone' | 'photoUrl' | 'masksRequired' | 'capacity' | 'queueSize'>
+    ) }
+  ) }
+);
+
+export type RiderStatusSubscriptionVariables = Exact<{
+  topic: Scalars['String'];
+}>;
+
+
+export type RiderStatusSubscription = (
+  { __typename?: 'Subscription' }
+  & { getRiderUpdates: (
     { __typename?: 'QueueEntry' }
     & Pick<QueueEntry, 'id' | 'ridersQueuePosition' | 'isAccepted' | 'origin' | 'destination' | 'state' | 'groupSize'>
     & { location?: Maybe<(
@@ -672,7 +725,7 @@ export type GetBeepersQuery = (
   { __typename?: 'Query' }
   & { getBeeperList: Array<(
     { __typename?: 'User' }
-    & Pick<User, 'id' | 'first' | 'last' | 'isStudent' | 'singlesRate' | 'groupRate' | 'capacity' | 'queueSize' | 'photoUrl' | 'role'>
+    & Pick<User, 'id' | 'first' | 'last' | 'isStudent' | 'singlesRate' | 'groupRate' | 'capacity' | 'queueSize' | 'photoUrl' | 'role' | 'masksRequired'>
   )> }
 );
 
@@ -922,8 +975,8 @@ export function useSignUpMutation(baseOptions?: ApolloReactHooks.MutationHookOpt
 export type SignUpMutationHookResult = ReturnType<typeof useSignUpMutation>;
 export type SignUpMutationResult = ApolloReactCommon.MutationResult<SignUpMutation>;
 export type SignUpMutationOptions = ApolloReactCommon.BaseMutationOptions<SignUpMutation, SignUpMutationVariables>;
-export const GetQueueDocument = gql`
-    query GetQueue {
+export const GetInitialQueueDocument = gql`
+    query GetInitialQueue {
   getQueue {
     id
     isAccepted
@@ -946,29 +999,73 @@ export const GetQueueDocument = gql`
     `;
 
 /**
- * __useGetQueueQuery__
+ * __useGetInitialQueueQuery__
  *
- * To run a query within a React component, call `useGetQueueQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetQueueQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetInitialQueueQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInitialQueueQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetQueueQuery({
+ * const { data, loading, error } = useGetInitialQueueQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetQueueQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetQueueQuery, GetQueueQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetQueueQuery, GetQueueQueryVariables>(GetQueueDocument, baseOptions);
+export function useGetInitialQueueQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetInitialQueueQuery, GetInitialQueueQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetInitialQueueQuery, GetInitialQueueQueryVariables>(GetInitialQueueDocument, baseOptions);
       }
-export function useGetQueueLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetQueueQuery, GetQueueQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<GetQueueQuery, GetQueueQueryVariables>(GetQueueDocument, baseOptions);
+export function useGetInitialQueueLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetInitialQueueQuery, GetInitialQueueQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetInitialQueueQuery, GetInitialQueueQueryVariables>(GetInitialQueueDocument, baseOptions);
         }
-export type GetQueueQueryHookResult = ReturnType<typeof useGetQueueQuery>;
-export type GetQueueLazyQueryHookResult = ReturnType<typeof useGetQueueLazyQuery>;
-export type GetQueueQueryResult = ApolloReactCommon.QueryResult<GetQueueQuery, GetQueueQueryVariables>;
+export type GetInitialQueueQueryHookResult = ReturnType<typeof useGetInitialQueueQuery>;
+export type GetInitialQueueLazyQueryHookResult = ReturnType<typeof useGetInitialQueueLazyQuery>;
+export type GetInitialQueueQueryResult = ApolloReactCommon.QueryResult<GetInitialQueueQuery, GetInitialQueueQueryVariables>;
+export const GetQueueDocument = gql`
+    subscription GetQueue($topic: String!) {
+  getBeeperUpdates(topic: $topic) {
+    id
+    isAccepted
+    groupSize
+    origin
+    destination
+    state
+    timeEnteredQueue
+    rider {
+      id
+      name
+      first
+      last
+      venmo
+      phone
+      photoUrl
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetQueueSubscription__
+ *
+ * To run a query within a React component, call `useGetQueueSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetQueueSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetQueueSubscription({
+ *   variables: {
+ *      topic: // value for 'topic'
+ *   },
+ * });
+ */
+export function useGetQueueSubscription(baseOptions: ApolloReactHooks.SubscriptionHookOptions<GetQueueSubscription, GetQueueSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<GetQueueSubscription, GetQueueSubscriptionVariables>(GetQueueDocument, baseOptions);
+      }
+export type GetQueueSubscriptionHookResult = ReturnType<typeof useGetQueueSubscription>;
+export type GetQueueSubscriptionResult = ApolloReactCommon.SubscriptionResult<GetQueueSubscription>;
 export const UpdateBeepSettingsDocument = gql`
     mutation UpdateBeepSettings($singlesRate: Float!, $groupRate: Float!, $capacity: Float!, $isBeeping: Boolean!, $masksRequired: Boolean!) {
   setBeeperStatus(
@@ -1170,8 +1267,8 @@ export function useGetRideHistoryLazyQuery(baseOptions?: ApolloReactHooks.LazyQu
 export type GetRideHistoryQueryHookResult = ReturnType<typeof useGetRideHistoryQuery>;
 export type GetRideHistoryLazyQueryHookResult = ReturnType<typeof useGetRideHistoryLazyQuery>;
 export type GetRideHistoryQueryResult = ApolloReactCommon.QueryResult<GetRideHistoryQuery, GetRideHistoryQueryVariables>;
-export const GetRiderStatusDocument = gql`
-    query GetRiderStatus {
+export const GetInitialRiderStatusDocument = gql`
+    query GetInitialRiderStatus {
   getRiderStatus {
     id
     ridersQueuePosition
@@ -1205,29 +1302,84 @@ export const GetRiderStatusDocument = gql`
     `;
 
 /**
- * __useGetRiderStatusQuery__
+ * __useGetInitialRiderStatusQuery__
  *
- * To run a query within a React component, call `useGetRiderStatusQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetRiderStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetInitialRiderStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInitialRiderStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetRiderStatusQuery({
+ * const { data, loading, error } = useGetInitialRiderStatusQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetRiderStatusQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetRiderStatusQuery, GetRiderStatusQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetRiderStatusQuery, GetRiderStatusQueryVariables>(GetRiderStatusDocument, baseOptions);
+export function useGetInitialRiderStatusQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>(GetInitialRiderStatusDocument, baseOptions);
       }
-export function useGetRiderStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetRiderStatusQuery, GetRiderStatusQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<GetRiderStatusQuery, GetRiderStatusQueryVariables>(GetRiderStatusDocument, baseOptions);
+export function useGetInitialRiderStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>(GetInitialRiderStatusDocument, baseOptions);
         }
-export type GetRiderStatusQueryHookResult = ReturnType<typeof useGetRiderStatusQuery>;
-export type GetRiderStatusLazyQueryHookResult = ReturnType<typeof useGetRiderStatusLazyQuery>;
-export type GetRiderStatusQueryResult = ApolloReactCommon.QueryResult<GetRiderStatusQuery, GetRiderStatusQueryVariables>;
+export type GetInitialRiderStatusQueryHookResult = ReturnType<typeof useGetInitialRiderStatusQuery>;
+export type GetInitialRiderStatusLazyQueryHookResult = ReturnType<typeof useGetInitialRiderStatusLazyQuery>;
+export type GetInitialRiderStatusQueryResult = ApolloReactCommon.QueryResult<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>;
+export const RiderStatusDocument = gql`
+    subscription RiderStatus($topic: String!) {
+  getRiderUpdates(topic: $topic) {
+    id
+    ridersQueuePosition
+    isAccepted
+    origin
+    destination
+    state
+    groupSize
+    location {
+      longitude
+      latitude
+    }
+    beeper {
+      id
+      first
+      last
+      singlesRate
+      groupRate
+      isStudent
+      role
+      venmo
+      username
+      phone
+      photoUrl
+      masksRequired
+      capacity
+      queueSize
+    }
+  }
+}
+    `;
+
+/**
+ * __useRiderStatusSubscription__
+ *
+ * To run a query within a React component, call `useRiderStatusSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useRiderStatusSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRiderStatusSubscription({
+ *   variables: {
+ *      topic: // value for 'topic'
+ *   },
+ * });
+ */
+export function useRiderStatusSubscription(baseOptions: ApolloReactHooks.SubscriptionHookOptions<RiderStatusSubscription, RiderStatusSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<RiderStatusSubscription, RiderStatusSubscriptionVariables>(RiderStatusDocument, baseOptions);
+      }
+export type RiderStatusSubscriptionHookResult = ReturnType<typeof useRiderStatusSubscription>;
+export type RiderStatusSubscriptionResult = ApolloReactCommon.SubscriptionResult<RiderStatusSubscription>;
 export const GetEtaDocument = gql`
     query GetETA($start: String!, $end: String!) {
   getETA(start: $start, end: $end)
@@ -1302,6 +1454,7 @@ export const GetBeepersDocument = gql`
     queueSize
     photoUrl
     role
+    masksRequired
   }
 }
     `;

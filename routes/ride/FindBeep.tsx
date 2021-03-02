@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { Icon, Layout, Text, Button, Input, Card } from '@ui-kitten/components';
 import * as Location from 'expo-location';
-import socket from '../../utils/Socket'
 import * as SplashScreen from 'expo-splash-screen';
 import { UserContext } from '../../utils/UserContext';
 import { PhoneIcon, TextIcon, VenmoIcon, FindIcon, ShareIcon, LoadingIndicator } from '../../utils/Icons';
@@ -10,13 +9,12 @@ import ProfilePicture from "../../components/ProfilePicture";
 import LeaveButton from './LeaveButton';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { MainNavParamList } from '../../navigators/MainTabs';
-import Logger from '../../utils/Logger';
-import { gql, useLazyQuery, useQuery } from '@apollo/client';
-import { GetRiderStatusQuery, GetEtaQuery } from '../../generated/graphql';
+import { gql, useLazyQuery, useQuery, useSubscription } from '@apollo/client';
+import { GetEtaQuery, GetInitialRiderStatusQuery, RiderStatusSubscription } from '../../generated/graphql';
 import { gqlChooseBeep } from './helpers';
 
-const RiderStatus = gql`
-    query GetRiderStatus {
+const InitialRiderStatus = gql`
+    query GetInitialRiderStatus {
         getRiderStatus {
             id
             ridersQueuePosition
@@ -26,6 +24,42 @@ const RiderStatus = gql`
             state
             groupSize
             location {
+                id
+                longitude
+                latitude
+            }
+            beeper {
+                id
+                first
+                last
+                singlesRate
+                groupRate
+                isStudent
+                role
+                venmo
+                username
+                phone
+                photoUrl
+                masksRequired
+                capacity
+                queueSize
+            }
+        }
+    }
+`;
+
+const RiderStatus = gql`
+    subscription RiderStatus($topic: String!) {
+        getRiderUpdates(topic: $topic) {
+            id
+            ridersQueuePosition
+            isAccepted
+            origin
+            destination
+            state
+            groupSize
+            location {
+                id
                 longitude
                 latitude
             }
@@ -69,7 +103,7 @@ export function MainFindBeepScreen(props: Props) {
     const [destination, setDestination] = useState<string>();
     const [isGetBeepLoading, setIsGetBeepLoading] = useState<boolean>(false);
 
-    const { loading, error, data, refetch, startPolling, previousData } = useQuery<GetRiderStatusQuery>(RiderStatus, { errorPolicy: 'all' });
+    const { subscribeToMore, loading, error, data, refetch } = useQuery<GetInitialRiderStatusQuery>(InitialRiderStatus);
 
     async function updateETA(lat: number, long: number): Promise<void> {
         const position = `${lat},${long}`;
@@ -88,52 +122,27 @@ export function MainFindBeepScreen(props: Props) {
         catch(error) {
             console.error(error);
         }
-        socket.on('updateRiderStatus', () => {
-            refetch();
-            console.log("Getting rider status");
-        });
-
-        socket.on('hereIsBeepersLocation', (data) => {
-            updateETA(data.latitude, data.longitude);
-        });
-
-        socket.on("connect", async () => {
-            console.log("SOCKET RECONNECT!!!");
-            const t = await refetch();
-            if (t.data?.getRiderStatus.beeper.id) {
-                Logger.info("~~~~~ [getRiderStatus] reconnected to socket successfully");
-                enableGetRiderStatus(t.data.getRiderStatus.beeper.id);
-            }
-            else {
-                console.log("Socket reconnected but not in beep"); 
+        if (!subscribeToMore) return;
+        subscribeToMore({
+            document: RiderStatus,
+            variables: {
+                topic: userContext.user.user.id
+            },
+            updateQuery: (prev, { subscriptionData }) => {
+                const newFeedItem = subscriptionData.data.getRiderUpdates;
+                console.log(prev);
+                console.log(newFeedItem);
+                return Object.assign({}, prev, {
+                    getRiderStatus: newFeedItem
+                });
             }
         });
     }, []);
-
-    useEffect(() => {
-        if (data?.getRiderStatus.beeper.id && (previousData == null || previousData == undefined)) {
-            enableGetRiderStatus(data.getRiderStatus.beeper.id);
-        }
-        if ((data == null || data.getRiderStatus.state == -1) && !(previousData == null || previousData == undefined)) {
-            disableGetRiderStatus();
-        }
-        if (data?.getRiderStatus.location) {
-            updateETA(data.getRiderStatus.location.latitude, data.getRiderStatus.location.longitude); 
-        }
-      }, [data, error])
 
     async function findBeep(): Promise<void> {
         return props.navigation.navigate('PickBeepScreen', {
             handlePick: (id: string) => chooseBeep(id)
         });
-    }
-
-    function enableGetRiderStatus(beeperId: string): void {
-        socket.emit('getRiderStatus', userContext.user.tokens.id, beeperId);
-    }
-
-    function disableGetRiderStatus(): void {
-        socket.emit('stopGetRiderStatus');
     }
 
     async function chooseBeep(id: string): Promise<void> {
@@ -147,10 +156,6 @@ export function MainFindBeepScreen(props: Props) {
         setIsGetBeepLoading(false);
 
         console.log("Choose beeep result", result);
-
-        enableGetRiderStatus(result.data?.chooseBeep.beeper.id);
-
-        refetch();
     }
 
     function getVenmoLink(): string {
@@ -237,7 +242,7 @@ export function MainFindBeepScreen(props: Props) {
         );
     }
 
-    if (data == null || data?.getRiderStatus == null) {
+    if (!data || !data?.getRiderStatus || !data?.getRiderStatus.beeper.id ) {
         return (
             <Layout style={{height:"100%"}}>
                 <KeyboardAvoidingView
@@ -378,7 +383,7 @@ export function MainFindBeepScreen(props: Props) {
                 </Button>
                 }
                 {(data?.getRiderStatus.ridersQueuePosition >= 1 && data?.getRiderStatus.beeper) && 
-                    <LeaveButton beepersId={data?.getRiderStatus.beeper.id} refetch={() => refetch()} />
+                    <LeaveButton beepersId={data?.getRiderStatus.beeper.id} refetch={() => {}} />
                 }
             </Layout>
         );
@@ -422,7 +427,7 @@ export function MainFindBeepScreen(props: Props) {
                     <Text category='h6'>{data?.getRiderStatus.beeper?.queueSize}</Text>
                     <Text appearance='hint'>{(data?.getRiderStatus.beeper?.queueSize == 1) ? "person is" : "people are"} ahead of you in {data?.getRiderStatus.beeper?.first}{"'"}s queue</Text>
                 </Layout>
-                <LeaveButton beepersId={data?.getRiderStatus.beeper.id} refetch={() => refetch()} />
+                <LeaveButton beepersId={data?.getRiderStatus.beeper.id} refetch={() => {}} />
             </Layout>
         );
     }

@@ -7,7 +7,6 @@ import { UserContext } from '../../utils/UserContext';
 import { isMobile } from '../../utils/config';
 import { LoginIcon, SignUpIcon, QuestionIcon, LoadingIndicator } from '../../utils/Icons';
 import { Icon } from '@ui-kitten/components';
-import socket from "../../utils/Socket";
 import { gql, useMutation } from '@apollo/client';
 import { LoginMutation } from '../../generated/graphql';
 
@@ -79,8 +78,6 @@ function LoginScreen(props: Props) {
 
         userContext.setUser(r.data?.login);
             
-        socket.emit('getUser', r.data?.login.tokens.id);
-
         props.navigation.reset({
             index: 0,
             routes: [

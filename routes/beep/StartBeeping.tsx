@@ -1,12 +1,10 @@
-import React, { Component, ReactNode, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
-import { StyleSheet, Linking, Platform, AppState, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
+import { StyleSheet, Linking, Platform, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
-import socket from '../../utils/Socket';
 import { UserContext } from '../../utils/UserContext';
-import { config, isAndroid } from "../../utils/config";
-import * as Notifications from 'expo-notifications';
+import { isAndroid } from "../../utils/config";
 import ActionButton from "../../components/ActionButton";
 import AcceptDenyButton from "../../components/AcceptDenyButton";
 import { handleFetchError } from "../../utils/Errors";
@@ -16,16 +14,40 @@ import ProfilePicture from '../../components/ProfilePicture';
 import Toggle from "./components/Toggle";
 import * as Permissions from 'expo-permissions';
 import Logger from '../../utils/Logger';
-import { gql, useMutation, useQuery } from '@apollo/client';
-import { GetQueueQuery, UpdateBeepSettingsMutation } from '../../generated/graphql';
+import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
+import { GetInitialQueueQuery, GetQueueSubscription, UpdateBeepSettingsMutation } from '../../generated/graphql';
+import update from 'immutability-helper';
 
 interface Props {
     navigation: any;
 }
 
-const GetQueue = gql`
-    query GetQueue {
+const GetInitialQueue = gql`
+    query GetInitialQueue {
         getQueue {
+            id
+            isAccepted
+            groupSize
+            origin
+            destination
+            state
+            timeEnteredQueue
+            rider {
+                id
+                name
+                first
+                last
+                venmo
+                phone
+                photoUrl
+            }
+        }
+    }
+`;
+
+const GetQueue = gql`
+    subscription GetQueue($topic: String!) {
+        getBeeperUpdates(topic: $topic) {
             id
             isAccepted
             groupSize
@@ -70,7 +92,8 @@ export function StartBeepingScreen(props: Props) {
     const [groupRate, setGroupRate] = useState<string>(userContext.user.user.groupRate);
     const [capacity, setCapacity] = useState<string>(userContext.user.user.capacity);
 
-    const { loading, error, data, refetch } = useQuery<GetQueueQuery>(GetQueue, { notifyOnNetworkStatusChange: true });
+    const { subscribeToMore, loading, error, data, refetch } = useQuery<GetInitialQueueQuery>(GetInitialQueue, { notifyOnNetworkStatusChange: true });
+    //const { loading, error, data } = useSubscription<GetQueueSubscription>(GetQueue, { variables: { topic: userContext.user.user.id }});
     const [updateBeepSettings, { loading: loadingBeepSettings, error: beepSettingsError }] = useMutation<UpdateBeepSettingsMutation>(UpdateBeepSettings);
 
     function toggleSwitchWrapper(value: boolean): void {
@@ -107,12 +130,10 @@ export function StartBeepingScreen(props: Props) {
                 return alert("You must allow location to beep!");
             }
             //if user turns 'isBeeping' on (to true), subscribe to rethinkdb changes
-            enableGetQueue();
             startLocationTracking();
         }
         else {
             //if user turns 'isBeeping' off (to false), unsubscribe to rethinkdb changes
-            disableGetQueue();
             stopLocationTracking();
         }
         
@@ -126,10 +147,6 @@ export function StartBeepingScreen(props: Props) {
 
             if (result) {
                 //We sucessfuly updated beeper status in database
-                if (value) {
-                    refetch();
-                }
-
                 const tempUser = JSON.parse(JSON.stringify(userContext.user));
                 tempUser.user.isBeeping = value;
                 AsyncStorage.setItem('auth', JSON.stringify(tempUser));
@@ -142,11 +159,9 @@ export function StartBeepingScreen(props: Props) {
                 setIsBeeping(!isBeeping);
                 //we also need to resubscribe to the socket
                 if (isBeeping) {
-                    enableGetQueue();
                     startLocationTracking();
                 }
                 else {
-                    disableGetQueue();
                     stopLocationTracking();
                 }
 
@@ -180,33 +195,22 @@ export function StartBeepingScreen(props: Props) {
     }
 
     useEffect(() => {
-        if (userContext.user.user.isBeeping) {
-            enableGetQueue();
-        }
-
-        socket.on("updateQueue", () => {
-            refetch();
-        });
-
-        socket.on("connect", async () => {
-            console.log("SOCKET RECONNECT (beeper)");
-            if (userContext.user.user.isBeeping) {
-                Logger.info("[getQueue] reconnected to socket successfully");
-                refetch();
-                enableGetQueue();
+        subscribeToMore({
+            document: GetQueue,
+            variables: {
+                topic: userContext.user.user.id
+            },
+            updateQuery: (prev, { subscriptionData }) => {
+                //refetch();
+                console.log(subscriptionData);
+                console.log(prev);
+                const newQueue = subscriptionData.data.getBeeperUpdates;
+                return Object.assign({}, prev, {
+                    getQueue: newQueue
+                });
             }
         });
     }, []);
-
-
-    function enableGetQueue(): void {
-        socket.emit('getQueue', userContext.user.user.id);
-    }
-
-    function disableGetQueue(): void {
-        socket.emit('stopGetQueue');
-    }
-
 
     function handleDirections(origin: string, dest: string): void {
         if (Platform.OS == 'ios') {
@@ -444,8 +448,6 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
         if (!auth) return;
 
         const authToken = JSON.parse(auth).tokens.token;
-
-        socket.emit('updateUsersLocation', authToken, lat, long, altitude, accuracy, altitudeAccuracy, heading, speed);
     }
 });
 

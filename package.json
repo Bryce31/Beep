@@ -9,7 +9,7 @@
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
-    "@apollo/client": "^3.3.10",
+    "@apollo/client": "^3.3.11",
     "@eva-design/eva": "^2.0.0",
     "@react-native-community/async-storage": "~1.12.0",
     "@react-native-community/masked-view": "0.1.10",
@@ -29,6 +29,7 @@
     "expo-updates": "~0.4.1",
     "formik": "^2.2.6",
     "graphql": "^15.5.0",
+    "immutability-helper": "^3.1.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
@@ -39,7 +40,8 @@
     "react-native-svg": "12.1.0",
     "react-native-web": "~0.13.12",
     "sentry-expo": "^3.0.4",
-    "socket.io-client": "^3.1.1"
+    "socket.io-client": "^3.1.1",
+    "subscriptions-transport-ws": "^0.9.18"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
