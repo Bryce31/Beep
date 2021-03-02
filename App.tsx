@@ -35,10 +35,21 @@ init();
 const httpLink = createHttpLink({
     uri: 'http://192.168.1.57:3001',
 });
+
 const wsLink = new WebSocketLink({
   uri: 'ws://192.168.1.57:3001/subscriptions',
   options: {
-    reconnect: true
+      reconnect: true,
+      connectionParams: async () => {
+          const tit = await AsyncStorage.getItem('auth');
+
+          if (!tit) return;
+
+          const auth = JSON.parse(tit);
+          return {
+              token: auth.tokens.id
+          }
+      }
   }
 });
 
