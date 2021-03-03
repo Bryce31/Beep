@@ -3,14 +3,10 @@ import { Image, StyleSheet, Platform } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Text, Layout, Button, Input, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext';
-import { removeOldToken } from '../../utils/OfflineToken';
-import { config } from "../../utils/config";
 import { PhotoIcon, BackIcon, SignUpIcon, LoadingIndicator } from "../../utils/Icons";
 import { getPushToken } from "../../utils/Notifications";
-import { handleFetchError } from "../../utils/Errors";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as Linking from 'expo-linking';
-import socket from "../../utils/Socket";
 import * as ImagePicker from 'expo-image-picker';
 import {gql, useMutation} from '@apollo/client';
 import {SignUpMutation} from '../../generated/graphql';
@@ -89,9 +85,7 @@ function RegisterScreen(props: Props) {
         
             AsyncStorage.setItem("auth", JSON.stringify(result.data?.signup));
 
-            userContext.setUser(result.data?.signup);
-                
-            socket.emit('getUser', result.data?.signup.tokens.id);
+            userContext?.setUser(result.data.signup);
 
             props.navigation.reset({
                 index: 0,

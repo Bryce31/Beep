@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../../utils/ThemeContext';
 import { UserContext } from '../../utils/UserContext';
-import socket from '../../utils/Socket';
 import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
@@ -25,12 +24,6 @@ export function MainSettingsScreen({ navigation }: any) {
     async function doLogout() {
         try {
             const result = await logout();
-
-            socket.emit('stopGetQueue');
-            socket.emit('stopGetRiderStatus');
-            socket.emit('stopGetUser');
-            socket.off('updateRiderStatus');
-            socket.off('updateQueue');
             AsyncStorage.clear();
         }
         catch (error) {
