@@ -320,7 +320,7 @@ export function MainFindBeepScreen(props: Props) {
                     </Layout>
                 </TouchableWithoutFeedback>
                 <Tags/>
-                {(data?.getRiderStatus.ridersQueuePosition == 0) &&
+                {(data?.getRiderStatus.ridersQueuePosition <= 0) &&
                 <Layout style={styles.group}>
                     <Card>
                         <Text category='h6'>Current Status</Text>
@@ -342,7 +342,7 @@ export function MainFindBeepScreen(props: Props) {
                     }
                 </Layout>
                 }
-                {(data?.getRiderStatus.ridersQueuePosition != 0) && 
+                {(data?.getRiderStatus.ridersQueuePosition > 0) && 
                     <Layout style={styles.group}>
                         <Text category='h6'>{data?.getRiderStatus.ridersQueuePosition}</Text>
                         <Text appearance='hint'>{(data?.getRiderStatus.ridersQueuePosition == 1) ? "person is" : "people are"} ahead of you in {data?.getRiderStatus.beeper?.first || "User"}{"'"}s queue.</Text>
