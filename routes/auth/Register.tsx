@@ -86,6 +86,7 @@ function RegisterScreen(props: Props) {
             AsyncStorage.setItem("auth", JSON.stringify(result.data?.signup));
 
             userContext?.setUser(result.data.signup);
+            userContext?.subscribeToUser(result.data?.signup.user.id);
 
             props.navigation.reset({
                 index: 0,

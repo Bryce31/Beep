@@ -102,5 +102,5 @@ async function handleNotification(notification: Notification) {
     //Vibrate when we recieve a notification
     Vibration.vibrate();
     //Log the entire notification to the console
-    console.log("Notification:", notification);
+    //console.log("Notification:", notification);
 }

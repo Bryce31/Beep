@@ -74,16 +74,20 @@ function LoginScreen(props: Props) {
             password: password
         }});
 
-        AsyncStorage.setItem("auth", JSON.stringify(r.data?.login));
+        if (r) {
 
-        userContext.setUser(r.data?.login);
-            
-        props.navigation.reset({
-            index: 0,
-            routes: [
-                { name: 'Main' },
-            ],
-        });
+            AsyncStorage.setItem("auth", JSON.stringify(r.data?.login));
+
+            userContext.setUser(r.data?.login);
+            userContext.subscribeToUser(r.data?.login.user.id);
+                
+            props.navigation.reset({
+                index: 0,
+                routes: [
+                    { name: 'Main' },
+                ],
+            });
+        }
     }
 
     return (

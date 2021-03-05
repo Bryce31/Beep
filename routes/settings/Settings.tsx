@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext } from '../../utils/ThemeContext';
-import { UserContext } from '../../utils/UserContext';
+import { AuthenticatedUserContextData, UserContext } from '../../utils/UserContext';
 import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
@@ -18,13 +18,14 @@ const Logout = gql`
 
 export function MainSettingsScreen({ navigation }: any) {
     const themeContext: any = React.useContext(ThemeContext);
-    const userContext: any = React.useContext(UserContext);
+    const userContext: AuthenticatedUserContextData = React.useContext(UserContext)!;
     const [logout, { loading: loading, error: error }] = useMutation<LogoutMutation>(Logout);
 
     async function doLogout() {
         try {
             const result = await logout();
             AsyncStorage.clear();
+            userContext.unsubscribe();
         }
         catch (error) {
             AsyncStorage.setItem("token", userContext.user.tokens.tokenid);

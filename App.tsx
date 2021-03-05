@@ -23,11 +23,12 @@ import Sentry from "./utils/Sentry";
 import { AuthContext } from './types/Beep';
 import { isMobile } from './utils/config';
 import ThemedStatusBar from './utils/StatusBar';
-import { ApolloClient, ApolloProvider, createHttpLink, DefaultOptions, InMemoryCache, split } from '@apollo/client';
+import { ApolloClient, ApolloProvider, createHttpLink, DefaultOptions, gql, InMemoryCache, split } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import {getMainDefinition} from '@apollo/client/utilities';
 
+let sub;
 const Stack = createStackNavigator();
 let initialScreen: string;
 init();
@@ -103,6 +104,24 @@ interface State {
     theme: string;
 }
 
+const UserSubscription = gql`
+    subscription UserSubscription($topic: String!) {
+        getUserUpdates(topic: $topic) {
+            id
+            first
+            last
+            email
+            phone
+            venmo
+            isBeeping
+            isEmailVerified
+            isStudent
+            groupRate
+            singlesRate
+        }
+    }
+`;
+
 export default class App extends Component<undefined, State> {
 
     constructor() {
@@ -124,6 +143,29 @@ export default class App extends Component<undefined, State> {
         Sentry.setUserContext(user);
     }
 
+    async subscribeToUser(id: string): Promise<void> {
+        const a = client.subscribe({ query: UserSubscription, variables: { topic: id }});
+
+        sub = a.subscribe(({ data }) => {
+
+            const existingUser = this.state.user;
+            const updatedUser = data.getUserUpdates;
+            let changed = false;
+
+            for (const key in updatedUser) {
+                if (existingUser['user'][key] != updatedUser[key]) {
+                    existingUser['user'][key] = updatedUser[key];
+                    console.log("Updating these values of user data:", key);
+                    changed = true;
+                }
+            }
+            if (changed) {
+                this.setUser(existingUser);
+                AsyncStorage.setItem('auth', JSON.stringify(existingUser));
+            }
+        });
+    }
+
     async componentDidMount(): Promise<void> {
 
         let user;
@@ -140,6 +182,8 @@ export default class App extends Component<undefined, State> {
             }
 
             Sentry.setUserContext(user);
+            this.subscribeToUser(user.user.id);
+
         }
         else {
             initialScreen = "Login";
@@ -163,12 +207,14 @@ export default class App extends Component<undefined, State> {
 
         const user = this.state.user;
         const setUser = this.setUser;
+        const subscribeToUser = this.subscribeToUser;
+        const unsubscribe = sub.unsubscribe();
         const theme = this.state.theme;
         const toggleTheme = this.toggleTheme;
 
         return (
             <ApolloProvider client={client}>
-                <UserContext.Provider value={{user, setUser}}>
+                <UserContext.Provider value={{user, setUser, subscribeToUser, unsubscribe}}>
                     <ThemeContext.Provider value={{theme, toggleTheme}}>
                         <IconRegistry icons={EvaIconsPack} />
                         <ApplicationProvider {...eva} theme={{ ...eva[this.state.theme], ...beepTheme }}>
