@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React, { Component, ReactNode } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet } from 'react-native';
+import { AppState, StyleSheet } from 'react-native';
 import RegisterScreen from './routes/auth/Register';
 import LoginScreen from './routes/auth/Login';
 import { ForgotPasswordScreen } from './routes/auth/ForgotPassword';
@@ -121,6 +121,23 @@ const UserSubscription = gql`
         }
     }
 `;
+const GetUser = gql`
+    query GetUser($id: String!) {
+        getUser(id: $id) {
+            id
+            first
+            last
+            email
+            phone
+            venmo
+            isBeeping
+            isEmailVerified
+            isStudent
+            groupRate
+            singlesRate
+        }
+    }
+`;
 
 export default class App extends Component<undefined, State> {
 
@@ -166,7 +183,37 @@ export default class App extends Component<undefined, State> {
         });
     }
 
+    handleAppStateChange = async (nextAppState: string) => {
+        if(nextAppState === "active") {
+            console.log("APP STATE CHANGE REFERCH");
+            const result = await client.query({
+                query: GetUser,
+                variables: {
+                    id: this.state.user?.user.id
+                }
+            });
+
+            const existingUser = this.state.user;
+            const updatedUser = result.data.getUser;
+
+            let changed = false;
+
+            for (const key in updatedUser) {
+                if (existingUser['user'][key] != updatedUser[key]) {
+                    existingUser['user'][key] = updatedUser[key];
+                    console.log("Updating these values of user data:", key);
+                    changed = true;
+                }
+            }
+            if (changed) {
+                this.setUser(existingUser);
+                AsyncStorage.setItem('auth', JSON.stringify(existingUser));
+            }
+        }
+    }
+
     async componentDidMount(): Promise<void> {
+        AppState.addEventListener("change", this.handleAppStateChange);
 
         let user;
         let theme = this.state.theme;
@@ -183,7 +230,6 @@ export default class App extends Component<undefined, State> {
 
             Sentry.setUserContext(user);
             this.subscribeToUser(user.user.id);
-
         }
         else {
             initialScreen = "Login";
@@ -197,7 +243,7 @@ export default class App extends Component<undefined, State> {
             user: user,
             theme: theme
         });
-
+        this.handleAppStateChange("active");
     }
 
     render(): ReactNode {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { Share, Platform, StyleSheet, Linking, TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard, AppState } from 'react-native';
 import { Icon, Layout, Text, Button, Input, Card } from '@ui-kitten/components';
 import * as Location from 'expo-location';
 import * as SplashScreen from 'expo-splash-screen';
@@ -137,7 +137,21 @@ export function MainFindBeepScreen(props: Props) {
                 });
             }
         });
+
+        AppState.addEventListener("change", handleAppStateChange);
+
+
+        return () => {
+            AppState.removeEventListener("change", handleAppStateChange);
+        };
     }, []);
+
+    function handleAppStateChange(nextAppState: string): void {
+        if(nextAppState === "active") {
+            console.log("APP STATE CHANGE REFERCH");
+            refetch();
+        }
+    }
 
     async function findBeep(): Promise<void> {
         return props.navigation.navigate('PickBeepScreen', {

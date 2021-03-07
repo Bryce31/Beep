@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
-import { StyleSheet, Linking, Platform, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
+import { StyleSheet, Linking, Platform, TouchableWithoutFeedback, Keyboard, Alert, AppState } from 'react-native';
 import { Card, Layout, Text, Button, Input, List, CheckBox } from '@ui-kitten/components';
 import { UserContext } from '../../utils/UserContext';
 import { isAndroid } from "../../utils/config";
@@ -16,7 +16,6 @@ import * as Permissions from 'expo-permissions';
 import Logger from '../../utils/Logger';
 import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
 import { GetInitialQueueQuery, GetQueueSubscription, UpdateBeepSettingsMutation } from '../../generated/graphql';
-import update from 'immutability-helper';
 
 interface Props {
     navigation: any;
@@ -204,7 +203,21 @@ export function StartBeepingScreen(props: Props) {
 
     useEffect(() => {
         if (userContext.user.user.isBeeping) sub();
+
+        AppState.addEventListener("change", handleAppStateChange);
+
+
+        return () => {
+            AppState.removeEventListener("change", handleAppStateChange);
+        };
     }, []);
+
+    function handleAppStateChange(nextAppState: string): void {
+        if(nextAppState === "active" && userContext.user.user.isBeeping) {
+            console.log("APP STATE CHANGE REFERCH");
+            refetch();
+        }
+    }
 
     function sub() {
         unsubscribe = subscribeToMore({
