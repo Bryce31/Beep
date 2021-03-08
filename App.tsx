@@ -26,7 +26,7 @@ import ThemedStatusBar from './utils/StatusBar';
 import { client } from './utils/Apollo';
 import { ApolloProvider, gql } from '@apollo/client';
 
-let sub;
+export let sub;
 const Stack = createStackNavigator();
 let initialScreen: string;
 init();
@@ -54,8 +54,8 @@ const UserSubscription = gql`
     }
 `;
 
-const GetUser = gql`
-    query GetUser($id: String!) {
+const GetUserData = gql`
+    query GetUserData($id: String!) {
         getUser(id: $id) {
             id
             first
@@ -97,13 +97,14 @@ export default class App extends Component<undefined, State> {
         const a = client.subscribe({ query: UserSubscription, variables: { topic: id }});
 
         sub = a.subscribe(({ data }) => {
-
+            console.log(data);
             const existingUser = this.state.user;
             const updatedUser = data.getUserUpdates;
             let changed = false;
-
+            console.log("WHATTT");
             for (const key in updatedUser) {
-                if (existingUser['user'][key] != updatedUser[key]) {
+                console.log(key);
+                if (existingUser['user'][key] != updatedUser[key] && updatedUser[key] != null) {
                     existingUser['user'][key] = updatedUser[key];
                     console.log("Updating these values of user data:", key);
                     changed = true;
@@ -119,7 +120,7 @@ export default class App extends Component<undefined, State> {
     handleAppStateChange = async (nextAppState: string) => {
         if(nextAppState === "active") {
             const result = await client.query({
-                query: GetUser,
+                query: GetUserData,
                 variables: {
                     id: this.state.user?.user.id
                 },
@@ -186,14 +187,12 @@ export default class App extends Component<undefined, State> {
 
         const user = this.state.user;
         const setUser = this.setUser;
-        const subscribeToUser = this.subscribeToUser;
-        const unsubscribe = sub.unsubscribe();
         const theme = this.state.theme;
         const toggleTheme = this.toggleTheme;
 
         return (
             <ApolloProvider client={client}>
-                <UserContext.Provider value={{user, setUser, subscribeToUser, unsubscribe}}>
+                <UserContext.Provider value={{user, setUser}}>
                     <ThemeContext.Provider value={{theme, toggleTheme}}>
                         <IconRegistry icons={EvaIconsPack} />
                         <ApplicationProvider {...eva} theme={{ ...eva[this.state.theme], ...beepTheme }}>

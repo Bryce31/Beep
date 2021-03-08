@@ -9,10 +9,11 @@ import ProfilePicture from "../../components/ProfilePicture";
 import LeaveButton from './LeaveButton';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { MainNavParamList } from '../../navigators/MainTabs';
-import { gql, useLazyQuery, useQuery } from '@apollo/client';
+import { gql, useLazyQuery, useQuery, useSubscription } from '@apollo/client';
 import { GetEtaQuery, GetInitialRiderStatusQuery } from '../../generated/graphql';
 import { gqlChooseBeep } from './helpers';
 import Logger from '../../utils/Logger';
+import {client} from '../../utils/Apollo';
 
 const InitialRiderStatus = gql`
     query GetInitialRiderStatus {
@@ -84,6 +85,18 @@ const RiderStatus = gql`
     }
 `;
 
+//TODO: no need to sub to beepers location than make a query to our server agin for the ETA, lets just calculate the
+//ETA server side and send it, so we can skip the client side query for ETA
+
+const BeepersLocation = gql`
+    subscription BeepersLocation($topic: String!) {
+        getLocationUpdates(topic: $topic) {
+            latitude
+            longitude
+        }
+    }
+`;
+
 const GetETA = gql`
     query GetETA ($start: String!, $end: String!)	{
         getETA(start: $start, end: $end)
@@ -95,6 +108,8 @@ interface Props {
     navigation: BottomTabNavigationProp<MainNavParamList>;
 }
 
+let sub;
+
 export function MainFindBeepScreen(props: Props) {
     const userContext: any = React.useContext(UserContext);
 
@@ -103,8 +118,16 @@ export function MainFindBeepScreen(props: Props) {
     const [origin, setOrigin] = useState<string>();
     const [destination, setDestination] = useState<string>();
     const [isGetBeepLoading, setIsGetBeepLoading] = useState<boolean>(false);
+    
+    const { subscribeToMore, loading, error, data, refetch, previousData } = useQuery<GetInitialRiderStatusQuery>(InitialRiderStatus);
 
-    const { subscribeToMore, loading, error, data, refetch } = useQuery<GetInitialRiderStatusQuery>(InitialRiderStatus);
+    async function subscribeToLocation() {
+        const a = client.subscribe({ query: BeepersLocation, variables: { topic: data?.getRiderStatus?.beeper.id }});
+
+        sub = a.subscribe(({ data }) => {
+            updateETA(data.getLocationUpdates.latitude, data.getLocationUpdates.longitude);
+        });
+    }
 
     async function updateETA(lat: number, long: number): Promise<void> {
         const position = `${lat},${long}`;
@@ -145,6 +168,15 @@ export function MainFindBeepScreen(props: Props) {
             refetch();
         }
     }
+
+    useEffect(() => {
+       if (data?.getRiderStatus?.state == 1 && previousData?.getRiderStatus?.state == 0) {
+            subscribeToLocation();
+       }
+       if (data?.getRiderStatus?.state == 2 && previousData?.getRiderStatus?.state == 1) {
+            sub.unsubscribe();
+       }
+    }, [data]);
 
     async function findBeep(): Promise<void> {
         return props.navigation.navigate('PickBeepScreen', {

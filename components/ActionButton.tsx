@@ -1,9 +1,6 @@
-import React, { Component, ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, Spinner } from "@ui-kitten/components";
-import { UserContext } from '../utils/UserContext';
-import { config } from "../utils/config";
-import { handleFetchError } from "../utils/Errors";
 import { gql, useMutation } from "@apollo/client";
 import { UpdateBeeperQueueMutation } from "../generated/graphql";
 

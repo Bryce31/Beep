@@ -5,6 +5,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+const defaultOptions =  {}
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -12,8 +13,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** The `Upload` scalar type represents a file upload. */
-  Upload: any;
 };
 
 export type Location = {
@@ -97,6 +96,30 @@ export type User = {
   ratings: Array<Rating>;
 };
 
+export type PartialUser = {
+  __typename?: 'PartialUser';
+  id?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['String']>;
+  last?: Maybe<Scalars['String']>;
+  username?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+  venmo?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
+  isBeeping?: Maybe<Scalars['Boolean']>;
+  isEmailVerified?: Maybe<Scalars['Boolean']>;
+  isStudent?: Maybe<Scalars['Boolean']>;
+  groupRate?: Maybe<Scalars['Float']>;
+  singlesRate?: Maybe<Scalars['Float']>;
+  capacity?: Maybe<Scalars['Float']>;
+  masksRequired?: Maybe<Scalars['Boolean']>;
+  queueSize?: Maybe<Scalars['Float']>;
+  role?: Maybe<Scalars['String']>;
+  pushToken?: Maybe<Scalars['String']>;
+  photoUrl?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+};
+
 export type TokenEntry = {
   __typename?: 'TokenEntry';
   id: Scalars['String'];
@@ -138,12 +161,6 @@ export type Auth = {
   tokens: TokenEntry;
 };
 
-export type UsersResponse = {
-  __typename?: 'UsersResponse';
-  items: Array<User>;
-  count: Scalars['Int'];
-};
-
 export type BeepsResponse = {
   __typename?: 'BeepsResponse';
   items: Array<Beep>;
@@ -159,6 +176,12 @@ export type LocationsResponse = {
 export type ReportsResponse = {
   __typename?: 'ReportsResponse';
   items: Array<Report>;
+  count: Scalars['Int'];
+};
+
+export type UsersResponse = {
+  __typename?: 'UsersResponse';
+  items: Array<User>;
   count: Scalars['Int'];
 };
 
@@ -201,25 +224,13 @@ export type UpdateQueueEntryInput = {
   queueId: Scalars['String'];
 };
 
-export type EditUserValidator = {
-  first?: Maybe<Scalars['String']>;
-  last?: Maybe<Scalars['String']>;
-  email?: Maybe<Scalars['String']>;
-  phone?: Maybe<Scalars['String']>;
-  venmo?: Maybe<Scalars['String']>;
-  password?: Maybe<Scalars['String']>;
-  isBeeping?: Maybe<Scalars['Boolean']>;
-  isEmailVerified?: Maybe<Scalars['Boolean']>;
-  isStudent?: Maybe<Scalars['Boolean']>;
-  groupRate?: Maybe<Scalars['Float']>;
-  singlesRate?: Maybe<Scalars['Float']>;
-  capacity?: Maybe<Scalars['Float']>;
-  masksRequired?: Maybe<Scalars['Boolean']>;
-  queueSize?: Maybe<Scalars['Float']>;
-  role?: Maybe<Scalars['String']>;
-  pushToken?: Maybe<Scalars['String']>;
-  photoUrl?: Maybe<Scalars['String']>;
-  username?: Maybe<Scalars['String']>;
+export type LocationInput = {
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+  altitude: Scalars['Float'];
+  accuracy: Scalars['Float'];
+  heading: Scalars['Float'];
+  speed: Scalars['Float'];
 };
 
 export type RatingInput = {
@@ -246,13 +257,29 @@ export type GetBeepInput = {
   groupSize: Scalars['Float'];
 };
 
+export type EditUserValidator = {
+  first?: Maybe<Scalars['String']>;
+  last?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+  venmo?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
+  isBeeping?: Maybe<Scalars['Boolean']>;
+  isEmailVerified?: Maybe<Scalars['Boolean']>;
+  isStudent?: Maybe<Scalars['Boolean']>;
+  groupRate?: Maybe<Scalars['Float']>;
+  singlesRate?: Maybe<Scalars['Float']>;
+  capacity?: Maybe<Scalars['Float']>;
+  masksRequired?: Maybe<Scalars['Boolean']>;
+  queueSize?: Maybe<Scalars['Float']>;
+  role?: Maybe<Scalars['String']>;
+  pushToken?: Maybe<Scalars['String']>;
+  photoUrl?: Maybe<Scalars['String']>;
+  username?: Maybe<Scalars['String']>;
+};
+
 export type Query = {
   __typename?: 'Query';
-  getUser: User;
-  getUsers: UsersResponse;
-  getRideHistory: Array<Beep>;
-  getBeepHistory: Array<Beep>;
-  getQueue: Array<QueueEntry>;
   getBeeps: BeepsResponse;
   getBeep: Beep;
   getETA: Scalars['String'];
@@ -261,34 +288,13 @@ export type Query = {
   getReports: ReportsResponse;
   getReport: Report;
   findBeep: User;
-  getRiderStatus: QueueEntry;
+  getRiderStatus?: Maybe<QueueEntry>;
   getBeeperList: Array<User>;
-};
-
-
-export type QueryGetUserArgs = {
-  id: Scalars['String'];
-};
-
-
-export type QueryGetUsersArgs = {
-  offset?: Maybe<Scalars['Int']>;
-  show?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryGetRideHistoryArgs = {
-  id?: Maybe<Scalars['String']>;
-};
-
-
-export type QueryGetBeepHistoryArgs = {
-  id?: Maybe<Scalars['String']>;
-};
-
-
-export type QueryGetQueueArgs = {
-  id?: Maybe<Scalars['String']>;
+  getUser: User;
+  getUsers: UsersResponse;
+  getRideHistory: Array<Beep>;
+  getBeepHistory: Array<Beep>;
+  getQueue: Array<QueueEntry>;
 };
 
 
@@ -331,6 +337,32 @@ export type QueryGetReportArgs = {
   id: Scalars['String'];
 };
 
+
+export type QueryGetUserArgs = {
+  id: Scalars['String'];
+};
+
+
+export type QueryGetUsersArgs = {
+  offset?: Maybe<Scalars['Int']>;
+  show?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryGetRideHistoryArgs = {
+  id?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryGetBeepHistoryArgs = {
+  id?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryGetQueueArgs = {
+  id?: Maybe<Scalars['String']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   editAccount: User;
@@ -339,7 +371,6 @@ export type Mutation = {
   verifyAccount: Scalars['Boolean'];
   resendEmailVarification: Scalars['Boolean'];
   deleteAccount: Scalars['Boolean'];
-  uploadPhoto: Scalars['Boolean'];
   login: Auth;
   signup: Auth;
   logout: Scalars['Boolean'];
@@ -348,15 +379,16 @@ export type Mutation = {
   resetPassword: Scalars['Boolean'];
   setBeeperStatus: Scalars['Boolean'];
   setBeeperQueue: Scalars['Boolean'];
-  removeUser: Scalars['Boolean'];
-  editUser: User;
   deleteBeep: Scalars['Boolean'];
+  insertLocation: Scalars['Boolean'];
   rateUser: Scalars['Boolean'];
   reportUser: Scalars['Boolean'];
   updateReport: Report;
   deleteReport: Scalars['Boolean'];
   chooseBeep: QueueEntry;
   riderLeaveQueue: Scalars['Boolean'];
+  removeUser: Scalars['Boolean'];
+  editUser: User;
 };
 
 
@@ -377,11 +409,6 @@ export type MutationUpdatePushTokenArgs = {
 
 export type MutationVerifyAccountArgs = {
   id: Scalars['String'];
-};
-
-
-export type MutationUploadPhotoArgs = {
-  photo: Scalars['Upload'];
 };
 
 
@@ -426,19 +453,13 @@ export type MutationSetBeeperQueueArgs = {
 };
 
 
-export type MutationRemoveUserArgs = {
-  id: Scalars['String'];
-};
-
-
-export type MutationEditUserArgs = {
-  data: EditUserValidator;
-  id: Scalars['String'];
-};
-
-
 export type MutationDeleteBeepArgs = {
   id: Scalars['String'];
+};
+
+
+export type MutationInsertLocationArgs = {
+  location: LocationInput;
 };
 
 
@@ -469,10 +490,22 @@ export type MutationChooseBeepArgs = {
 };
 
 
+export type MutationRemoveUserArgs = {
+  id: Scalars['String'];
+};
+
+
+export type MutationEditUserArgs = {
+  data: EditUserValidator;
+  id: Scalars['String'];
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   getBeeperUpdates: Array<QueueEntry>;
-  getRiderUpdates: QueueEntry;
+  getLocationUpdates?: Maybe<Location>;
+  getRiderUpdates?: Maybe<QueueEntry>;
+  getUserUpdates: PartialUser;
 };
 
 
@@ -481,9 +514,45 @@ export type SubscriptionGetBeeperUpdatesArgs = {
 };
 
 
+export type SubscriptionGetLocationUpdatesArgs = {
+  topic: Scalars['String'];
+};
+
+
 export type SubscriptionGetRiderUpdatesArgs = {
   topic: Scalars['String'];
 };
+
+
+export type SubscriptionGetUserUpdatesArgs = {
+  topic: Scalars['String'];
+};
+
+export type UserSubscriptionSubscriptionVariables = Exact<{
+  topic: Scalars['String'];
+}>;
+
+
+export type UserSubscriptionSubscription = (
+  { __typename?: 'Subscription' }
+  & { getUserUpdates: (
+    { __typename?: 'PartialUser' }
+    & Pick<PartialUser, 'id' | 'first' | 'last' | 'email' | 'phone' | 'venmo' | 'isBeeping' | 'isEmailVerified' | 'isStudent' | 'groupRate' | 'singlesRate'>
+  ) }
+);
+
+export type GetUserDataQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetUserDataQuery = (
+  { __typename?: 'Query' }
+  & { getUser: (
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'first' | 'last' | 'email' | 'phone' | 'venmo' | 'isBeeping' | 'isEmailVerified' | 'isStudent' | 'groupRate' | 'singlesRate'>
+  ) }
+);
 
 export type UpdateBeeperQueueMutationVariables = Exact<{
   queueId: Scalars['String'];
@@ -666,17 +735,17 @@ export type GetInitialRiderStatusQueryVariables = Exact<{ [key: string]: never; 
 
 export type GetInitialRiderStatusQuery = (
   { __typename?: 'Query' }
-  & { getRiderStatus: (
+  & { getRiderStatus?: Maybe<(
     { __typename?: 'QueueEntry' }
     & Pick<QueueEntry, 'id' | 'ridersQueuePosition' | 'isAccepted' | 'origin' | 'destination' | 'state' | 'groupSize'>
     & { location?: Maybe<(
       { __typename?: 'Location' }
-      & Pick<Location, 'longitude' | 'latitude'>
+      & Pick<Location, 'id' | 'longitude' | 'latitude'>
     )>, beeper: (
       { __typename?: 'User' }
       & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone' | 'photoUrl' | 'masksRequired' | 'capacity' | 'queueSize'>
     ) }
-  ) }
+  )> }
 );
 
 export type RiderStatusSubscriptionVariables = Exact<{
@@ -686,17 +755,30 @@ export type RiderStatusSubscriptionVariables = Exact<{
 
 export type RiderStatusSubscription = (
   { __typename?: 'Subscription' }
-  & { getRiderUpdates: (
+  & { getRiderUpdates?: Maybe<(
     { __typename?: 'QueueEntry' }
     & Pick<QueueEntry, 'id' | 'ridersQueuePosition' | 'isAccepted' | 'origin' | 'destination' | 'state' | 'groupSize'>
     & { location?: Maybe<(
       { __typename?: 'Location' }
-      & Pick<Location, 'longitude' | 'latitude'>
+      & Pick<Location, 'id' | 'longitude' | 'latitude'>
     )>, beeper: (
       { __typename?: 'User' }
       & Pick<User, 'id' | 'first' | 'last' | 'singlesRate' | 'groupRate' | 'isStudent' | 'role' | 'venmo' | 'username' | 'phone' | 'photoUrl' | 'masksRequired' | 'capacity' | 'queueSize'>
     ) }
-  ) }
+  )> }
+);
+
+export type BeepersLocationSubscriptionVariables = Exact<{
+  topic: Scalars['String'];
+}>;
+
+
+export type BeepersLocationSubscription = (
+  { __typename?: 'Subscription' }
+  & { getLocationUpdates?: Maybe<(
+    { __typename?: 'Location' }
+    & Pick<Location, 'latitude' | 'longitude'>
+  )> }
 );
 
 export type GetEtaQueryVariables = Exact<{
@@ -765,6 +847,91 @@ export type LogoutMutation = (
 );
 
 
+export const UserSubscriptionDocument = gql`
+    subscription UserSubscription($topic: String!) {
+  getUserUpdates(topic: $topic) {
+    id
+    first
+    last
+    email
+    phone
+    venmo
+    isBeeping
+    isEmailVerified
+    isStudent
+    groupRate
+    singlesRate
+  }
+}
+    `;
+
+/**
+ * __useUserSubscriptionSubscription__
+ *
+ * To run a query within a React component, call `useUserSubscriptionSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useUserSubscriptionSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserSubscriptionSubscription({
+ *   variables: {
+ *      topic: // value for 'topic'
+ *   },
+ * });
+ */
+export function useUserSubscriptionSubscription(baseOptions: ApolloReactHooks.SubscriptionHookOptions<UserSubscriptionSubscription, UserSubscriptionSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useSubscription<UserSubscriptionSubscription, UserSubscriptionSubscriptionVariables>(UserSubscriptionDocument, options);
+      }
+export type UserSubscriptionSubscriptionHookResult = ReturnType<typeof useUserSubscriptionSubscription>;
+export type UserSubscriptionSubscriptionResult = ApolloReactCommon.SubscriptionResult<UserSubscriptionSubscription>;
+export const GetUserDataDocument = gql`
+    query GetUserData($id: String!) {
+  getUser(id: $id) {
+    id
+    first
+    last
+    email
+    phone
+    venmo
+    isBeeping
+    isEmailVerified
+    isStudent
+    groupRate
+    singlesRate
+  }
+}
+    `;
+
+/**
+ * __useGetUserDataQuery__
+ *
+ * To run a query within a React component, call `useGetUserDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserDataQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetUserDataQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetUserDataQuery, GetUserDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetUserDataQuery, GetUserDataQueryVariables>(GetUserDataDocument, options);
+      }
+export function useGetUserDataLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetUserDataQuery, GetUserDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetUserDataQuery, GetUserDataQueryVariables>(GetUserDataDocument, options);
+        }
+export type GetUserDataQueryHookResult = ReturnType<typeof useGetUserDataQuery>;
+export type GetUserDataLazyQueryHookResult = ReturnType<typeof useGetUserDataLazyQuery>;
+export type GetUserDataQueryResult = ApolloReactCommon.QueryResult<GetUserDataQuery, GetUserDataQueryVariables>;
 export const UpdateBeeperQueueDocument = gql`
     mutation UpdateBeeperQueue($queueId: String!, $riderId: String!, $value: String!) {
   setBeeperQueue(input: {queueId: $queueId, riderId: $riderId, value: $value})
@@ -792,7 +959,8 @@ export type UpdateBeeperQueueMutationFn = ApolloReactCommon.MutationFunction<Upd
  * });
  */
 export function useUpdateBeeperQueueMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateBeeperQueueMutation, UpdateBeeperQueueMutationVariables>) {
-        return ApolloReactHooks.useMutation<UpdateBeeperQueueMutation, UpdateBeeperQueueMutationVariables>(UpdateBeeperQueueDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateBeeperQueueMutation, UpdateBeeperQueueMutationVariables>(UpdateBeeperQueueDocument, options);
       }
 export type UpdateBeeperQueueMutationHookResult = ReturnType<typeof useUpdateBeeperQueueMutation>;
 export type UpdateBeeperQueueMutationResult = ApolloReactCommon.MutationResult<UpdateBeeperQueueMutation>;
@@ -821,7 +989,8 @@ export type ResendMutationFn = ApolloReactCommon.MutationFunction<ResendMutation
  * });
  */
 export function useResendMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ResendMutation, ResendMutationVariables>) {
-        return ApolloReactHooks.useMutation<ResendMutation, ResendMutationVariables>(ResendDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ResendMutation, ResendMutationVariables>(ResendDocument, options);
       }
 export type ResendMutationHookResult = ReturnType<typeof useResendMutation>;
 export type ResendMutationResult = ApolloReactCommon.MutationResult<ResendMutation>;
@@ -851,7 +1020,8 @@ export type ForgotPasswordMutationFn = ApolloReactCommon.MutationFunction<Forgot
  * });
  */
 export function useForgotPasswordMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ForgotPasswordMutation, ForgotPasswordMutationVariables>) {
-        return ApolloReactHooks.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument, options);
       }
 export type ForgotPasswordMutationHookResult = ReturnType<typeof useForgotPasswordMutation>;
 export type ForgotPasswordMutationResult = ApolloReactCommon.MutationResult<ForgotPasswordMutation>;
@@ -907,7 +1077,8 @@ export type LoginMutationFn = ApolloReactCommon.MutationFunction<LoginMutation, 
  * });
  */
 export function useLoginMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
-        return ApolloReactHooks.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
       }
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = ApolloReactCommon.MutationResult<LoginMutation>;
@@ -970,7 +1141,8 @@ export type SignUpMutationFn = ApolloReactCommon.MutationFunction<SignUpMutation
  * });
  */
 export function useSignUpMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SignUpMutation, SignUpMutationVariables>) {
-        return ApolloReactHooks.useMutation<SignUpMutation, SignUpMutationVariables>(SignUpDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SignUpMutation, SignUpMutationVariables>(SignUpDocument, options);
       }
 export type SignUpMutationHookResult = ReturnType<typeof useSignUpMutation>;
 export type SignUpMutationResult = ApolloReactCommon.MutationResult<SignUpMutation>;
@@ -1014,10 +1186,12 @@ export const GetInitialQueueDocument = gql`
  * });
  */
 export function useGetInitialQueueQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetInitialQueueQuery, GetInitialQueueQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetInitialQueueQuery, GetInitialQueueQueryVariables>(GetInitialQueueDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetInitialQueueQuery, GetInitialQueueQueryVariables>(GetInitialQueueDocument, options);
       }
 export function useGetInitialQueueLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetInitialQueueQuery, GetInitialQueueQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<GetInitialQueueQuery, GetInitialQueueQueryVariables>(GetInitialQueueDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetInitialQueueQuery, GetInitialQueueQueryVariables>(GetInitialQueueDocument, options);
         }
 export type GetInitialQueueQueryHookResult = ReturnType<typeof useGetInitialQueueQuery>;
 export type GetInitialQueueLazyQueryHookResult = ReturnType<typeof useGetInitialQueueLazyQuery>;
@@ -1062,7 +1236,8 @@ export const GetQueueDocument = gql`
  * });
  */
 export function useGetQueueSubscription(baseOptions: ApolloReactHooks.SubscriptionHookOptions<GetQueueSubscription, GetQueueSubscriptionVariables>) {
-        return ApolloReactHooks.useSubscription<GetQueueSubscription, GetQueueSubscriptionVariables>(GetQueueDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useSubscription<GetQueueSubscription, GetQueueSubscriptionVariables>(GetQueueDocument, options);
       }
 export type GetQueueSubscriptionHookResult = ReturnType<typeof useGetQueueSubscription>;
 export type GetQueueSubscriptionResult = ApolloReactCommon.SubscriptionResult<GetQueueSubscription>;
@@ -1097,7 +1272,8 @@ export type UpdateBeepSettingsMutationFn = ApolloReactCommon.MutationFunction<Up
  * });
  */
 export function useUpdateBeepSettingsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateBeepSettingsMutation, UpdateBeepSettingsMutationVariables>) {
-        return ApolloReactHooks.useMutation<UpdateBeepSettingsMutation, UpdateBeepSettingsMutationVariables>(UpdateBeepSettingsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateBeepSettingsMutation, UpdateBeepSettingsMutationVariables>(UpdateBeepSettingsDocument, options);
       }
 export type UpdateBeepSettingsMutationHookResult = ReturnType<typeof useUpdateBeepSettingsMutation>;
 export type UpdateBeepSettingsMutationResult = ApolloReactCommon.MutationResult<UpdateBeepSettingsMutation>;
@@ -1139,10 +1315,12 @@ export const GetUserDocument = gql`
  * });
  */
 export function useGetUserQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetUserQuery, GetUserQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, options);
       }
 export function useGetUserLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, options);
         }
 export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
 export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
@@ -1174,7 +1352,8 @@ export type ReportUserMutationFn = ApolloReactCommon.MutationFunction<ReportUser
  * });
  */
 export function useReportUserMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ReportUserMutation, ReportUserMutationVariables>) {
-        return ApolloReactHooks.useMutation<ReportUserMutation, ReportUserMutationVariables>(ReportUserDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ReportUserMutation, ReportUserMutationVariables>(ReportUserDocument, options);
       }
 export type ReportUserMutationHookResult = ReturnType<typeof useReportUserMutation>;
 export type ReportUserMutationResult = ApolloReactCommon.MutationResult<ReportUserMutation>;
@@ -1215,10 +1394,12 @@ export const GetBeepHistoryDocument = gql`
  * });
  */
 export function useGetBeepHistoryQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetBeepHistoryQuery, GetBeepHistoryQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetBeepHistoryQuery, GetBeepHistoryQueryVariables>(GetBeepHistoryDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetBeepHistoryQuery, GetBeepHistoryQueryVariables>(GetBeepHistoryDocument, options);
       }
 export function useGetBeepHistoryLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetBeepHistoryQuery, GetBeepHistoryQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<GetBeepHistoryQuery, GetBeepHistoryQueryVariables>(GetBeepHistoryDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetBeepHistoryQuery, GetBeepHistoryQueryVariables>(GetBeepHistoryDocument, options);
         }
 export type GetBeepHistoryQueryHookResult = ReturnType<typeof useGetBeepHistoryQuery>;
 export type GetBeepHistoryLazyQueryHookResult = ReturnType<typeof useGetBeepHistoryLazyQuery>;
@@ -1259,10 +1440,12 @@ export const GetRideHistoryDocument = gql`
  * });
  */
 export function useGetRideHistoryQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetRideHistoryQuery, GetRideHistoryQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetRideHistoryQuery, GetRideHistoryQueryVariables>(GetRideHistoryDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetRideHistoryQuery, GetRideHistoryQueryVariables>(GetRideHistoryDocument, options);
       }
 export function useGetRideHistoryLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetRideHistoryQuery, GetRideHistoryQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<GetRideHistoryQuery, GetRideHistoryQueryVariables>(GetRideHistoryDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetRideHistoryQuery, GetRideHistoryQueryVariables>(GetRideHistoryDocument, options);
         }
 export type GetRideHistoryQueryHookResult = ReturnType<typeof useGetRideHistoryQuery>;
 export type GetRideHistoryLazyQueryHookResult = ReturnType<typeof useGetRideHistoryLazyQuery>;
@@ -1278,6 +1461,7 @@ export const GetInitialRiderStatusDocument = gql`
     state
     groupSize
     location {
+      id
       longitude
       latitude
     }
@@ -1317,10 +1501,12 @@ export const GetInitialRiderStatusDocument = gql`
  * });
  */
 export function useGetInitialRiderStatusQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>(GetInitialRiderStatusDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>(GetInitialRiderStatusDocument, options);
       }
 export function useGetInitialRiderStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>(GetInitialRiderStatusDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetInitialRiderStatusQuery, GetInitialRiderStatusQueryVariables>(GetInitialRiderStatusDocument, options);
         }
 export type GetInitialRiderStatusQueryHookResult = ReturnType<typeof useGetInitialRiderStatusQuery>;
 export type GetInitialRiderStatusLazyQueryHookResult = ReturnType<typeof useGetInitialRiderStatusLazyQuery>;
@@ -1336,6 +1522,7 @@ export const RiderStatusDocument = gql`
     state
     groupSize
     location {
+      id
       longitude
       latitude
     }
@@ -1376,10 +1563,42 @@ export const RiderStatusDocument = gql`
  * });
  */
 export function useRiderStatusSubscription(baseOptions: ApolloReactHooks.SubscriptionHookOptions<RiderStatusSubscription, RiderStatusSubscriptionVariables>) {
-        return ApolloReactHooks.useSubscription<RiderStatusSubscription, RiderStatusSubscriptionVariables>(RiderStatusDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useSubscription<RiderStatusSubscription, RiderStatusSubscriptionVariables>(RiderStatusDocument, options);
       }
 export type RiderStatusSubscriptionHookResult = ReturnType<typeof useRiderStatusSubscription>;
 export type RiderStatusSubscriptionResult = ApolloReactCommon.SubscriptionResult<RiderStatusSubscription>;
+export const BeepersLocationDocument = gql`
+    subscription BeepersLocation($topic: String!) {
+  getLocationUpdates(topic: $topic) {
+    latitude
+    longitude
+  }
+}
+    `;
+
+/**
+ * __useBeepersLocationSubscription__
+ *
+ * To run a query within a React component, call `useBeepersLocationSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useBeepersLocationSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBeepersLocationSubscription({
+ *   variables: {
+ *      topic: // value for 'topic'
+ *   },
+ * });
+ */
+export function useBeepersLocationSubscription(baseOptions: ApolloReactHooks.SubscriptionHookOptions<BeepersLocationSubscription, BeepersLocationSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useSubscription<BeepersLocationSubscription, BeepersLocationSubscriptionVariables>(BeepersLocationDocument, options);
+      }
+export type BeepersLocationSubscriptionHookResult = ReturnType<typeof useBeepersLocationSubscription>;
+export type BeepersLocationSubscriptionResult = ApolloReactCommon.SubscriptionResult<BeepersLocationSubscription>;
 export const GetEtaDocument = gql`
     query GetETA($start: String!, $end: String!) {
   getETA(start: $start, end: $end)
@@ -1404,10 +1623,12 @@ export const GetEtaDocument = gql`
  * });
  */
 export function useGetEtaQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetEtaQuery, GetEtaQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetEtaQuery, GetEtaQueryVariables>(GetEtaDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetEtaQuery, GetEtaQueryVariables>(GetEtaDocument, options);
       }
 export function useGetEtaLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetEtaQuery, GetEtaQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<GetEtaQuery, GetEtaQueryVariables>(GetEtaDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetEtaQuery, GetEtaQueryVariables>(GetEtaDocument, options);
         }
 export type GetEtaQueryHookResult = ReturnType<typeof useGetEtaQuery>;
 export type GetEtaLazyQueryHookResult = ReturnType<typeof useGetEtaLazyQuery>;
@@ -1436,7 +1657,8 @@ export type LeaveQueueMutationFn = ApolloReactCommon.MutationFunction<LeaveQueue
  * });
  */
 export function useLeaveQueueMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LeaveQueueMutation, LeaveQueueMutationVariables>) {
-        return ApolloReactHooks.useMutation<LeaveQueueMutation, LeaveQueueMutationVariables>(LeaveQueueDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<LeaveQueueMutation, LeaveQueueMutationVariables>(LeaveQueueDocument, options);
       }
 export type LeaveQueueMutationHookResult = ReturnType<typeof useLeaveQueueMutation>;
 export type LeaveQueueMutationResult = ApolloReactCommon.MutationResult<LeaveQueueMutation>;
@@ -1475,10 +1697,12 @@ export const GetBeepersDocument = gql`
  * });
  */
 export function useGetBeepersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetBeepersQuery, GetBeepersQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetBeepersQuery, GetBeepersQueryVariables>(GetBeepersDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetBeepersQuery, GetBeepersQueryVariables>(GetBeepersDocument, options);
       }
 export function useGetBeepersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetBeepersQuery, GetBeepersQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<GetBeepersQuery, GetBeepersQueryVariables>(GetBeepersDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetBeepersQuery, GetBeepersQueryVariables>(GetBeepersDocument, options);
         }
 export type GetBeepersQueryHookResult = ReturnType<typeof useGetBeepersQuery>;
 export type GetBeepersLazyQueryHookResult = ReturnType<typeof useGetBeepersLazyQuery>;
@@ -1508,7 +1732,8 @@ export type ChangePasswordMutationFn = ApolloReactCommon.MutationFunction<Change
  * });
  */
 export function useChangePasswordMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ChangePasswordMutation, ChangePasswordMutationVariables>) {
-        return ApolloReactHooks.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument, options);
       }
 export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswordMutation>;
 export type ChangePasswordMutationResult = ApolloReactCommon.MutationResult<ChangePasswordMutation>;
@@ -1547,7 +1772,8 @@ export type EditAccountMutationFn = ApolloReactCommon.MutationFunction<EditAccou
  * });
  */
 export function useEditAccountMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<EditAccountMutation, EditAccountMutationVariables>) {
-        return ApolloReactHooks.useMutation<EditAccountMutation, EditAccountMutationVariables>(EditAccountDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<EditAccountMutation, EditAccountMutationVariables>(EditAccountDocument, options);
       }
 export type EditAccountMutationHookResult = ReturnType<typeof useEditAccountMutation>;
 export type EditAccountMutationResult = ApolloReactCommon.MutationResult<EditAccountMutation>;
@@ -1576,7 +1802,8 @@ export type LogoutMutationFn = ApolloReactCommon.MutationFunction<LogoutMutation
  * });
  */
 export function useLogoutMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
-        return ApolloReactHooks.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
       }
 export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
 export type LogoutMutationResult = ApolloReactCommon.MutationResult<LogoutMutation>;
