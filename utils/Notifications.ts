@@ -2,16 +2,14 @@ import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import { Vibration, Platform } from 'react-native';
-import { config } from '../utils/config';
-import { handleFetchError } from './Errors';
-import {gql} from '@apollo/client';
-import {client} from '../App';
+import { gql } from '@apollo/client';
+import { client } from '../utils/Apollo';
 
 /**
  * Checks for permssion for Notifications, asks expo for push token, sets up notification listeners, returns 
  * push token to be used
  */
-export async function getPushToken() {
+export async function getPushToken(): Promise<string | null> {
     const hasPermission = await getNotificationPermission();
 
     if(!hasPermission) {
@@ -92,13 +90,10 @@ export async function updatePushToken(): Promise<void> {
         }
     `;
 
-    const result = await client.mutate({ mutation: UpdatePushToken, variables: { token: await getPushToken() }}); 
-
-    console.log("Push Token Update", result);
-
+    await client.mutate({ mutation: UpdatePushToken, variables: { token: await getPushToken() }}); 
 }
 
-async function handleNotification(notification: Notification) {
+async function handleNotification(notification: Notification): Promise<void> {
     //Vibrate when we recieve a notification
     Vibration.vibrate();
     //Log the entire notification to the console

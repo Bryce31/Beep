@@ -31,8 +31,6 @@ export function ReportScreen(props: Props) {
                 });
                 if (result) alert("Successfully Reported User");
                 else alert(error);
-                console.log("Errors ", error);
-                console.log("Result ", result);
         }
 
         const BackAction = () => (

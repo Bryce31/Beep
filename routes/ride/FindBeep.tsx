@@ -9,9 +9,10 @@ import ProfilePicture from "../../components/ProfilePicture";
 import LeaveButton from './LeaveButton';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { MainNavParamList } from '../../navigators/MainTabs';
-import { gql, useLazyQuery, useQuery, useSubscription } from '@apollo/client';
-import { GetEtaQuery, GetInitialRiderStatusQuery, RiderStatusSubscription } from '../../generated/graphql';
+import { gql, useLazyQuery, useQuery } from '@apollo/client';
+import { GetEtaQuery, GetInitialRiderStatusQuery } from '../../generated/graphql';
 import { gqlChooseBeep } from './helpers';
+import Logger from '../../utils/Logger';
 
 const InitialRiderStatus = gql`
     query GetInitialRiderStatus {
@@ -116,13 +117,8 @@ export function MainFindBeepScreen(props: Props) {
     }
 
     useEffect(() => {
-        try {
-            SplashScreen.hideAsync();
-        }
-        catch(error) {
-            console.error(error);
-        }
-        if (!subscribeToMore) return;
+        SplashScreen.hideAsync();
+
         subscribeToMore({
             document: RiderStatus,
             variables: {
@@ -130,8 +126,6 @@ export function MainFindBeepScreen(props: Props) {
             },
             updateQuery: (prev, { subscriptionData }) => {
                 const newFeedItem = subscriptionData.data.getRiderUpdates;
-                console.log(prev);
-                console.log(newFeedItem);
                 return Object.assign({}, prev, {
                     getRiderStatus: newFeedItem
                 });
@@ -148,7 +142,6 @@ export function MainFindBeepScreen(props: Props) {
 
     function handleAppStateChange(nextAppState: string): void {
         if(nextAppState === "active") {
-            console.log("APP STATE CHANGE REFERCH");
             refetch();
         }
     }
@@ -161,20 +154,23 @@ export function MainFindBeepScreen(props: Props) {
 
     async function chooseBeep(id: string): Promise<void> {
         setIsGetBeepLoading(true);
-        const result = await gqlChooseBeep({
-            beeperId: id,
-            origin: origin,
-            destination: destination,
-            groupSize: Number(groupSize)
-        });
+        try {
+            await gqlChooseBeep({
+                beeperId: id,
+                origin: origin,
+                destination: destination,
+                groupSize: Number(groupSize)
+            });
+        }
+        catch (error) {
+            Logger.error(error);
+        }
         setIsGetBeepLoading(false);
-
-        console.log("Choose beeep result", result);
     }
 
     function getVenmoLink(): string {
         if (Number(data?.getRiderStatus.groupSize) > 1) {
-            return 'venmo://paycharge?txn=pay&recipients=' + data?.getRiderStatus.beeper?.venmo + '&amount=' + data?.getRiderStatus.beeper?.groupRate + '&note=Beep';
+            return 'venmo://paycharge?txn=pay&recipients=' + data?.getRiderStatus.beeper?.venmo + '&amount=' + data?.getRiderStatus.beeper?.groupRate * data?.getRiderStatus.groupSize + '&note=Beep';
         }
         return 'venmo://paycharge?txn=pay&recipients=' + data?.getRiderStatus.beeper?.venmo + '&amount=' + data?.getRiderStatus.beeper?.singlesRate + '&note=Beep';
     }
@@ -187,7 +183,7 @@ export function MainFindBeepScreen(props: Props) {
             });
         }
         catch (error) {
-            alert(error.message);
+            Logger.error(error);
         }
     }            
 

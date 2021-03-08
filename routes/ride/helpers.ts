@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { client } from '../../App';
+import { client } from '../../utils/Apollo';
 
 const ChooseBeep = gql`
     mutation ChooseBeep($beeperId: String!, $origin: String!, $destination: String!, $groupSize: Float!) {

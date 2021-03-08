@@ -65,7 +65,6 @@ export function PickBeepScreen(props: Props) {
             title={`${item.first} ${item.last}`}
             description={getDescription(item)}
             accessoryRight={() => {
-                console.log(item)
                 return (
                     <View style={styles.row}>
                         {item.role === "admin" && <Button size='tiny' status='danger'>Founder</Button>}

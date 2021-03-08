@@ -7,15 +7,14 @@ import { UserContext } from '../../utils/UserContext';
 import { isAndroid } from "../../utils/config";
 import ActionButton from "../../components/ActionButton";
 import AcceptDenyButton from "../../components/AcceptDenyButton";
-import { handleFetchError } from "../../utils/Errors";
 import AsyncStorage from '@react-native-community/async-storage';
 import { PhoneIcon, TextIcon, VenmoIcon, MapsIcon, DollarIcon } from '../../utils/Icons';
 import ProfilePicture from '../../components/ProfilePicture';
 import Toggle from "./components/Toggle";
 import * as Permissions from 'expo-permissions';
 import Logger from '../../utils/Logger';
-import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
-import { GetInitialQueueQuery, GetQueueSubscription, UpdateBeepSettingsMutation } from '../../generated/graphql';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { GetInitialQueueQuery, UpdateBeepSettingsMutation } from '../../generated/graphql';
 
 interface Props {
     navigation: any;
@@ -146,34 +145,32 @@ export function StartBeepingScreen(props: Props) {
             capacity: Number(capacity)
         }});
 
-            if (result) {
-                //We sucessfuly updated beeper status in database
-                const tempUser = JSON.parse(JSON.stringify(userContext.user));
-                tempUser.user.isBeeping = value;
-                AsyncStorage.setItem('auth', JSON.stringify(tempUser));
-                userContext.setUser(tempUser);
-                if (value) {
-                    sub();
-                }
-                else {
-                    if (unsubscribe) unsubscribe();
-                }
+        if (result) {
+            //We sucessfuly updated beeper status in database
+            const tempUser = JSON.parse(JSON.stringify(userContext.user));
+            tempUser.user.isBeeping = value;
+            AsyncStorage.setItem('auth', JSON.stringify(tempUser));
+            userContext.setUser(tempUser);
+            if (value) {
+                sub();
             }
             else {
-                //Use native popup to tell user why they could not change their status
-                //Unupdate the toggle switch because something failed
-                //We redo our actions so the client does not have to wait on server to update the switch
-                setIsBeeping(!isBeeping);
-                //we also need to resubscribe to the socket
-                if (isBeeping) {
-                    startLocationTracking();
-                }
-                else {
-                    stopLocationTracking();
-                }
-
-                handleFetchError("Error");
+                if (unsubscribe) unsubscribe();
             }
+        }
+        else {
+            //Use native popup to tell user why they could not change their status
+            //Unupdate the toggle switch because something failed
+            //We redo our actions so the client does not have to wait on server to update the switch
+            setIsBeeping(!isBeeping);
+            //we also need to resubscribe to the socket
+            if (isBeeping) {
+                startLocationTracking();
+            }
+            else {
+                stopLocationTracking();
+            }
+        }
     }
 
     async function startLocationTracking(): Promise<void> {
@@ -191,7 +188,6 @@ export function StartBeepingScreen(props: Props) {
             const hasStarted = await Location.hasStartedLocationUpdatesAsync(
                 LOCATION_TRACKING
             );
-            console.log(hasStarted);
         }
     }
 
@@ -214,7 +210,6 @@ export function StartBeepingScreen(props: Props) {
 
     function handleAppStateChange(nextAppState: string): void {
         if(nextAppState === "active" && userContext.user.user.isBeeping) {
-            console.log("APP STATE CHANGE REFERCH");
             refetch();
         }
     }
@@ -226,9 +221,6 @@ export function StartBeepingScreen(props: Props) {
                 topic: userContext.user.user.id
             },
             updateQuery: (prev, { subscriptionData }) => {
-                //refetch();
-                console.log(subscriptionData);
-                console.log(prev);
                 const newQueue = subscriptionData.data.getBeeperUpdates;
                 return Object.assign({}, prev, {
                     getQueue: newQueue
@@ -458,7 +450,6 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
     }
 
     if (data) {
-        console.log(data);
         const { locations } = data;
         const lat = locations[0].coords.latitude;
         const long = locations[0].coords.longitude;
@@ -472,7 +463,7 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
 
         if (!auth) return;
 
-        const authToken = JSON.parse(auth).tokens.token;
+        const authToken = JSON.parse(auth).tokens.id;
     }
 });
 

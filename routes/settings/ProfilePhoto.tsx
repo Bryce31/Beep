@@ -4,7 +4,6 @@ import { Text, Layout, Button, TopNavigation, TopNavigationAction } from '@ui-ki
 import { UserContext } from '../../utils/UserContext';
 import { config } from "../../utils/config";
 import { LoadingIndicator } from "../../utils/Icons";
-import { parseError, handleStatusCodeError, handleFetchError } from "../../utils/Errors";
 import { BackIcon } from '../../utils/Icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -106,11 +105,11 @@ export class ProfilePhotoScreen extends Component<Props, State> {
                    this.props.navigation.goBack();
                }
                else {
-                   this.setState({ isLoading: handleFetchError(data.message) });
+                   this.setState({ isLoading: false });
                }
            });
        })
-       .catch((error) => this.setState({ isLoading: handleFetchError(error) }));
+       .catch((error) => this.setState({ isLoading: false }));
     }
 
     render () {
