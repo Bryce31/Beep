@@ -53,6 +53,7 @@ const UserSubscription = gql`
         }
     }
 `;
+
 const GetUser = gql`
     query GetUser($id: String!) {
         getUser(id: $id) {
@@ -121,7 +122,8 @@ export default class App extends Component<undefined, State> {
                 query: GetUser,
                 variables: {
                     id: this.state.user?.user.id
-                }
+                },
+                fetchPolicy: "network-only"
             });
 
             const existingUser = this.state.user;
