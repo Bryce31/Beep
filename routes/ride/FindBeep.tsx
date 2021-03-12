@@ -195,7 +195,7 @@ export function MainFindBeepScreen(props: Props) {
             });
         }
         catch (error) {
-            Logger.error(error);
+            alert("Please input a origin and destination");
         }
         setIsGetBeepLoading(false);
     }
