@@ -1,10 +1,10 @@
 import React, {ReactNode} from 'react';
-import { StyleSheet } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import { Layout, Button, Card, Text } from '@ui-kitten/components';
 import { ThemeContext, ThemeContextData } from '../../utils/ThemeContext';
 import { UserContext, UserContextData } from '../../utils/UserContext';
 import socket from '../../utils/Socket';
-import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon } from '../../utils/Icons';
+import { PhotoIcon, LogIcon, ThemeIcon, LogoutIcon, ProfileIcon, PasswordIcon, ForwardIcon, VenmoIcon } from '../../utils/Icons';
 import { config } from "../../utils/config";
 import AsyncStorage from '@react-native-community/async-storage';
 import ProfilePicture from '../../components/ProfilePicture';
@@ -93,6 +93,20 @@ export function MainSettingsScreen({ navigation }: { navigation: BottomTabNaviga
                         <Text category="h6">Your email is not verified!</Text>
                     </Card>
                 }
+                <Button
+                    status="info"
+                    size="medium"
+                    style={{maxWidth: 289, marginBottom: 6}}
+                    textStyle={{fontSize: 1}}
+                    accessoryRight={VenmoIcon}
+                    onPress={() => {
+                        Linking.openURL('venmo://paycharge?txn=pay&recipients=IanAndBanksLLC&note=Ride Beep App  Donation 🚕💵⛰️');
+                    }}
+                >
+                    Donate to Ride Beep App
+                    with Venmo
+                </Button>
+                
                 {!userContext?.user?.isEmailVerified && <ResendButton />}
                 <Button
                     onPress={themeContext?.toggleTheme}
